@@ -1,0 +1,6 @@
+#WordVector
+WordVecSrcFile		=	"Words.vec"
+WordVecSize		=	50
+
+#StringVector
+StringVecTgtFile	=	"Strings.vec"
