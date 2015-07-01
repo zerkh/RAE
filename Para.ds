@@ -1,5 +1,5 @@
 #WordVector
-WordVecSrcFile		=	"Words.vec"
+WordVecSrcFile		=	"vec.ds"
 WordVecSize		=	50
 
 #StringVector

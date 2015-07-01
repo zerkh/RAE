@@ -2,6 +2,7 @@
 #include <ctime>
 #include "Vec.h"
 #include "Parameter.h"
+#include "WordVec.h"
 
 using namespace std;
 
@@ -15,6 +16,8 @@ int main()
 	cout << "The time of reading parameter is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
 
 	start = clock();
-
+	WordVec* words = new WordVec();
+	words->readFile(para);
 	end = clock();
+	words->showWords();
 }

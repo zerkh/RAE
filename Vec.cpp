@@ -151,3 +151,16 @@ void Vector::transpos()
 	row = col;
 	col = temp;
 }
+
+void Vector::showVector()
+{
+	for(int row = 0; row < this->getRow(); row++)
+	{
+		for(int col = 0; col < this->getCol(); col++)
+		{
+			cout << getValue(row, col) << " ";
+		}
+
+		cout << endl;
+	}
+}

@@ -4,15 +4,16 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <cstdlib>
 using namespace std;
 
-string strip_str(string str)
+inline string strip_str(string str)
 {
 	string newStr = "";
 
 	for(int i = 0; i < str.size(); i++)
 	{
-		if(str[i] == '\t')
+		if(str[i] == '\t' || str[i] == '\"')
 		{
 			continue;
 		}

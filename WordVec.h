@@ -4,26 +4,28 @@
 #include <iostream>
 #include <map>
 #include <cstdlib>
+#include "Parameter.h"
+#include "Vec.h"
 
 using namespace std;
 
 class WordVec
 {
 private:
-	typedef pair<string, double*>	Word;
-	string							filename;
-	int								size;				//词向量的维数
+	typedef pair<string, Vector*>	Word;
 	int								amountOfWords;		//词汇量
+	int								amountOfStrings;	//词组量
 
 public:
-	map<string, double*>			m_words;
+	static map<string, Vector*>			m_words;
+	static map<string, Vector*>			m_strings;
 
 public:
-	WordVec(string filename);
+	WordVec();
 
-	void readFile();
-
-	int getVecSize();
+	void readFile(Parameter* para);
+	void showWords();
+	void showStrings();
 };
 
 #endif

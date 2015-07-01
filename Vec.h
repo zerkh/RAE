@@ -31,6 +31,8 @@ public:
 
 	void transpos();
 
+	void showVector();
+
 	~Vector();
 };
 
