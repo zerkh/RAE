@@ -4,3 +4,6 @@ WordVecSize		=	50
 
 #StringVector
 StringVecTgtFile	=	"Strings.vec"
+
+#RAE
+RAEWeightsLogFile	=	"RAEWeights.log"

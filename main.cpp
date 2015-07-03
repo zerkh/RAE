@@ -1,6 +1,7 @@
 #include <iostream>
 #include <ctime>
 #include "Vec.h"
+#include "RAE.h"
 #include "Parameter.h"
 #include "WordVec.h"
 
@@ -19,5 +20,9 @@ int main()
 	WordVec* words = new WordVec();
 	words->readFile(para);
 	end = clock();
-	words->showWords();
+	cout << "The time of reading  word vector is " << (end-start)/CLOCKS_PER_SEC << endl <<  endl;
+
+	start = clock();
+	
+	end = clock();
 }

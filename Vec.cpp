@@ -28,19 +28,6 @@ Vector::~Vector()
 	//cout << "Delete";
 }
 
-void Vector::initVector(int row, int col)
-{
-	this->row = row;
-	this->col = col;
-
-	vec = new double*[row];
-
-	for(int i = 0; i < row; i++)
-	{
-		vec[i] = new double[col];
-	}
-}
-
 int Vector::getCol()
 {
 	return col; 
@@ -163,4 +150,60 @@ void Vector::showVector()
 
 		cout << endl;
 	}
+}
+
+//随机初始化矩阵的值
+void Vector::randInitVector()
+{
+	for(int row = 0; row < getRow(); row++)
+	{
+		for(int col = 0; col < getCol(); col++)
+		{
+			this->setValue(row, col, getRand());
+		}
+	}
+}
+
+//向量拼接
+Vector* Vector::concat(Vector* secVec)
+{
+	int newCol = this->getCol() + secVec->getCol();
+
+	Vector* newVec = new Vector(1, newCol);
+
+	for(int col = 0; col < newCol; col++)
+	{
+		if(col >= this->getCol())
+		{
+			newVec->setValue(0, newCol, secVec->getValue(0, newCol-this->getCol()));
+		}
+		else
+		{
+			newVec->setValue(0, newCol, secVec->getValue(0, newCol));
+		}
+	}
+
+	return newVec;
+}
+
+//向量加法
+Vector* Vector::operator+ (Vector* secVec)
+{
+	if(this->getRow() != secVec->getRow() || this->getCol() != secVec->getCol())
+	{
+		cerr << "The dimension of two vector is not equall!" << endl << endl;
+		exit(-1);
+	}
+
+	Vector* newVec = new Vector(getRow(), getCol());
+
+	for(int row = 0; row < getRow(); row++)
+	{
+		for(int col = 0; col < getCol(); col++)
+		{
+			newVec->setValue(row, col, this->getValue(row, col) + secVec->getValue(row, col));
+		}
+	}
+
+	return secVec;
 }

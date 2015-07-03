@@ -2,6 +2,7 @@
 #define VEC_H
 
 #include <iostream>
+#include "Util.h"
 
 using namespace std;
 
@@ -17,8 +18,6 @@ public:
 
 	Vector();
 
-	void initVector(int row, int col);
-
 	Vector* Multiply(Vector* sec_Vec, bool is_Transpose);
 
 	double getValue(int row, int col);
@@ -32,6 +31,12 @@ public:
 	void transpos();
 
 	void showVector();
+
+	void randInitVector();
+
+	Vector* concat(Vector* secVec);
+
+	Vector* operator + (Vector* secVec);
 
 	~Vector();
 };
