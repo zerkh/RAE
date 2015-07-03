@@ -120,9 +120,14 @@ void RAE::logWeights(Parameter* para)
 p_StringVec RAE::getStringVec(string word1 ,string word2)
 {
 	Vector* wordVec1 = words->m_words[word1];
+	wordVec1->showVector();
 	Vector* wordVec2 = words->m_words[word2];
-
-	
+	wordVec2->showVector();
+	Vector* inputVec = wordVec1->concat(wordVec2);
+	inputVec->showVector();
+	Vector* outputVec = inputVec->multiply(weights1)->add(weights_b1);
+	outputVec->showVector();
+	return make_pair(word1 + " " + word2, outputVec);
 }
 
 //ÑµÁ·RAE

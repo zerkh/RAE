@@ -23,6 +23,7 @@ int main()
 	cout << "The time of reading  word vector is " << (end-start)/CLOCKS_PER_SEC << endl <<  endl;
 
 	start = clock();
-	
+	RAE* rae = new RAE(para, words);
+	(rae->getStringVec("is", "my")).second->showVector();
 	end = clock();
 }

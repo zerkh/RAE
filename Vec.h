@@ -18,7 +18,7 @@ public:
 
 	Vector();
 
-	Vector* Multiply(Vector* sec_Vec, bool is_Transpose);
+	Vector* multiply(Vector* sec_Vec, bool is_Transpose = false);
 
 	double getValue(int row, int col);
 
@@ -36,7 +36,7 @@ public:
 
 	Vector* concat(Vector* secVec);
 
-	Vector* operator + (Vector* secVec);
+	Vector* add(Vector* secVec);
 
 	~Vector();
 };

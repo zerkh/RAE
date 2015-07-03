@@ -48,7 +48,7 @@ void Vector::setValue(int row, int col, double value)
 	vec[row][col] = value;
 }
 
-Vector* Vector::Multiply(Vector* sec_Vec, bool is_Transpose)
+Vector* Vector::multiply(Vector* sec_Vec, bool is_Transpose = false)
 {
 	if(is_Transpose)
 	{
@@ -187,7 +187,7 @@ Vector* Vector::concat(Vector* secVec)
 }
 
 //向量加法
-Vector* Vector::operator+ (Vector* secVec)
+Vector* Vector::add(Vector* secVec)
 {
 	if(this->getRow() != secVec->getRow() || this->getCol() != secVec->getCol())
 	{
