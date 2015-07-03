@@ -48,7 +48,7 @@ void Vector::setValue(int row, int col, double value)
 	vec[row][col] = value;
 }
 
-Vector* Vector::multiply(Vector* sec_Vec, bool is_Transpose = false)
+Vector* Vector::multiply(Vector* sec_Vec, bool is_Transpose)
 {
 	if(is_Transpose)
 	{
@@ -175,11 +175,11 @@ Vector* Vector::concat(Vector* secVec)
 	{
 		if(col >= this->getCol())
 		{
-			newVec->setValue(0, newCol, secVec->getValue(0, newCol-this->getCol()));
+			newVec->setValue(0, col, secVec->getValue(0, col-this->getCol()));
 		}
 		else
 		{
-			newVec->setValue(0, newCol, secVec->getValue(0, newCol));
+			newVec->setValue(0, col, this->getValue(0, col));
 		}
 	}
 

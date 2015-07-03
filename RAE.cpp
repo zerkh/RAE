@@ -69,7 +69,7 @@ void RAE::logWeights(Parameter* para)
 {
 	string filename = para->getPara("RAEWeightsLogFile");
 
-	ofstream out(filename, ios::out);
+	ofstream out(filename.c_str(), ios::out);
 
 	out << "W1" << endl;
 	for(int row = 0; row < weights1->getRow(); row++)
@@ -125,7 +125,7 @@ p_StringVec RAE::getStringVec(string word1 ,string word2)
 	wordVec2->showVector();
 	Vector* inputVec = wordVec1->concat(wordVec2);
 	inputVec->showVector();
-	Vector* outputVec = inputVec->multiply(weights1)->add(weights_b1);
+	Vector* outputVec = inputVec->multiply(weights1, true)->add(weights_b1);
 	outputVec->showVector();
 	return make_pair(word1 + " " + word2, outputVec);
 }

@@ -18,7 +18,7 @@ public:
 
 	Vector();
 
-	Vector* multiply(Vector* sec_Vec, bool is_Transpose = false);
+	Vector* multiply(Vector* sec_Vec, bool is_Transpose);
 
 	double getValue(int row, int col);
 

@@ -5,6 +5,8 @@
 #include <string>
 #include <sstream>
 #include <cstdlib>
+#include <cmath>
+
 using namespace std;
 
 inline string strip_str(string str)
