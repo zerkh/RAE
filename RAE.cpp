@@ -120,18 +120,18 @@ void RAE::logWeights(Parameter* para)
 p_StringVec RAE::getStringVec(string word1 ,string word2)
 {
 	Vector* wordVec1 = words->m_words[word1];
-	wordVec1->showVector();
+
 	Vector* wordVec2 = words->m_words[word2];
-	wordVec2->showVector();
+
 	Vector* inputVec = wordVec1->concat(wordVec2);
-	inputVec->showVector();
+
 	Vector* outputVec = inputVec->multiply(weights1, true)->add(weights_b1);
-	outputVec->showVector();
+
 	return make_pair(word1 + " " + word2, outputVec);
 }
 
 //ÑµÁ·RAE
-void RAE::train()
+void RAE::trainRAE()
 {
 
 }
@@ -139,4 +139,16 @@ void RAE::train()
 int RAE::getVecSize()
 {
 	return vecSize;
+}
+
+double RAE::loss(Vector* inputLayer, Vector* recLayer)
+{
+	double lossVal = 0;
+
+	for(int col = 0; col < inputLayer->getCol(); col++)
+	{
+		lossVal += pow(inputLayer->getValue(0, col)-recLayer->getValue(0, col), 2);
+	}
+
+	return lossVal/2;
 }

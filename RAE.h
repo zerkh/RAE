@@ -20,13 +20,14 @@ private:
 	WordVec* words;
 	int vecSize;
 
+	double loss(Vector* inputLayer, Vector* recLayer);
 public:
 	RAE(Parameter* para, WordVec* words);
 	void showWeights();
 	void logWeights(Parameter* para);
 	int getVecSize();
 	p_StringVec getStringVec(string word1 ,string word2);
-	void train();
+	void trainRAE();
 };
 
 #endif
