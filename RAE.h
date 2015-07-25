@@ -26,7 +26,7 @@ public:
 	void showWeights();
 	void logWeights(Parameter* para);
 	int getVecSize();
-	p_StringVec getStringVec(string word1 ,string word2);
+	p_StringVec buildTree(string bp);
 	void trainRAE();
 };
 

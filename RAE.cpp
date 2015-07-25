@@ -117,17 +117,9 @@ void RAE::logWeights(Parameter* para)
 }
 
 //通过RAE求短语向量
-p_StringVec RAE::getStringVec(string word1 ,string word2)
+p_StringVec RAE::buildTree(string bp)
 {
-	Vector* wordVec1 = words->m_words[word1];
 
-	Vector* wordVec2 = words->m_words[word2];
-
-	Vector* inputVec = wordVec1->concat(wordVec2);
-
-	Vector* outputVec = inputVec->multiply(weights1, true)->add(weights_b1);
-
-	return make_pair(word1 + " " + word2, outputVec);
 }
 
 //训练RAE
