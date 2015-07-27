@@ -23,7 +23,7 @@ public:
 public:
 	WordVec();
 
-	void readFile(Parameter* para);
+	void readFile(Parameter* para, string titleStr);
 	void showWords();
 	void showStrings();
 };

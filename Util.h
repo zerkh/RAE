@@ -54,4 +54,19 @@ inline double getRand()
 	return X;
 }
 
+inline vector<string> splitBySpace(string line)
+{
+	vector<string> subStr;
+
+	string str;
+	stringstream ss(line);
+
+	while(ss >> str)
+	{
+		subStr.push_back(str);
+	}
+
+	return subStr;
+}
+
 #endif

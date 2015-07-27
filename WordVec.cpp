@@ -14,9 +14,9 @@ WordVec::WordVec()
 }
 
 //¶ÁÈ¡´ÊÏòÁ¿
-void WordVec::readFile(Parameter* para)
+void WordVec::readFile(Parameter* para, string titleStr)
 {
-	string filename = para->getPara("WordVecSrcFile");
+	string filename = para->getPara(titleStr+"WordVecSrcFile");
 	int size = atoi(para->getPara("WordVecSize").c_str());
 
 	ifstream fin(filename.c_str(), ios::in);

@@ -1,7 +1,7 @@
 #include <iostream>
 #include <ctime>
 #include "Vec.h"
-#include "RAE.h"
+#include "Domain.h"
 #include "Parameter.h"
 #include "WordVec.h"
 
@@ -17,13 +17,11 @@ int main()
 	cout << "The time of reading parameter is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
 
 	start = clock();
-	WordVec* words = new WordVec();
-	words->readFile(para);
+	Domain* domain = new Domain(para, "Education");
+	domain->loadTrainingData();
+	domain->training();
 	end = clock();
-	cout << "The time of reading  word vector is " << (end-start)/CLOCKS_PER_SEC << endl <<  endl;
+	cout << "The time of processing Education is " << (end-start)/CLOCKS_PER_SEC << endl <<  endl;
 
-	start = clock();
-	RAE* rae = new RAE(para, words);
-	(rae->getStringVec("is", "my")).second->showVector();
-	end = clock();
+	return 0;
 }

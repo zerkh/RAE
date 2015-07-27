@@ -5,29 +5,37 @@
 #include "Vec.h"
 #include "WordVec.h"
 #include "Parameter.h"
+#include "RAETree.h"
+#include <vector>
+#include <sstream>
 #include <map>
-
-typedef pair<string, Vector*> p_StringVec;
 
 class RAE
 {
 private:
+	WordVec* words;
+	int vecSize;
+	
+public:
+	Tree* RAETree;
 	Vector* weights1;
 	Vector* weights_b1;
 	Vector* weights2;
 	Vector* weights_b2;
 
-	WordVec* words;
-	int vecSize;
+	Vector* delWeight1;
+	Vector* delWeight1_b;
+	Vector* delWeight2;
+	Vector* delWeight2_b;
 
-	double loss(Vector* inputLayer, Vector* recLayer);
-public:
 	RAE(Parameter* para, WordVec* words);
 	void showWeights();
 	void logWeights(Parameter* para);
 	int getVecSize();
-	p_StringVec buildTree(string bp);
-	void trainRAE();
+	Tree* buildTree(string bp);
+	void trainRecError();
+	double loss();
+	double decay();
 };
 
 #endif

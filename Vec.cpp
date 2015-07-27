@@ -15,6 +15,14 @@ Vector::Vector(int row, int col)
 	{
 		vec[i] = new double[col];
 	}
+
+	for(int i = 0; i < row; i++)
+	{
+		for(int j = 0; j < col; j++)
+		{
+			vec[i][j] = 0;
+		}
+	}
 }
 
 Vector::~Vector()
