@@ -32,7 +32,7 @@ public:
 	void showWeights();
 	void logWeights(Parameter* para);
 	int getVecSize();
-	Tree* buildTree(string bp);
+	void buildTree(string bp);
 	void trainRecError();
 	double loss();
 	double decay();

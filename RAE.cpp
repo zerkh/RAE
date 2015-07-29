@@ -151,7 +151,7 @@ void RAE::logWeights(Parameter* para)
 }
 
 //构建RAE树
-Tree* RAE::buildTree(string bp)
+void RAE::buildTree(string bp)
 {
 	vector<Node*> treeNodes;
 	int count = 0;
@@ -175,6 +175,7 @@ Tree* RAE::buildTree(string bp)
 		RAETree->merge(treeNodes[i+1], weights1, weights_b1, weights2, weights_b2);
 		v_recError.push_back(RAETree->getRoot()->getRecError());
 	}
+
 	int minNode = 0;
 	double minRecError = v_recError[0];
 	for(int i = 1; i< v_recError.size(); i++)
@@ -186,12 +187,14 @@ Tree* RAE::buildTree(string bp)
 		}
 	}
 
+	cout << "191" << endl;
 	//建立RAE树
 	RAETree = new Tree(treeNodes[minNode]);
 	RAETree->merge(treeNodes[minNode+1], weights1, weights_b1, weights2, weights_b2);
 
 	treeNodes.erase(treeNodes.begin()+minNode, treeNodes.begin()+minNode+2);
 
+	cout << "198" << endl;
 	//添加新节点直到覆盖整个短语
 	while(treeNodes.size() != 1)
 	{
@@ -258,7 +261,6 @@ Tree* RAE::buildTree(string bp)
 		RAETree->merge(treeNodes[nodePos], weights1, weights_b1, weights2, weights_b2);
 		treeNodes.erase(treeNodes.begin()+nodePos);
 	}
-
 	RAETree->merge(treeNodes[0], weights1, weights_b1, weights2, weights_b2);
 }
 

@@ -172,13 +172,16 @@ void Domain::training()
 {
 	for(int count = 0; count < iterTime; count++)
 	{
-		out << "loss value : " << loss(0) << endl;
 		//Ò»ÂÖÑµÁ·
 		for(int i = 0; i < trainingData.size(); i++)
-		{
+		{	
 			srcRM->getData(trainingData[i].second["ct1"], trainingData[i].second["ct2"]);
 			tgtRM->getData(trainingData[i].second["et1"], trainingData[i].second["et2"]);
-
+			
+			if(i == 0)
+			{
+				out << "loss value : " << loss(0) << endl;
+			}
 			srcRM->rae1->trainRecError();
 			srcRM->rae2->trainRecError();
 			tgtRM->rae1->trainRecError();

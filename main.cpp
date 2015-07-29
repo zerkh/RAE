@@ -64,10 +64,26 @@ int main(int argc, char* argv[])
 /************************************************************************/
 void work(worker_arg_t* arg)
 {
+	double start, end;
+
 	Domain* d = arg->domain;
-	cout << "Processing " << d->domainName << "......" << endl;
+	cout << "Processing " << d->domainName << "......" << endl << endl;
 	
+	cout << "Loading" + d->domainName + "training data..." << endl << endl;
+	start = clock();
 	d->loadTrainingData();
+	end = clock();
+	cout << "The time of loading " + d->domainName + " training data is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
+
+	cout << "Starting training " + d->domainName + " ..." << endl << endl;
+	start = clock();
 	d->training();
+	end = clock();
+	cout << "The time of training " + d->domainName + " is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
+
+	cout << "Starting testing " + d->domainName + "..." << endl << endl;
+	start = clock();
 	d->test();
+	end = clock();
+	cout << "The time of training " + d->domainName + " is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
 }
