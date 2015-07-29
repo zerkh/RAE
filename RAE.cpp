@@ -14,20 +14,21 @@ RAE::RAE(Parameter* para, WordVec* words)
 	delWeight1_b = new Vector(weights_b1->getRow(), weights_b1->getCol());
 	delWeight2 = new Vector(weights2->getRow(), weights2->getCol());
 	delWeight2_b = new Vector(weights_b2->getRow(), weights_b2->getCol());
-
+	
 	weights1->randInitVector();
 	weights2->randInitVector();
 	weights_b1->randInitVector();
-	weights_b2->randInitVector();
+	weights_b2->randInitVector();	
 }
 
-RAE::RAE()
+RAE::RAE(int size)
 {
-	delWeight1 = new Vector(weights1->getRow(), weights1->getCol());
-	delWeight1_b = new Vector(weights_b1->getRow(), weights_b1->getCol());
-	delWeight2 = new Vector(weights2->getRow(), weights2->getCol());
-	delWeight2_b = new Vector(weights_b2->getRow(), weights_b2->getCol());
-
+	this->vecSize = size;
+	delWeight1 = new Vector(vecSize, vecSize*2);
+	delWeight1_b = new Vector(1, vecSize);
+	delWeight2 = new Vector(vecSize*2, vecSize);
+	delWeight2_b = new Vector(1, vecSize*2);
+	
 	delWeight1->setToZeros();
 	delWeight1_b->setToZeros();
 	delWeight2->setToZeros();
@@ -267,16 +268,17 @@ int RAE::getVecSize()
 }
 
 RAE* RAE::copy()
-{
-	RAE* newRAE = new RAE();
-
+{	
+	RAE* newRAE = new RAE(this->vecSize);
 	newRAE->vecSize = this->vecSize;
 	newRAE->words = this->words;
-
+	
 	newRAE->weights1 = this->weights1->copy();
 	newRAE->weights_b1 = this->weights_b1->copy();
 	newRAE->weights2 = this->weights2->copy();
 	newRAE->weights_b2 = this->weights_b2->copy();
+
+	return newRAE;
 }
 
 RAE::~RAE()

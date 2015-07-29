@@ -19,6 +19,8 @@ void WordVec::readFile(Parameter* para, string titleStr)
 	string filename = para->getPara(titleStr+"WordVecSrcFile");
 	int size = atoi(para->getPara("WordVecSize").c_str());
 
+	cout << "Reading " << filename << "......" << endl << endl;
+
 	ifstream fin(filename.c_str(), ios::in);
 
 	if(!fin)
@@ -56,6 +58,8 @@ void WordVec::readFile(Parameter* para, string titleStr)
 
 		this->m_words.insert(make_pair(word, tmpVec));
 	}
+
+	cout << "Finish reading" << filename << endl << endl;
 }
 
 

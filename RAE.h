@@ -37,7 +37,7 @@ public:
 	double loss();
 	double decay();
 	RAE* copy();
-	RAE();
+	RAE(int size);
 	~RAE();
 };
 

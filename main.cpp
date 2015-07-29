@@ -41,9 +41,15 @@ int main(int argc, char* argv[])
 	//分发文件
 	for (int wid = 0; wid < thread_num; wid++)
 	{
+		start = clock();
+		cout << "Initialize " << v_domains[wid] << "......" << endl << endl;
+		
 		wargs[wid].m_id = wid;
 		wargs[wid].domainName = v_domains[wid];
 		wargs[wid].domain = new Domain(para, v_domains[wid]);
+
+		end = clock();
+		cout << "Finish initializing " << v_domains[wid] << " in " << (end-start)/CLOCKS_PER_SEC << "s" << endl << endl;
 	}
 
 	Start_Workers(work, wargs, thread_num);
@@ -56,9 +62,11 @@ int main(int argc, char* argv[])
 /* 参数：worker_arg_t *arg，输入参数                                    */
 /* 返回：vector<string>                                                 */
 /************************************************************************/
-void work(worker_arg_t *arg)
+void work(worker_arg_t* arg)
 {
-	Domain* d = (*arg).domain;
+	Domain* d = arg->domain;
+	cout << "Processing " << d->domainName << "......" << endl;
+	
 	d->loadTrainingData();
 	d->training();
 	d->test();

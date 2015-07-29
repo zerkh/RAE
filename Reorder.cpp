@@ -3,11 +3,11 @@
 ReorderModel::ReorderModel(Parameter* para, WordVec* words)
 {
 	vecSize = atoi(para->getPara("WordVecSize").c_str());
-
+	
 	rae = new RAE(para, words);
 	rae1 = rae->copy();
 	rae2 = rae->copy();
-
+	
 	weights = new Vector(2, vecSize);
 	weights_b = new Vector(1, 2);
 

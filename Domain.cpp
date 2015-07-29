@@ -17,7 +17,7 @@ Domain::Domain(Parameter* para, string domainName)
 	tgtOut.open(string("./log/"+ domainName + "/" + "tgt"+domainName+".log").c_str(), ios::out);
 	srcWLog.open(string("./log/"+ domainName + "/" + "src"+domainName+"Weights.log").c_str(), ios::out);
 	tgtWLog.open(string("./log/"+ domainName + "/" + "tgt"+domainName+"Weights.log").c_str(), ios::out);
-
+	
 	srcRM = new ReorderModel(para, srcWords);
 	tgtRM = new ReorderModel(para, tgtWords);
 }

@@ -19,7 +19,7 @@ Vector* Vector::copy()
 	{
 		for(int c = 0; c < col; c++)
 		{
-			newVec->setValue(c, r, this->getValue(r, c));
+			newVec->setValue(r, c, this->getValue(r, c));
 		}
 	}
 
