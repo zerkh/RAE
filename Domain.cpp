@@ -190,10 +190,10 @@ void Domain::training()
 			Vector* mono = new Vector(1,2);
 			Vector* invert = new Vector(1,2);
 
-			for (int i = 0; i < 2; i++)
+			for (int j = 0; j < 2; j++)
 			{
-				mono->setValue(0, i, 1-i);
-				invert->setValue(0, i, i);
+				mono->setValue(0, j, 1-j);
+				invert->setValue(0, j, j);
 			}
 
 			if(trainingData[i].first == 1)
