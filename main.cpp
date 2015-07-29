@@ -1,27 +1,65 @@
-#include <iostream>
+﻿#include <iostream>
 #include <ctime>
+#include <sstream>
 #include "Vec.h"
 #include "Domain.h"
 #include "Parameter.h"
 #include "WordVec.h"
+#include "MutiThreading.h"
+#include <vector>
 
 using namespace std;
 
-int main()
+void work( worker_arg_t *arg );
+
+int main(int argc, char* argv[])
 {
+
+
 	double start, end;
 
-	start = clock();	
-	Parameter* para = new Parameter("Para.ds");
+	start = clock();
+	Parameter* para = new Parameter(argv[1]);
 	end = clock();
 	cout << "The time of reading parameter is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
 
-	start = clock();
-	Domain* domain = new Domain(para, "Education");
-	domain->loadTrainingData();
-	domain->training();
-	end = clock();
-	cout << "The time of processing Education is " << (end-start)/CLOCKS_PER_SEC << endl <<  endl;
+	// thread_num = 1
+	int thread_num = atoi( para->getPara("THREAD_NUM").c_str() );
+	vector<string> v_domains;
+
+	string domainLine = para->getPara("DomainList");
+	string domainName;
+	stringstream ss(domainLine);
+	while(ss >> domainName)
+	{
+		v_domains.push_back(domainName);
+	}
+
+	//初始化
+	worker_arg_t *wargs = new worker_arg_t[thread_num];
+
+	//分发文件
+	for (int wid = 0; wid < thread_num; wid++)
+	{
+		wargs[wid].m_id = wid;
+		wargs[wid].domainName = v_domains[wid];
+		wargs[wid].domain = new Domain(para, v_domains[wid]);
+	}
+
+	Start_Workers(work, wargs, thread_num);
 
 	return 0;
+}
+
+/************************************************************************/
+/* 功能：启动进程开始翻译                                               */
+/* 参数：worker_arg_t *arg，输入参数                                    */
+/* 返回：vector<string>                                                 */
+/************************************************************************/
+void work(worker_arg_t *arg)
+{
+	Domain* d = (*arg).domain;
+	d->loadTrainingData();
+	d->training();
+	d->test();
 }

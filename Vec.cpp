@@ -1,7 +1,29 @@
 #include "Vec.h"
 
-Vector::Vector()
+void Vector::setToZeros()
 {
+	for(int row = 0; row < getRow(); row++)
+	{
+		for(int col = 0; col < getCol(); col++)
+		{
+			this->setValue(row, col, 0);
+		}
+	}
+}
+
+Vector* Vector::copy()
+{
+	Vector* newVec = new Vector(row, col);
+
+	for(int r = 0; r < row; r++)
+	{
+		for(int c = 0; c < col; c++)
+		{
+			newVec->setValue(c, r, this->getValue(r, c));
+		}
+	}
+
+	return newVec;
 }
 
 Vector::Vector(int row, int col)

@@ -36,6 +36,9 @@ public:
 	void trainRecError();
 	double loss();
 	double decay();
+	RAE* copy();
+	RAE();
+	~RAE();
 };
 
 #endif

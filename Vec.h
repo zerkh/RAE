@@ -16,7 +16,7 @@ private:
 public:
 	Vector(int row, int col);
 
-	Vector();
+	void setToZeros();
 
 	Vector* multiply(Vector* sec_Vec, bool is_Transpose);
 
@@ -39,6 +39,8 @@ public:
 	Vector* add(Vector* secVec);
 
 	~Vector();
+
+	Vector* copy();
 };
 
 #endif

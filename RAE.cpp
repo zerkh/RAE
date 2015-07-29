@@ -21,6 +21,19 @@ RAE::RAE(Parameter* para, WordVec* words)
 	weights_b2->randInitVector();
 }
 
+RAE::RAE()
+{
+	delWeight1 = new Vector(weights1->getRow(), weights1->getCol());
+	delWeight1_b = new Vector(weights_b1->getRow(), weights_b1->getCol());
+	delWeight2 = new Vector(weights2->getRow(), weights2->getCol());
+	delWeight2_b = new Vector(weights_b2->getRow(), weights_b2->getCol());
+
+	delWeight1->setToZeros();
+	delWeight1_b->setToZeros();
+	delWeight2->setToZeros();
+	delWeight2_b->setToZeros();
+}
+
 double RAE::loss()
 {
 	Node* tmpNode = this->RAETree->getRoot();
@@ -251,6 +264,27 @@ Tree* RAE::buildTree(string bp)
 int RAE::getVecSize()
 {
 	return vecSize;
+}
+
+RAE* RAE::copy()
+{
+	RAE* newRAE = new RAE();
+
+	newRAE->vecSize = this->vecSize;
+	newRAE->words = this->words;
+
+	newRAE->weights1 = this->weights1->copy();
+	newRAE->weights_b1 = this->weights_b1->copy();
+	newRAE->weights2 = this->weights2->copy();
+	newRAE->weights_b2 = this->weights_b2->copy();
+}
+
+RAE::~RAE()
+{
+	delete weights1;
+	delete weights_b1;
+	delete weights2;
+	delete weights_b2;
 }
 
 double RAE::decay()

@@ -1,9 +1,0 @@
-#WordVector
-WordVecSrcFile		=	"vec.ds"
-WordVecSize		=	200
-
-#StringVector
-StringVecTgtFile	=	"Strings.vec"
-
-#RAE
-RAEWeightsLogFile	=	"RAEWeights.log"

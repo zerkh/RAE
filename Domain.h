@@ -12,6 +12,8 @@ public:
 	vector<pair<int, map<string, string> > > trainingData;
 	string dataFile;
 	int iterTime;
+	string domainName;
+	ofstream out, srcOut, tgtOut, srcWLog, tgtWLog;
 
 public:
 	Domain(Parameter* para, string domainName);
@@ -19,6 +21,8 @@ public:
 	void training();
 	void upData();
 	double loss(int ind);
+	void test();
+	void logWeights();
 };
 
 #endif // !DOMAIN_H

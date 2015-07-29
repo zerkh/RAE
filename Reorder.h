@@ -15,6 +15,7 @@ private:
 public:
 	RAE* rae1;
 	RAE* rae2;
+	RAE* rae;
 
 	Vector* weights;
 	Vector* weights_b;
