@@ -336,7 +336,7 @@ void RAE::trainRecError()
 	}
 
 	//仅对每一对重构中的权重求导
-	Node* tmpNode = this->RAETree->getRoot();
+	tmpNode = this->RAETree->getRoot();
 	Vector* tmpDelWb = new Vector(1, 2*vecSize);
 
 	while(tmpNode->getNodeType() != BASED_NODE)

@@ -1,6 +1,9 @@
 #ifndef CONSTDEF
 #define CONSTDEF
 #include <map>
+#include <utility>
+
+using namespace std;
 
 const int BASED_NODE = 0;
 const int COMBINED_NODE = 1;

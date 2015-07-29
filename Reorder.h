@@ -31,6 +31,6 @@ public:
 	void trainRM(Vector* y, bool isSoftmax);
 	ReorderModel(Parameter* para, WordVec* words);
 	void getData(string bp1, string bp2);
-}
+};
 
 #endif

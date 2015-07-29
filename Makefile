@@ -1,5 +1,5 @@
 # Executable
-EXE    = RAE
+EXE    = DomainsReorder
 	
 # Compiler, Linker Defines
 CC      = g++
