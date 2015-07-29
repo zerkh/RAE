@@ -40,6 +40,11 @@ public:
 	{
 		double RecError = 0;
 
+		if(leftChild == NULL && rightChild == NULL)
+		{
+			return RecError;
+		}
+
 		for(int i = 0; i < leftReconst->getCol(); i++)
 		{
 			RecError += pow(leftChild->getVector()->getValue(0, i) - leftReconst->getValue(0, i), 2) + pow(rightChild->getVector()->getValue(0, i) - rightReconst->getValue(0, i), 2);

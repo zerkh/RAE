@@ -14,6 +14,11 @@ RAE::RAE(Parameter* para, WordVec* words)
 	delWeight1_b = new Vector(weights_b1->getRow(), weights_b1->getCol());
 	delWeight2 = new Vector(weights2->getRow(), weights2->getCol());
 	delWeight2_b = new Vector(weights_b2->getRow(), weights_b2->getCol());
+
+	delWeight1->setToZeros();
+	delWeight1_b->setToZeros();
+	delWeight2->setToZeros();
+	delWeight2_b->setToZeros();
 	
 	weights1->randInitVector();
 	weights2->randInitVector();
@@ -167,6 +172,12 @@ void RAE::buildTree(string bp)
 		treeNodes.push_back(newNode);
 	}
 
+	if(treeNodes.size() == 1)
+	{
+		RAETree = new Tree(treeNodes[0]);
+		return;
+	}
+
 	//选取Erec最小的两个based节点
 	vector<double> v_recError;
 	for(int i = 0; i < treeNodes.size()-1; i++)
@@ -193,6 +204,11 @@ void RAE::buildTree(string bp)
 	RAETree->merge(treeNodes[minNode+1], weights1, weights_b1, weights2, weights_b2);
 
 	treeNodes.erase(treeNodes.begin()+minNode, treeNodes.begin()+minNode+2);
+
+	if(treeNodes.size() == 0)
+	{
+		return;
+	}
 
 	cout << "198" << endl;
 	//添加新节点直到覆盖整个短语
