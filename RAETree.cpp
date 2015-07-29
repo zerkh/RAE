@@ -12,6 +12,7 @@ Tree::Tree(Node* root)
 
 void Tree::merge(Node* newNode, Vector* w1, Vector* b1, Vector* w2, Vector* b2)
 {
+	cout << w1->getRow() << " "<< w1->getCol() << " "<< b1->getCol() << endl;
 	Vector* parent = root->getVector()->concat(newNode->getVector())->multiply(w1, true)->add(b1);
 
 	Node* pNode;

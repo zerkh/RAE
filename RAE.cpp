@@ -160,18 +160,21 @@ void RAE::buildTree(string bp)
 {
 	vector<Node*> treeNodes;
 	int count = 0;
-
 	stringstream ss(bp);
-	while(ss)
+	string tmp;
+
+	while(ss >> tmp)
 	{
 		string word;
-		ss >> word;
-		count++;
 
-		Node* newNode = new Node(BASED_NODE, count, count, word, words->m_words[word], NULL, NULL, NULL);
+		Node* newNode = new Node(BASED_NODE, count, count, tmp, words->m_words[tmp], NULL, NULL, NULL);
 		treeNodes.push_back(newNode);
+	
+		count++;
 	}
+	count--;
 
+	cout << bp << endl;
 	if(treeNodes.size() == 1)
 	{
 		RAETree = new Tree(treeNodes[0]);
@@ -198,7 +201,6 @@ void RAE::buildTree(string bp)
 		}
 	}
 
-	cout << "191" << endl;
 	//建立RAE树
 	RAETree = new Tree(treeNodes[minNode]);
 	RAETree->merge(treeNodes[minNode+1], weights1, weights_b1, weights2, weights_b2);
@@ -210,7 +212,6 @@ void RAE::buildTree(string bp)
 		return;
 	}
 
-	cout << "198" << endl;
 	//添加新节点直到覆盖整个短语
 	while(treeNodes.size() != 1)
 	{

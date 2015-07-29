@@ -8,7 +8,7 @@ ReorderModel::ReorderModel(Parameter* para, WordVec* words)
 	rae1 = rae->copy();
 	rae2 = rae->copy();
 	
-	weights = new Vector(2, vecSize);
+	weights = new Vector(2, vecSize*2);
 	weights_b = new Vector(1, 2);
 
 	delWeight = new Vector(weights->getRow(), weights->getCol());
