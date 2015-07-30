@@ -75,7 +75,7 @@ void ReorderModel::trainRM(Vector* y, bool isSoftmax)
 	Vector* theta = new Vector(delWeight_b->getRow(), delWeight_b->getCol());
 
 	//对W和Wb求导
-	for(int row = 0; row < weights->getRow(); row)
+	for(int row = 0; row < weights->getRow(); row++)
 	{
 		double result;
 		result = (softmaxLayer->getValue(0, row) - y->getValue(0, row)) * (exp(outputLayer->getValue(0, 0))*exp(outputLayer->getValue(0, 1))/(exp(outputLayer->getValue(0, 0))+exp(outputLayer->getValue(0, 1))));
@@ -84,6 +84,8 @@ void ReorderModel::trainRM(Vector* y, bool isSoftmax)
 		{
 			Vector* tmpX = rae1->RAETree->getRoot()->getVector()->concat(rae2->RAETree->getRoot()->getVector());
 			delWeight->setValue(row, col, delWeight->getValue(row, col) + p * result * tmpX->getValue(0, col));
+			
+			delete tmpX;
 		}
 
 		delWeight_b->setValue(0, row, delWeight_b->getValue(0, row) + p * result);
@@ -97,13 +99,14 @@ void ReorderModel::trainRM(Vector* y, bool isSoftmax)
 	theta = theta->multiply(weights, false);
 	Vector* theta1 = new Vector(theta->getRow(), theta->getCol()/2);
 	Vector* theta2 = new Vector(theta->getRow(), theta->getCol()/2);
-
+	
 	for(int i = 0; i < theta->getCol(); i++)
 	{
 		theta1->setValue(0, i, theta->getValue(0, i));
 		theta2->setValue(0, i, theta->getValue(0, i+theta1->getCol()));
 	}
 
+	cout << preNode1->getNodeType() << endl;
 	while(preNode1->getNodeType() != BASED_NODE)
 	{
 		for(int row = 0; row < vecSize; row++)
@@ -134,7 +137,8 @@ void ReorderModel::trainRM(Vector* y, bool isSoftmax)
 		theta1 = tmpTheta;
 		preNode1 = preNode1->getLeftChildNode();
 	}
-
+	
+	cout << preNode2->getNodeType() << endl;
 	while(preNode2->getNodeType() != BASED_NODE)
 	{
 		for(int row = 0; row < vecSize; row++)

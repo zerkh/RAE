@@ -187,7 +187,7 @@ void Domain::training()
 			srcRM->rae2->trainRecError();
 			tgtRM->rae1->trainRecError();
 			tgtRM->rae2->trainRecError();
-
+			
 			srcRM->trainRM(tgtRM->softmaxLayer, true);
 			tgtRM->trainRM(srcRM->softmaxLayer, true);
 
@@ -210,7 +210,7 @@ void Domain::training()
 				srcRM->trainRM(invert, false);
 				tgtRM->trainRM(invert, false);
 			}
-
+			
 			delete mono;
 			delete invert;
 		}
