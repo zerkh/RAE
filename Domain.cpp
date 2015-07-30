@@ -166,7 +166,7 @@ double Domain::loss(int ind)
 		lossVal += BETA * (pow(tgtRM->softmaxLayer->getValue(0, 0) - 0, 2) + pow(tgtRM->softmaxLayer->getValue(0, 1) - 1, 2))/2;
 	}
 
-	lossVal += ZETA * (srcRM->decay() + tgtRM->decay() + srcRM->rae1->decay() + srcRM->rae2->decay() + tgtRM->rae1->decay() + tgtRM->rae2->decay());
+	lossVal += ZETA * (srcRM->decay() + tgtRM->decay() + srcRM->rae->decay() + tgtRM->rae->decay());
 
 	return lossVal;
 }
