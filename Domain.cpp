@@ -1,13 +1,14 @@
 #include "Domain.h"
 
-Domain::Domain(Parameter* para, string domainName)
+Domain::Domain(Parameter* para, string domainName, WordVec* srcWords, WordVec* tgtWords)
 {
+	/*
 	WordVec* srcWords = new WordVec();
 	srcWords->readFile(para, domainName+"Target");
 
 	WordVec* tgtWords = new WordVec();
 	tgtWords->readFile(para, domainName+"Source");
-
+	*/
 	dataFile = para->getPara(domainName + "DataFile");
 	iterTime = atoi(para->getPara("IterationTime").c_str());
 
@@ -136,6 +137,8 @@ void Domain::loadTrainingData()
 
 		trainingData.push_back(make_pair(order, m_tmp));
 	}
+
+	in.close();
 }
 
 double Domain::loss(int ind)

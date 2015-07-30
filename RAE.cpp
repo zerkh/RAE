@@ -188,6 +188,7 @@ void RAE::buildTree(string bp)
 		RAETree = new Tree(treeNodes[i]);
 		RAETree->merge(treeNodes[i+1], weights1, weights_b1, weights2, weights_b2);
 		v_recError.push_back(RAETree->getRoot()->getRecError());
+		delete RAETree;
 	}
 
 	int minNode = 0;
@@ -306,6 +307,11 @@ RAE::~RAE()
 	delete weights_b1;
 	delete weights2;
 	delete weights_b2;
+
+	delete delWeight1;
+	delete delWeight1_b;
+	delete delWeight2;
+	delete delWeight2_b;
 }
 
 double RAE::decay()
@@ -354,6 +360,9 @@ void RAE::trainRecError()
 		}
 
 		tmpNode = tmpNode->getLeftChildNode();
+
+		delete c;
+		delete cRec;
 	}
 
 	//仅对每一对重构中的权重求导
@@ -381,5 +390,9 @@ void RAE::trainRecError()
 		}
 
 		tmpNode = tmpNode->getLeftChildNode();
+		delete c;
+		delete cRec;
 	}
+
+	delete tmpDelWb;
 }

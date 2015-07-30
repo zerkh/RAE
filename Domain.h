@@ -16,7 +16,7 @@ public:
 	ofstream out, srcOut, tgtOut, srcWLog, tgtWLog;
 
 public:
-	Domain(Parameter* para, string domainName);
+	Domain(Parameter* para, string domainName, WordVec* srcWords, WordVec* tgtWords);
 	void loadTrainingData();
 	void training();
 	void upData();

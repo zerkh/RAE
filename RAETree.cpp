@@ -19,10 +19,14 @@ void Tree::merge(Node* newNode, Vector* w1, Vector* b1, Vector* w2, Vector* b2)
 	if(root->getSpan().second < newNode->getSpan().first)
 	{
 		pNode = new Node(COMBINED_NODE, root->getSpan().first, newNode->getSpan().second, root->getWord() + " " +newNode->getWord(), parent, NULL, root, newNode);
+		root->setParentNode(pNode);
+		newNode->setParentNode(pNode);
 	}
 	else
 	{
 		pNode = new Node(COMBINED_NODE, newNode->getSpan().first, root->getSpan().second, newNode->getWord() + " " +root->getWord(), parent, NULL, root, newNode);
+		root->setParentNode(pNode);
+		newNode->setParentNode(pNode);
 	}
 
 	Vector* rec = parent->multiply(w2, true)->add(b2);
@@ -34,7 +38,7 @@ void Tree::merge(Node* newNode, Vector* w1, Vector* b1, Vector* w2, Vector* b2)
 	for(int i = 0; i < pNode->leftReconst->getCol(); i++)
 	{
 		pNode->leftReconst->setValue(0, i, rec->getValue(0, i));
-		pNode->rightReconst->setValue(0, i, rec->getValue(0, i+pNode->rightReconst->getCol()));
+		pNode->rightReconst->setValue(0, i, rec->getValue(0, i+pNode->leftReconst->getCol()));
 	}
 
 	root = pNode;

@@ -123,7 +123,17 @@ public:
 
 	~Tree()
 	{
-		delete root;
+		Node* n1;
+		Node* n2;
+
+		n1 = root;
+		n2 = root;
+		while(n2->getNodeType() != BASED_NODE)
+		{
+			n2 = n1->getLeftChildNode();
+			delete n1;
+			n1 = n2;
+		}
 	}
 
 	Node* getRoot();

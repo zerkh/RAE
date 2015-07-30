@@ -23,6 +23,18 @@ int main(int argc, char* argv[])
 	end = clock();
 	cout << "The time of reading parameter is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
 
+	start = clock();
+	WordVec* srcWords = new WordVec();
+	srcWords->readFile(para, "MixedDomainSrc");
+	end = clock();
+	cout << "The time of reading srcWordVec is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
+
+	start = clock();
+	WordVec* tgtWords = new WordVec();
+	tgtWords->readFile(para, "MixedDomainTgt");
+	end = clock();
+	cout << "The time of reading tgtWordVec is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
+
 	// thread_num = 1
 	int thread_num = atoi( para->getPara("THREAD_NUM").c_str() );
 	vector<string> v_domains;
@@ -46,7 +58,7 @@ int main(int argc, char* argv[])
 		
 		wargs[wid].m_id = wid;
 		wargs[wid].domainName = v_domains[wid];
-		wargs[wid].domain = new Domain(para, v_domains[wid]);
+		wargs[wid].domain = new Domain(para, v_domains[wid], srcWords, tgtWords);
 
 		end = clock();
 		cout << "Finish initializing " << v_domains[wid] << " in " << (end-start)/CLOCKS_PER_SEC << "s" << endl << endl;
