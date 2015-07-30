@@ -26,6 +26,7 @@ public:
 	void readFile(Parameter* para, string titleStr);
 	void showWords();
 	void showStrings();
+	bool isInDict(string word);
 };
 
 #endif

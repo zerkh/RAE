@@ -167,6 +167,13 @@ void RAE::buildTree(string bp)
 	{
 		string word;
 
+		if(!words->isInDict(word))
+		{
+			Vector* tmpVec = new Vector(1, vecSize);
+			tmpVec->setToZeros();
+			words->m_words[word] = tmpVec;
+		}
+
 		Node* newNode = new Node(BASED_NODE, count, count, tmp, words->m_words[tmp], NULL, NULL, NULL);
 		treeNodes.push_back(newNode);
 	

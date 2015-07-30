@@ -62,6 +62,17 @@ void WordVec::readFile(Parameter* para, string titleStr)
 	cout << "Finish reading" << filename << endl << endl;
 }
 
+bool WordVec::isInDict(string word)
+{
+	if (m_words.find(word) != m_words.end())
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
 
 //显示所有词及向量
 void WordVec::showWords()
