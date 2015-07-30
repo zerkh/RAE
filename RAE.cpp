@@ -312,6 +312,20 @@ RAE::~RAE()
 	delete delWeight1_b;
 	delete delWeight2;
 	delete delWeight2_b;
+
+	Node* n1 = RAETree->getRoot();
+	Node* n2 = RAETree->getRoot();
+
+	while(n2 != NULL)
+	{
+		n2 = n1->getRightChildNode();
+		delete n2;
+		n2 = n1->getLeftChildNode();
+		delete n1;
+		n1  = n2;
+	}
+
+	delete this;
 }
 
 double RAE::decay()
