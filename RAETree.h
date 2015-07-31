@@ -33,11 +33,14 @@ public:
 
 	~Node()
 	{
-		delete vec;
 		rightChild->parent = NULL;
 		leftChild->parent = NULL;
-		delete leftReconst;
-		delete rightReconst;
+		
+		if(!leftReconst)
+		{
+			delete leftReconst;
+			delete rightReconst;
+		}
 	}
 
 	double getRecError()

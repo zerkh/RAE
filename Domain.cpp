@@ -102,7 +102,6 @@ void Domain::upData()
 	delete tgtRM->rae1;
 	delete tgtRM->rae2;
 
-	cout << "updata 108" << endl;
 	srcRM->rae1 = srcRM->rae->copy();
 	srcRM->rae2 = srcRM->rae->copy();
 
@@ -194,13 +193,15 @@ void Domain::training()
 	for(int count = 0; count < iterTime; count++)
 	{
 		//Ò»ÂÖÑµÁ·
-		//for(int i = 0; i < trainingData.size(); i++)
-		for(int i = 0; i < 2; i++)
+		for(int i = 0; i < trainingData.size(); i++)
 		{	
 			srcRM->getData(trainingData[i].second["ct1"], trainingData[i].second["ct2"]);
 			tgtRM->getData(trainingData[i].second["et1"], trainingData[i].second["et2"]);
 			
-			out << count << " : " << i << "th's " << "loss value : " << loss(i) << endl;
+			if(i >= trainingData.size()-10 && i < trainingData.size())
+			{	
+				out << count << " : " << i << "th's " << "loss value : " << loss(i) << endl;
+			}
 
 			srcRM->rae1->trainRecError();
 			srcRM->rae2->trainRecError();
@@ -241,9 +242,7 @@ void Domain::training()
 }
 
 void Domain::logWeights()
-{
-	cout << "Domain logWeights" << endl;
-	
+{	
 	srcWLog << "RM: \nW: \n";
 	tgtWLog << "RM: \nW: \n";
 
@@ -331,8 +330,6 @@ void Domain::logWeights()
 
 void Domain::test()
 {
-	cout << "Domain test" << endl;
-
 	srcOut << "True value\t\tPredict value" << endl;
 	tgtOut << "True value\t\tPredict value" << endl;
 
@@ -351,6 +348,13 @@ void Domain::test()
 				srcCount++;
 			}
 		}
+		else
+		{
+			if(trainingData[i].first == 0)
+			{
+				srcCount++;
+			}
+		}
 
 		if(tgtRM->softmaxLayer->getValue(0, 0) > tgtRM->softmaxLayer->getValue(0,1))
 		{
@@ -359,6 +363,13 @@ void Domain::test()
 				tgtCount++;
 			}
 		}
+		else
+                {
+                        if(trainingData[i].first == 0)
+                        {
+                                tgtCount++;
+                        }
+                }
 
 		srcOut << trainingData[i].first << "\t\t[" << srcRM->softmaxLayer->getValue(0,0) << " , " << srcRM->softmaxLayer->getValue(0,1) << "]" << endl;
 		tgtOut << trainingData[i].first << "\t\t[" << tgtRM->softmaxLayer->getValue(0,0) << " , " << tgtRM->softmaxLayer->getValue(0,1) << "]" << endl;

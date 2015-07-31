@@ -179,14 +179,12 @@ void RAE::buildTree(string bp)
 	}
 	count--;
 
-	cout << bp << endl;
 	if(treeNodes.size() == 1)
 	{
 		RAETree = new Tree(treeNodes[0]);
 		return;
 	}
 
-	cout << "RAE.cpp 191" << endl;
 	//选取Erec最小的两个based节点
 	vector<double> v_recError;
 	for(int i = 0; i < treeNodes.size()-1; i++)
@@ -325,11 +323,19 @@ RAE::~RAE()
 	while(n2 != NULL)
 	{
 		n2 = n1->getRightChildNode();
-		delete n2;
+		if(n2 != NULL)
+		{	
+			delete n2;
+		}
+		
 		n2 = n1->getLeftChildNode();
-		delete n1;
-		n1  = n2;
+		if(n1 != NULL)
+		{
+			delete n1;
+		}
+		n1 = n2;
 	}
+
 }
 
 double RAE::decay()
