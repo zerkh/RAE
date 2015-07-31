@@ -102,6 +102,7 @@ void Domain::upData()
 	delete tgtRM->rae1;
 	delete tgtRM->rae2;
 
+	cout << "updata 108" << endl;
 	srcRM->rae1 = srcRM->rae->copy();
 	srcRM->rae2 = srcRM->rae->copy();
 
@@ -149,12 +150,25 @@ double Domain::loss(int ind)
 	lossVal += ALPHA * srcRM->rae2->loss();
 	lossVal += ALPHA * tgtRM->rae1->loss();
 	lossVal += ALPHA * tgtRM->rae2->loss();
+/*
+	cout << "srcRM->rae1->loss: " << srcRM->rae1->loss() << endl;
+	cout << "srcRM->rae2->loss: " << srcRM->rae2->loss() << endl;
+	cout << "tgtRM->rae1->loss: " << tgtRM->rae1->loss() << endl;
+	cout << "tgtRM->rae2->loss: " << tgtRM->rae2->loss() << endl;
+	*/
+	cout << "loss: " << lossVal << endl;
 
 	for(int i = 0; i < 2; i++)
 	{
 		lossVal += GAMMA * pow(srcRM->softmaxLayer->getValue(0, i) - tgtRM->softmaxLayer->getValue(0, i), 2) / 2;
 	}
 
+	cout << "Src softmax: [" << srcRM->softmaxLayer->getValue(0, 0) << " , " << srcRM->softmaxLayer->getValue(0, 1) << "]" << endl;	
+
+	cout << "Tgt softmax: [" << tgtRM->softmaxLayer->getValue(0, 0) << " , " << tgtRM->softmaxLayer->getValue(0, 1) << "]" << endl; 	
+ cout << "Src output: [" << srcRM->outputLayer->getValue(0, 0) << " , " << srcRM->outputLayer->getValue(0, 1) << "]" << endl; 
+
+        cout << "Tgt output: [" << tgtRM->outputLayer->getValue(0, 0) << " , " << tgtRM->outputLayer->getValue(0, 1) << "]" << endl; 
 	if(trainingData[ind].first == 1)
 	{
 		lossVal += BETA * (pow(srcRM->softmaxLayer->getValue(0, 0) - 1, 2) + pow(srcRM->softmaxLayer->getValue(0, 1) - 0, 2))/2;
@@ -166,7 +180,11 @@ double Domain::loss(int ind)
 		lossVal += BETA * (pow(tgtRM->softmaxLayer->getValue(0, 0) - 0, 2) + pow(tgtRM->softmaxLayer->getValue(0, 1) - 1, 2))/2;
 	}
 
+	cout << "After Ereo loss: " << lossVal << endl;	
+
 	lossVal += ZETA * (srcRM->decay() + tgtRM->decay() + srcRM->rae->decay() + tgtRM->rae->decay());
+
+	cout << "After Decay loss: " << lossVal << endl;
 
 	return lossVal;
 }
@@ -176,7 +194,8 @@ void Domain::training()
 	for(int count = 0; count < iterTime; count++)
 	{
 		//Ò»ÂÖÑµÁ·
-		for(int i = 0; i < trainingData.size(); i++)
+		//for(int i = 0; i < trainingData.size(); i++)
+		for(int i = 0; i < 2; i++)
 		{	
 			srcRM->getData(trainingData[i].second["ct1"], trainingData[i].second["ct2"]);
 			tgtRM->getData(trainingData[i].second["et1"], trainingData[i].second["et2"]);
@@ -223,6 +242,8 @@ void Domain::training()
 
 void Domain::logWeights()
 {
+	cout << "Domain logWeights" << endl;
+	
 	srcWLog << "RM: \nW: \n";
 	tgtWLog << "RM: \nW: \n";
 
@@ -310,6 +331,8 @@ void Domain::logWeights()
 
 void Domain::test()
 {
+	cout << "Domain test" << endl;
+
 	srcOut << "True value\t\tPredict value" << endl;
 	tgtOut << "True value\t\tPredict value" << endl;
 

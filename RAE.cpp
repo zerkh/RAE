@@ -165,13 +165,11 @@ void RAE::buildTree(string bp)
 
 	while(ss >> tmp)
 	{
-		string word;
-
-		if(!words->isInDict(word))
+		if(!words->isInDict(tmp))
 		{
 			Vector* tmpVec = new Vector(1, vecSize);
 			tmpVec->setToZeros();
-			words->m_words[word] = tmpVec;
+			words->m_words[tmp] = tmpVec;
 		}
 
 		Node* newNode = new Node(BASED_NODE, count, count, tmp, words->m_words[tmp], NULL, NULL, NULL);
@@ -188,6 +186,7 @@ void RAE::buildTree(string bp)
 		return;
 	}
 
+	cout << "RAE.cpp 191" << endl;
 	//选取Erec最小的两个based节点
 	vector<double> v_recError;
 	for(int i = 0; i < treeNodes.size()-1; i++)

@@ -100,13 +100,12 @@ void ReorderModel::trainRM(Vector* y, bool isSoftmax)
 	Vector* theta1 = new Vector(theta->getRow(), theta->getCol()/2);
 	Vector* theta2 = new Vector(theta->getRow(), theta->getCol()/2);
 	
-	for(int i = 0; i < theta->getCol(); i++)
+	for(int i = 0; i < theta1->getCol(); i++)
 	{
 		theta1->setValue(0, i, theta->getValue(0, i));
 		theta2->setValue(0, i, theta->getValue(0, i+theta1->getCol()));
 	}
 
-	cout << preNode1->getNodeType() << endl;
 	while(preNode1->getNodeType() != BASED_NODE)
 	{
 		for(int row = 0; row < vecSize; row++)
@@ -138,7 +137,6 @@ void ReorderModel::trainRM(Vector* y, bool isSoftmax)
 		preNode1 = preNode1->getLeftChildNode();
 	}
 	
-	cout << preNode2->getNodeType() << endl;
 	while(preNode2->getNodeType() != BASED_NODE)
 	{
 		for(int row = 0; row < vecSize; row++)
@@ -169,7 +167,7 @@ void ReorderModel::trainRM(Vector* y, bool isSoftmax)
 		theta2 = tmpTheta;
 		preNode2 = preNode2->getLeftChildNode();
 	}
-
+	
 	delete theta;
 	delete theta1;
 	delete theta2;
