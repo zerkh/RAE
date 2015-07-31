@@ -330,8 +330,6 @@ RAE::~RAE()
 		delete n1;
 		n1  = n2;
 	}
-
-	delete this;
 }
 
 double RAE::decay()
