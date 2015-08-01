@@ -34,6 +34,7 @@ void Domain::upData()
 		}
 	}
 
+	cout << "Domain 37" << endl;
 	for(int row = 0; row < srcRM->weights_b->getRow(); row++)
 	{
 		for(int col = 0; col < srcRM->weights_b->getCol(); col++)
@@ -43,6 +44,7 @@ void Domain::upData()
 		}
 	}
 
+	cout << "Domain 47" << endl;
 	for(int row = 0; row < srcRM->rae1->weights1->getRow(); row++)
 	{
 		for(int col = 0; col < srcRM->rae1->weights1->getCol(); col++)
@@ -55,6 +57,7 @@ void Domain::upData()
 		}
 	}
 
+	cout << "Domain 60" << endl;
 	for(int row = 0; row < srcRM->rae1->weights_b1->getRow(); row++)
 	{
 		for(int col = 0; col < srcRM->rae1->weights_b1->getCol(); col++)
@@ -67,6 +70,7 @@ void Domain::upData()
 		}
 	}
 
+	cout << "Domain 73" << endl;
 	for(int row = 0; row < srcRM->rae1->weights2->getRow(); row++)
 	{
 		for(int col = 0; col < srcRM->rae1->weights2->getCol(); col++)
@@ -79,6 +83,7 @@ void Domain::upData()
 		}
 	}
 
+	cout << "Domain 86" << endl;
 	for(int row = 0; row < srcRM->rae1->weights_b2->getRow(); row++)
 	{
 		for(int col = 0; col < srcRM->rae1->weights_b2->getCol(); col++)
@@ -91,17 +96,20 @@ void Domain::upData()
 		}
 	}
 
+	cout << "Domain 99" << endl;
 	srcRM->delWeight->setToZeros();
 	srcRM->delWeight_b->setToZeros();
 	tgtRM->delWeight->setToZeros();
 	tgtRM->delWeight_b->setToZeros();
 
+	cout << "Domain 105" << endl;
 	delete srcRM->rae1;
 	delete srcRM->rae2;
 
 	delete tgtRM->rae1;
 	delete tgtRM->rae2;
 
+	cout << "Domain 112" << endl;
 	srcRM->rae1 = srcRM->rae->copy();
 	srcRM->rae2 = srcRM->rae->copy();
 
@@ -193,7 +201,8 @@ void Domain::training()
 	for(int count = 0; count < iterTime; count++)
 	{
 		//Ò»ÂÖÑµÁ·
-		for(int i = 0; i < trainingData.size(); i++)
+		for(int i = trainingData.size()-3; i < trainingData.size(); i++)
+		//for(int i = 0; i < trainingData.size(); i++)
 		{
 			srcRM->getData(trainingData[i].second["ct1"], trainingData[i].second["ct2"]);
 			tgtRM->getData(trainingData[i].second["et1"], trainingData[i].second["et2"]);
@@ -336,7 +345,8 @@ void Domain::test()
 	int srcCount = 0;
 	int tgtCount = 0;
 
-	for(int i = 0; i < trainingData.size(); i++)
+	for(int i = trainingData.size()-3; i < trainingData.size(); i++)
+	//for(int i = 0; i < trainingData.size(); i++)
 	{
 		srcRM->getData(trainingData[i].second["ct1"], trainingData[i].second["ct2"]);
 		tgtRM->getData(trainingData[i].second["et1"], trainingData[i].second["et2"]);

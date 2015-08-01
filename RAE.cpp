@@ -302,10 +302,10 @@ RAE* RAE::copy()
 	newRAE->vecSize = this->vecSize;
 	newRAE->words = this->words;
 	
-	delWeight1 = NULL;
-	delWeight1_b = NULL;
-	delWeight2 = NULL;
-	delWeight2_b = NULL;
+	newRAE->delWeight1 = NULL;
+	newRAE->delWeight1_b = NULL;
+	newRAE->delWeight2 = NULL;
+	newRAE->delWeight2_b = NULL;
 	
 	newRAE->weights1 = this->weights1->copy();
 	newRAE->weights_b1 = this->weights_b1->copy();
