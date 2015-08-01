@@ -36,7 +36,7 @@ public:
 		rightChild->parent = NULL;
 		leftChild->parent = NULL;
 		
-		if(!leftReconst)
+		if(leftReconst)
 		{
 			delete leftReconst;
 			delete rightReconst;

@@ -194,7 +194,7 @@ void Domain::training()
 	{
 		//Ò»ÂÖÑµÁ·
 		for(int i = trainingData.size()-10; i < trainingData.size(); i++)
-		{	
+		{
 			srcRM->getData(trainingData[i].second["ct1"], trainingData[i].second["ct2"]);
 			tgtRM->getData(trainingData[i].second["et1"], trainingData[i].second["et2"]);
 			

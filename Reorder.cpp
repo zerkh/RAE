@@ -16,6 +16,9 @@ ReorderModel::ReorderModel(Parameter* para, WordVec* words)
 
 	weights->randInitVector();
 	weights_b->randInitVector();
+
+	outputLayer = NULL;
+	softmaxLayer = NULL;
 }
 
 double ReorderModel::decay()
@@ -37,11 +40,14 @@ double ReorderModel::decay()
 
 void ReorderModel::softmax()
 {
-	delete outputLayer;
-	delete softmaxLayer;	
+	if(outputLayer)
+	{
+		delete outputLayer;
+		delete softmaxLayer;
+	}	
 
 	outputLayer = rae1->RAETree->getRoot()->getVector()->concat(rae2->RAETree->getRoot()->getVector())->multiply(weights, true)->add(weights_b);
-
+	
 	double result;
 
 	result = exp(outputLayer->getValue(0, 0))/(exp(outputLayer->getValue(0, 0)) + exp(outputLayer->getValue(0, 1)));
@@ -57,7 +63,7 @@ void ReorderModel::softmax()
 void ReorderModel::getData(string bp1, string bp2)
 {
 	rae1->buildTree(bp1);
-
+	
 	rae2->buildTree(bp2);
 
 	softmax();

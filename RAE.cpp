@@ -34,6 +34,11 @@ RAE::RAE(int size)
 	delWeight2 = new Vector(vecSize*2, vecSize);
 	delWeight2_b = new Vector(1, vecSize*2);
 	
+	weights1 = NULL;
+	weights2 = NULL;
+	weights_b1 = NULL;
+	weights_b2 = NULL;	
+
 	delWeight1->setToZeros();
 	delWeight1_b->setToZeros();
 	delWeight2->setToZeros();
@@ -296,6 +301,11 @@ RAE* RAE::copy()
 	RAE* newRAE = new RAE(this->vecSize);
 	newRAE->vecSize = this->vecSize;
 	newRAE->words = this->words;
+	
+	delWeight1 = NULL;
+	delWeight1_b = NULL;
+	delWeight2 = NULL;
+	delWeight2_b = NULL;
 	
 	newRAE->weights1 = this->weights1->copy();
 	newRAE->weights_b1 = this->weights_b1->copy();
