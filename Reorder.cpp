@@ -47,9 +47,16 @@ void ReorderModel::softmax()
 	{
 		delete outputLayer;
 		delete softmaxLayer;
+		outputLayer = NULL;
+		softmaxLayer = NULL;
 	}	
 
-	outputLayer = rae1->RAETree->getRoot()->getVector()->concat(rae2->RAETree->getRoot()->getVector())->multiply(weights, true)->add(weights_b);
+	Vector* tmpConcat = NULL;
+	tmpConcat = rae1->RAETree->getRoot()->getVector()->concat(rae2->RAETree->getRoot()->getVector());
+	Vector* tmpMultiply = tmpConcat->multiply(weights, true);
+	outputLayer = tmpMultiply->add(weights_b);
+	delete tmpMultiply;
+	delete tmpConcat;
 	
 	double result;
 

@@ -168,6 +168,12 @@ void RAE::buildTree(string bp)
 	stringstream ss(bp);
 	string tmp;
 
+	if(RAETree)
+	{
+		delete RAETree;
+		RAETree = NULL;
+	}
+
 	while(ss >> tmp)
 	{
 		if(!words->isInDict(tmp))

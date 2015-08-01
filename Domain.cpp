@@ -14,10 +14,6 @@ Domain::Domain(Parameter* para, string domainName, WordVec* srcWords, WordVec* t
 
 	this->domainName = domainName;
 	out.open(string("./log/"+ domainName + "/" + domainName+".log").c_str(), ios::out);
-	srcOut.open(string("./log/"+ domainName + "/" + "src"+domainName+".log").c_str(), ios::out);
-	tgtOut.open(string("./log/"+ domainName + "/" + "tgt"+domainName+".log").c_str(), ios::out);
-	srcWLog.open(string("./log/"+ domainName + "/" + "src"+domainName+"Weights.log").c_str(), ios::out);
-	tgtWLog.open(string("./log/"+ domainName + "/" + "tgt"+domainName+"Weights.log").c_str(), ios::out);
 	
 	srcRM = new ReorderModel(para, srcWords);
 	tgtRM = new ReorderModel(para, tgtWords);
@@ -144,6 +140,7 @@ void Domain::loadTrainingData()
 	in.close();
 }
 
+//获取单领域的loss value
 double Domain::loss(int ind)
 {
 	double lossVal = 0;
@@ -152,12 +149,14 @@ double Domain::loss(int ind)
 	lossVal += ALPHA * srcRM->rae2->loss();
 	lossVal += ALPHA * tgtRM->rae1->loss();
 	lossVal += ALPHA * tgtRM->rae2->loss();
-/*
+	
+	/*
 	cout << "srcRM->rae1->loss: " << srcRM->rae1->loss() << endl;
 	cout << "srcRM->rae2->loss: " << srcRM->rae2->loss() << endl;
 	cout << "tgtRM->rae1->loss: " << tgtRM->rae1->loss() << endl;
 	cout << "tgtRM->rae2->loss: " << tgtRM->rae2->loss() << endl;
 	*/
+
 	cout << "loss: " << lossVal << endl;
 
 	for(int i = 0; i < 2; i++)
@@ -166,11 +165,10 @@ double Domain::loss(int ind)
 	}
 
 	cout << "Src softmax: [" << srcRM->softmaxLayer->getValue(0, 0) << " , " << srcRM->softmaxLayer->getValue(0, 1) << "]" << endl;	
-
 	cout << "Tgt softmax: [" << tgtRM->softmaxLayer->getValue(0, 0) << " , " << tgtRM->softmaxLayer->getValue(0, 1) << "]" << endl; 	
  	cout << "Src output: [" << srcRM->outputLayer->getValue(0, 0) << " , " << srcRM->outputLayer->getValue(0, 1) << "]" << endl; 
-
-        cout << "Tgt output: [" << tgtRM->outputLayer->getValue(0, 0) << " , " << tgtRM->outputLayer->getValue(0, 1) << "]" << endl; 
+    cout << "Tgt output: [" << tgtRM->outputLayer->getValue(0, 0) << " , " << tgtRM->outputLayer->getValue(0, 1) << "]" << endl; 
+	
 	if(trainingData[ind].first == 1)
 	{
 		lossVal += BETA * (pow(srcRM->softmaxLayer->getValue(0, 0) - 1, 2) + pow(srcRM->softmaxLayer->getValue(0, 1) - 0, 2))/2;
@@ -199,6 +197,7 @@ void Domain::training()
 		//for(int i = trainingData.size()-3; i < trainingData.size(); i++)
 		for(int i = 0; i < trainingData.size(); i++)
 		{
+			//获取实例
 			srcRM->getData(trainingData[i].second["ct1"], trainingData[i].second["ct2"]);
 			tgtRM->getData(trainingData[i].second["et1"], trainingData[i].second["et2"]);
 			
@@ -207,14 +206,17 @@ void Domain::training()
 				out << " : " << i << "th's " << "loss value : " << loss(i) << endl;
 			}
 
+			//对rae求导
 			srcRM->rae1->trainRecError();
 			srcRM->rae2->trainRecError();
 			tgtRM->rae1->trainRecError();
 			tgtRM->rae2->trainRecError();
 
+			//对调序模型求导(Edis)
 			srcRM->trainRM(tgtRM->softmaxLayer, true);
 			tgtRM->trainRM(srcRM->softmaxLayer, true);
 
+			//Ereo
 			Vector* mono = new Vector(1,2);
 			Vector* invert = new Vector(1,2);
 
@@ -239,14 +241,19 @@ void Domain::training()
 			delete invert;
 		}
 
+		//更新权重
 		upData();
 	}
 
+	//记录权重
 	logWeights();
 }
 
 void Domain::logWeights()
 {	
+	srcWLog.open(string("./log/"+ domainName + "/" + "src"+domainName+"Weights.log").c_str(), ios::out);
+	tgtWLog.open(string("./log/"+ domainName + "/" + "tgt"+domainName+"Weights.log").c_str(), ios::out);
+
 	srcWLog << "RM: \nW: \n";
 	tgtWLog << "RM: \nW: \n";
 
@@ -334,6 +341,9 @@ void Domain::logWeights()
 
 void Domain::test()
 {
+	srcOut.open(string("./log/"+ domainName + "/" + "src"+domainName+".log").c_str(), ios::out);
+	tgtOut.open(string("./log/"+ domainName + "/" + "tgt"+domainName+".log").c_str(), ios::out);
+
 	srcOut << "True value\t\tPredict value" << endl;
 	tgtOut << "True value\t\tPredict value" << endl;
 
@@ -382,4 +392,7 @@ void Domain::test()
 
 	srcOut << "Precision: " << (double)srcCount/trainingData.size() << endl;
 	tgtOut << "Precision: " << (double)tgtCount/trainingData.size() << endl;
+
+	srcOut.close();
+	tgtOut.close();
 }
