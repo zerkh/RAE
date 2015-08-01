@@ -193,7 +193,7 @@ void Domain::training()
 	for(int count = 0; count < iterTime; count++)
 	{
 		//Ò»ÂÖÑµÁ·
-		for(int i = trainingData.size()-10; i < trainingData.size(); i++)
+		for(int i = 0; i < trainingData.size(); i++)
 		{
 			srcRM->getData(trainingData[i].second["ct1"], trainingData[i].second["ct2"]);
 			tgtRM->getData(trainingData[i].second["et1"], trainingData[i].second["et2"]);
@@ -336,7 +336,7 @@ void Domain::test()
 	int srcCount = 0;
 	int tgtCount = 0;
 
-	for(int i = trainingData.size()-10; i < trainingData.size(); i++)
+	for(int i = 0; i < trainingData.size(); i++)
 	{
 		srcRM->getData(trainingData[i].second["ct1"], trainingData[i].second["ct2"]);
 		tgtRM->getData(trainingData[i].second["et1"], trainingData[i].second["et2"]);
