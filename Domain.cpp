@@ -165,7 +165,7 @@ double Domain::loss(int ind)
 	cout << "Src softmax: [" << srcRM->softmaxLayer->getValue(0, 0) << " , " << srcRM->softmaxLayer->getValue(0, 1) << "]" << endl;	
 
 	cout << "Tgt softmax: [" << tgtRM->softmaxLayer->getValue(0, 0) << " , " << tgtRM->softmaxLayer->getValue(0, 1) << "]" << endl; 	
- cout << "Src output: [" << srcRM->outputLayer->getValue(0, 0) << " , " << srcRM->outputLayer->getValue(0, 1) << "]" << endl; 
+ 	cout << "Src output: [" << srcRM->outputLayer->getValue(0, 0) << " , " << srcRM->outputLayer->getValue(0, 1) << "]" << endl; 
 
         cout << "Tgt output: [" << tgtRM->outputLayer->getValue(0, 0) << " , " << tgtRM->outputLayer->getValue(0, 1) << "]" << endl; 
 	if(trainingData[ind].first == 1)
@@ -193,21 +193,21 @@ void Domain::training()
 	for(int count = 0; count < iterTime; count++)
 	{
 		//Ò»ÂÖÑµÁ·
-		for(int i = 0; i < trainingData.size(); i++)
+		for(int i = trainingData.size()-10; i < trainingData.size(); i++)
 		{	
 			srcRM->getData(trainingData[i].second["ct1"], trainingData[i].second["ct2"]);
 			tgtRM->getData(trainingData[i].second["et1"], trainingData[i].second["et2"]);
 			
 			if(i >= trainingData.size()-10 && i < trainingData.size())
 			{	
-				out << count << " : " << i << "th's " << "loss value : " << loss(i) << endl;
+				out << " : " << i << "th's " << "loss value : " << loss(i) << endl;
 			}
 
 			srcRM->rae1->trainRecError();
 			srcRM->rae2->trainRecError();
 			tgtRM->rae1->trainRecError();
 			tgtRM->rae2->trainRecError();
-			
+
 			srcRM->trainRM(tgtRM->softmaxLayer, true);
 			tgtRM->trainRM(srcRM->softmaxLayer, true);
 
@@ -336,7 +336,7 @@ void Domain::test()
 	int srcCount = 0;
 	int tgtCount = 0;
 
-	for(int i = 0; i < trainingData.size(); i++)
+	for(int i = trainingData.size()-10; i < trainingData.size(); i++)
 	{
 		srcRM->getData(trainingData[i].second["ct1"], trainingData[i].second["ct2"]);
 		tgtRM->getData(trainingData[i].second["et1"], trainingData[i].second["et2"]);

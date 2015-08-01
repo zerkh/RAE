@@ -37,6 +37,9 @@ double ReorderModel::decay()
 
 void ReorderModel::softmax()
 {
+	delete outputLayer;
+	delete softmaxLayer;	
+
 	outputLayer = rae1->RAETree->getRoot()->getVector()->concat(rae2->RAETree->getRoot()->getVector())->multiply(weights, true)->add(weights_b);
 
 	double result;

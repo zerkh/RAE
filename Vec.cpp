@@ -235,5 +235,5 @@ Vector* Vector::add(Vector* secVec)
 		}
 	}
 
-	return secVec;
+	return newVec;
 }

@@ -81,7 +81,7 @@ void work(worker_arg_t* arg)
 	Domain* d = arg->domain;
 	cout << "Processing " << d->domainName << "......" << endl << endl;
 	
-	cout << "Loading" + d->domainName + "training data..." << endl << endl;
+	cout << "Loading " + d->domainName + " training data..." << endl << endl;
 	start = clock();
 	d->loadTrainingData();
 	end = clock();
@@ -97,5 +97,5 @@ void work(worker_arg_t* arg)
 	start = clock();
 	d->test();
 	end = clock();
-	cout << "The time of training " + d->domainName + " is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
+	cout << "The time of testing " + d->domainName + " is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
 }
