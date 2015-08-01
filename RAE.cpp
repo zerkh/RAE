@@ -334,10 +334,8 @@ RAE::~RAE()
 		}
 		
 		n2 = n1->getLeftChildNode();
-		if(n1 != NULL)
-		{
-			delete n1;
-		}
+		delete n1;
+		
 		n1 = n2;
 	}
 

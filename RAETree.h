@@ -33,13 +33,12 @@ public:
 
 	~Node()
 	{
-		rightChild->parent = NULL;
-		leftChild->parent = NULL;
-		
 		if(leftReconst)
 		{
+			cout << "RAETreeH 41" << endl;
 			delete leftReconst;
 			delete rightReconst;
+			cout << "RAETreeH 44" << endl;
 		}
 	}
 

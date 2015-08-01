@@ -90,7 +90,7 @@ void ReorderModel::trainRM(Vector* y, bool isSoftmax)
 	for(int row = 0; row < weights->getRow(); row++)
 	{
 		double result;
-		result = (softmaxLayer->getValue(0, row) - y->getValue(0, row)) * (exp(outputLayer->getValue(0, 0))*exp(outputLayer->getValue(0, 1))/(exp(outputLayer->getValue(0, 0))+exp(outputLayer->getValue(0, 1))));
+		result = (softmaxLayer->getValue(0, row) - y->getValue(0, row)) * (exp(outputLayer->getValue(0, 0))*exp(outputLayer->getValue(0, 1))/pow(exp(outputLayer->getValue(0, 0))+exp(outputLayer->getValue(0, 1)), 2));
 		
 		for(int col = 0; col < weights->getCol(); col++)
 		{
@@ -99,7 +99,7 @@ void ReorderModel::trainRM(Vector* y, bool isSoftmax)
 			
 			delete tmpX;
 		}
-
+		
 		delWeight_b->setValue(0, row, delWeight_b->getValue(0, row) + p * result);
 		theta->setValue(0, row, result);
 	}
