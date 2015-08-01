@@ -14,6 +14,9 @@ ReorderModel::ReorderModel(Parameter* para, WordVec* words)
 	delWeight = new Vector(weights->getRow(), weights->getCol());
 	delWeight_b = new Vector(weights_b->getRow(), weights_b->getCol());
 
+	delWeight->setToZeros();
+	delWeight_b->setToZeros();
+
 	weights->randInitVector();
 	weights_b->randInitVector();
 
