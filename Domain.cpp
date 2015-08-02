@@ -11,6 +11,7 @@ Domain::Domain(Parameter* para, string domainName, WordVec* srcWords, WordVec* t
 	*/
 	dataFile = para->getPara(domainName + "DataFile");
 	iterTime = atoi(para->getPara("IterationTime").c_str());
+	iterTime = 5;
 
 	this->domainName = domainName;
 	out.open(string("./log/"+ domainName + "/" + domainName+".log").c_str(), ios::out);
@@ -203,7 +204,7 @@ void Domain::training()
 			
 			if(i >= trainingData.size()-10 && i < trainingData.size())
 			{	
-				out << " : " << i << "th's " << "loss value : " << loss(i) << endl;
+				out<< count  << " : " << i << "th's " << "loss value : " << loss(i) << endl;
 			}
 
 			//¶ÔraeÇóµ¼

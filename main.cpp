@@ -42,8 +42,14 @@ int main(int argc, char* argv[])
 	string domainLine = para->getPara("DomainList");
 	string domainName;
 	stringstream ss(domainLine);
+	int count = 0;
 	while(ss >> domainName)
 	{
+		if(count == thread_num)
+		{
+			break;
+		}
+		count++;
 		v_domains.push_back(domainName);
 	}
 
