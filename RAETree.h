@@ -35,10 +35,8 @@ public:
 	{
 		if(leftReconst)
 		{
-			cout << "RAETreeH 41" << endl;
 			delete leftReconst;
 			delete rightReconst;
-			cout << "RAETreeH 44" << endl;
 		}
 	}
 

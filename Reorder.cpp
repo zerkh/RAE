@@ -115,7 +115,10 @@ void ReorderModel::trainRM(Vector* y, bool isSoftmax)
 	Node* preNode1 = rae1->RAETree->getRoot();
 	Node* preNode2 = rae2->RAETree->getRoot();
 
-	theta = theta->multiply(weights, false);
+	Vector* tmp = theta;
+	theta = tmp->multiply(weights, false);
+	delete tmp;
+
 	Vector* theta1 = new Vector(theta->getRow(), theta->getCol()/2);
 	Vector* theta2 = new Vector(theta->getRow(), theta->getCol()/2);
 	
@@ -144,7 +147,10 @@ void ReorderModel::trainRM(Vector* y, bool isSoftmax)
 			delWeight_b->setValue(0, row, delWeight_b->getValue(0, row) + p * theta1->getValue(0, row));
 		}
 
-		theta1 = theta1->multiply(rae1->weights1, false);
+		tmp = theta1;
+		theta1 = tmp->multiply(rae1->weights1, false);
+		delete tmp;
+
 		Vector* tmpTheta = new Vector(theta->getRow(), theta->getCol()/2);
 
 		for(int i = 0; i < theta1->getCol(); i++)
@@ -175,7 +181,10 @@ void ReorderModel::trainRM(Vector* y, bool isSoftmax)
 			delWeight_b->setValue(0, row, delWeight_b->getValue(0, row) + p * theta2->getValue(0, row));
 		}
 
-		theta2 = theta2->multiply(rae1->weights1, false);
+		tmp = theta2;
+		theta2 = tmp->multiply(rae1->weights1, false);
+		delete tmp;
+
 		Vector* tmpTheta = new Vector(theta->getRow(), theta->getCol()/2);
 
 		for(int i = 0; i < theta2->getCol(); i++)
