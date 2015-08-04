@@ -171,13 +171,13 @@ double Domain::loss(int ind)
 	
 	if(trainingData[ind].first == 1)
 	{
-		lossVal += BETA * (pow(srcRM->softmaxLayer->getValue(0, 0) - 1, 2) + pow(srcRM->softmaxLayer->getValue(0, 1) - 0, 2))/2;
-		lossVal += BETA * (pow(tgtRM->softmaxLayer->getValue(0, 0) - 1, 2) + pow(tgtRM->softmaxLayer->getValue(0, 1) - 0, 2))/2;
+		lossVal += BETA * srcRM->softmaxLayer->getValue(0, 0) * -1.0;
+		lossVal += BETA * tgtRM->softmaxLayer->getValue(0, 0) * -1.0;
 	}
 	else
 	{
-		lossVal += BETA * (pow(srcRM->softmaxLayer->getValue(0, 0) - 0, 2) + pow(srcRM->softmaxLayer->getValue(0, 1) - 1, 2))/2;
-		lossVal += BETA * (pow(tgtRM->softmaxLayer->getValue(0, 0) - 0, 2) + pow(tgtRM->softmaxLayer->getValue(0, 1) - 1, 2))/2;
+		lossVal += BETA * srcRM->softmaxLayer->getValue(0, 1) * -1.0;
+		lossVal += BETA * tgtRM->softmaxLayer->getValue(0, 1) * -1.0;
 	}
 
 	cout << "After Ereo loss: " << lossVal << endl;	

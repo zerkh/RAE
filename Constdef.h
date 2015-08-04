@@ -17,10 +17,8 @@ const double ALPHA = 0.2;
 const double BETA = 1.2;
 //平方误差
 const double GAMMA = 1.2;
-//偏置项
+//偏置�?
 const double ZETA = 0;
-
-const double DELTA = 0.2;
 //学习速率
 const double RATE = 0.65;
 
