@@ -118,7 +118,14 @@ void ReorderModel::trainRM(Vector* y, bool isSoftmax)
 		for(int row = 0; row < weights->getRow(); row++)
 		{
 			double result;
-			result = (y->getValue(0, row)-outputLayer->getValue(0, row));
+			if(y->getValue(0, row) == 1)
+			{
+				result = (1-outputLayer->getValue(0, row));
+			}
+			else
+			{
+				result = 0;
+			}
 
 			for(int col = 0; col < weights->getCol(); col++)
 			{

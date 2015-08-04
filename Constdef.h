@@ -11,15 +11,15 @@ const int REC_NODE = 2;
 
 typedef pair<int, int> span;
 
-//重构参数
+//Erec
 const double ALPHA = 0.2;
 //Ereo
-const double BETA = 1.2;
-//平方误差
-const double GAMMA = 1.2;
-//偏置�?
-const double ZETA = 0;
-//学习速率
+const double BETA = 0;
+//Edis
+const double GAMMA = 0;
+//Decay
+const double ZETA = 0.01;
+//learning rate
 const double RATE = 0.65;
 
 #endif
