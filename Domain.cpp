@@ -11,7 +11,6 @@ Domain::Domain(Parameter* para, string domainName, WordVec* srcWords, WordVec* t
 	*/
 	dataFile = para->getPara(domainName + "DataFile");
 	iterTime = atoi(para->getPara("IterationTime").c_str());
-	iterTime = 5;
 
 	this->domainName = domainName;
 	out.open(string("./log/"+ domainName + "/" + domainName+".log").c_str(), ios::out);
@@ -112,8 +111,6 @@ void Domain::upData()
 //读取单领域训练数据
 void Domain::loadTrainingData()
 {
-	trainingData.clear();
-
 	ifstream in(dataFile.c_str(), ios::in);
 
 	string line;
@@ -197,8 +194,8 @@ void Domain::training()
 	for(int count = 0; count < iterTime; count++)
 	{
 		//一轮训练
-		for(int i = trainingData.size()-3; i < trainingData.size(); i++)
-		//for(int i = 0; i < trainingData.size(); i++)
+		//for(int i = trainingData.size()-3; i < trainingData.size(); i++)
+		for(int i = 0; i < trainingData.size(); i++)
 		{
 			//获取实例
 			srcRM->getData(trainingData[i].second["ct1"], trainingData[i].second["ct2"]);
@@ -246,7 +243,6 @@ void Domain::training()
 
 		//更新权重
 		upData();
-		loadTrainingData();
 	}
 
 	//记录权重
@@ -348,16 +344,14 @@ void Domain::test()
 	srcOut.open(string("./log/"+ domainName + "/" + "src"+domainName+".log").c_str(), ios::out);
 	tgtOut.open(string("./log/"+ domainName + "/" + "tgt"+domainName+".log").c_str(), ios::out);
 
-	loadTrainingData();
-
 	srcOut << "True value\t\tPredict value" << endl;
 	tgtOut << "True value\t\tPredict value" << endl;
 
 	int srcCount = 0;
 	int tgtCount = 0;
 
-	for(int i = trainingData.size()-3; i < trainingData.size(); i++)
-	//for(int i = 0; i < trainingData.size(); i++)
+	//for(int i = trainingData.size()-3; i < trainingData.size(); i++)
+	for(int i = 0; i < trainingData.size(); i++)
 	{
 		srcRM->getData(trainingData[i].second["ct1"], trainingData[i].second["ct2"]);
 		tgtRM->getData(trainingData[i].second["et1"], trainingData[i].second["et2"]);

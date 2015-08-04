@@ -20,8 +20,8 @@ ReorderModel::ReorderModel(Parameter* para, WordVec* words)
 	weights->randInitVector();
 	weights_b->randInitVector();
 
-	outputLayer = NULL;
-	softmaxLayer = NULL;
+	outputLayer = new Vector(1, 2);
+	softmaxLayer = new Vector(1, 2);
 }
 
 double ReorderModel::decay()
@@ -43,31 +43,28 @@ double ReorderModel::decay()
 
 void ReorderModel::softmax()
 {
-	if(outputLayer)
-	{
-		delete outputLayer;
-		delete softmaxLayer;
-		outputLayer = NULL;
-		softmaxLayer = NULL;
-	}	
-
 	Vector* tmpConcat = NULL;
 	tmpConcat = rae1->RAETree->getRoot()->getVector()->concat(rae2->RAETree->getRoot()->getVector());
 	Vector* tmpMultiply = tmpConcat->multiply(weights, true);
-	outputLayer = tmpMultiply->add(weights_b);
+	Vector* tmpOutput = tmpMultiply->add(weights_b);
 	delete tmpMultiply;
 	delete tmpConcat;
+
+	for(int row = 0;row < outputLayer->getRow(); row++)
+	{
+		for(int col = 0; col < outputLayer->getCol(); col++)
+		{
+			outputLayer->setValue(row, col, tmpOutput->getValue(row, col));
+		}
+	}
+	delete tmpOutput;
 	
 	double result;
 
 	result = exp(outputLayer->getValue(0, 0))/(exp(outputLayer->getValue(0, 0)) + exp(outputLayer->getValue(0, 1)));
 
-	Vector* soft = new Vector(1, 2);
-
-	soft->setValue(0, 0, result);
-	soft->setValue(0, 1, 1-result);
-
-	softmaxLayer = soft;
+	softmaxLayer->setValue(0, 0, result);
+	softmaxLayer->setValue(0, 1, 1-result);
 }
 
 void ReorderModel::getData(string bp1, string bp2)

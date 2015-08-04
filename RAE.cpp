@@ -5,6 +5,7 @@ RAE::RAE(Parameter* para, WordVec* words)
 	vecSize = atoi(para->getPara("WordVecSize").c_str());
 	this->words = words;
 
+	RAETree = NULL;
 	weights1 = new Vector(vecSize, vecSize*2);
 	weights2 = new Vector(vecSize*2, vecSize);
 	weights_b1 = new Vector(1, vecSize);
@@ -28,6 +29,7 @@ RAE::RAE(Parameter* para, WordVec* words)
 
 RAE::RAE(int size)
 {
+	RAETree = NULL;
 	this->vecSize = size;
 	delWeight1 = new Vector(vecSize, vecSize*2);
 	delWeight1_b = new Vector(1, vecSize);
@@ -195,7 +197,7 @@ void RAE::buildTree(string bp)
 		RAETree = new Tree(treeNodes[0]);
 		return;
 	}
-
+	
 	//选取Erec最小的两个based节点
 	vector<double> v_recError;
 	for(int i = 0; i < treeNodes.size()-1; i++)
@@ -308,6 +310,7 @@ RAE* RAE::copy()
 	newRAE->vecSize = this->vecSize;
 	newRAE->words = this->words;
 	
+	newRAE->RAETree = NULL;
 	newRAE->weights1 = this->weights1->copy();
 	newRAE->weights_b1 = this->weights_b1->copy();
 	newRAE->weights2 = this->weights2->copy();

@@ -11,17 +11,17 @@ const int REC_NODE = 2;
 
 typedef pair<int, int> span;
 
-//ÖØ¹¹²ÎÊı
+//é‡æ„å‚æ•°
 const double ALPHA = 0.2;
 //Ereo
-const double BETA = 0.2;
-//Æ½·½Îó²î
-const double GAMMA = 0.2;
-//Æ«ÖÃÏî
-const double ZETA = 0.2;
+const double BETA = 1.2;
+//å¹³æ–¹è¯¯å·®
+const double GAMMA = 1.2;
+//åç½®é¡¹
+const double ZETA = 0;
 
 const double DELTA = 0.2;
-//Ñ§Ï°ËÙÂÊ
-const double RATE = 0.3;
+//å­¦ä¹ é€Ÿç‡
+const double RATE = 0.65;
 
 #endif
