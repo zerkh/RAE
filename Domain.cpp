@@ -356,7 +356,7 @@ void Domain::test()
 		srcRM->getData(trainingData[i].second["ct1"], trainingData[i].second["ct2"]);
 		tgtRM->getData(trainingData[i].second["et1"], trainingData[i].second["et2"]);
 
-		if(srcRM->softmaxLayer->getValue(0, 0) > srcRM->softmaxLayer->getValue(0,1))
+		if(srcRM->outputLayer->getValue(0, 0) > srcRM->outputLayer->getValue(0,1))
 		{
 			if(trainingData[i].first == 1)
 			{
@@ -371,7 +371,7 @@ void Domain::test()
 			}
 		}
 
-		if(tgtRM->softmaxLayer->getValue(0, 0) > tgtRM->softmaxLayer->getValue(0,1))
+		if(tgtRM->outputLayer->getValue(0, 0) > tgtRM->outputLayer->getValue(0,1))
 		{
 			if(trainingData[i].first == 1)
 			{
@@ -386,8 +386,8 @@ void Domain::test()
                         }
                 }
 
-		srcOut << trainingData[i].first << "\t\t[" << srcRM->softmaxLayer->getValue(0,0) << " , " << srcRM->softmaxLayer->getValue(0,1) << "]" << endl;
-		tgtOut << trainingData[i].first << "\t\t[" << tgtRM->softmaxLayer->getValue(0,0) << " , " << tgtRM->softmaxLayer->getValue(0,1) << "]" << endl;
+		srcOut << trainingData[i].first << "\t\t[" << srcRM->outputLayer->getValue(0,0) << " , " << srcRM->outputLayer->getValue(0,1) << "]" << endl;
+		tgtOut << trainingData[i].first << "\t\t[" << tgtRM->outputLayer->getValue(0,0) << " , " << tgtRM->outputLayer->getValue(0,1) << "]" << endl;
 	}
 
 	srcOut << "Precision: " << (double)srcCount/trainingData.size() << endl;

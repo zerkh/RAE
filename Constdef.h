@@ -14,7 +14,7 @@ typedef pair<int, int> span;
 //Erec
 const double ALPHA = 0.2;
 //Ereo
-const double BETA = 0;
+const double BETA = 0.6;
 //Edis
 const double GAMMA = 0;
 //Decay
