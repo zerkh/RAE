@@ -17,18 +17,18 @@ public:
 	RAE* rae2;
 	RAE* rae;
 
-	Vector* weights;
-	Vector* weights_b;
+	MatrixXd weights;
+	MatrixXd weights_b;
 	
-	Vector* outputLayer;
-	Vector* softmaxLayer;
+	MatrixXd outputLayer;
+	MatrixXd softmaxLayer;
 
-	Vector* delWeight;
-	Vector* delWeight_b;
+	MatrixXd delWeight;
+	MatrixXd delWeight_b;
 
 	double decay();
 	void softmax();
-	void trainRM(Vector* y, bool isSoftmax);
+	void trainRM(MatrixXd y, bool isSoftmax);
 	ReorderModel(Parameter* para, WordVec* words);
 	void getData(string bp1, string bp2);
 };

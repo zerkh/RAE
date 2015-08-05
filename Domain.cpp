@@ -21,79 +21,79 @@ Domain::Domain(Parameter* para, string domainName, WordVec* srcWords, WordVec* t
 
 void Domain::upData()
 {
-	srcRM->delWeight->showVector();
-	srcRM->delWeight_b->showVector();
+	cout << srcRM->delWeight << endl;
+	cout << srcRM->delWeight_b << endl;
 
-	for(int row = 0; row < srcRM->weights->getRow(); row++)
+	for(int row = 0; row < srcRM->weights.rows(); row++)
 	{
-		for(int col = 0; col < srcRM->weights->getCol(); col++)
+		for(int col = 0; col < srcRM->weights.cols(); col++)
 		{
-			srcRM->weights->setValue(row, col, srcRM->weights->getValue(row, col) - RATE * (srcRM->delWeight->getValue(row, col)/trainingData.size() + ZETA * srcRM->weights->getValue(row, col)));
-			tgtRM->weights->setValue(row, col, tgtRM->weights->getValue(row, col) - RATE * (tgtRM->delWeight->getValue(row, col)/trainingData.size() + ZETA * tgtRM->weights->getValue(row, col)));
+			srcRM->weights(row, col) = srcRM->weights(row, col) - RATE * (srcRM->delWeight(row, col)/trainingData.size() + ZETA * srcRM->weights(row, col));
+			tgtRM->weights(row, col) = tgtRM->weights(row, col) - RATE * (tgtRM->delWeight(row, col)/trainingData.size() + ZETA * tgtRM->weights(row, col));
 		}
 	}
 
-	for(int row = 0; row < srcRM->weights_b->getRow(); row++)
+	for(int row = 0; row < srcRM->weights_b.rows(); row++)
 	{
-		for(int col = 0; col < srcRM->weights_b->getCol(); col++)
+		for(int col = 0; col < srcRM->weights_b.cols(); col++)
 		{
-			srcRM->weights_b->setValue(row, col, srcRM->weights_b->getValue(row, col) - RATE * srcRM->delWeight_b->getValue(row, col)/trainingData.size());
-			tgtRM->weights_b->setValue(row, col, tgtRM->weights_b->getValue(row, col) - RATE * tgtRM->delWeight_b->getValue(row, col)/trainingData.size());
+			srcRM->weights_b(row, col) = srcRM->weights_b(row, col) - RATE * srcRM->delWeight_b(row, col)/trainingData.size();
+			tgtRM->weights_b(row, col) = tgtRM->weights_b(row, col) - RATE * tgtRM->delWeight_b(row, col)/trainingData.size();
 		}
 	}
 
-	for(int row = 0; row < srcRM->rae1->weights1->getRow(); row++)
+	for(int row = 0; row < srcRM->rae1->weights1.rows(); row++)
 	{
-		for(int col = 0; col < srcRM->rae1->weights1->getCol(); col++)
+		for(int col = 0; col < srcRM->rae1->weights1.cols(); col++)
 		{
-			srcRM->rae->weights1->setValue(row, col, srcRM->rae->weights1->getValue(row, col) - RATE * (srcRM->rae1->delWeight1->getValue(row, col) + ZETA * srcRM->rae->weights1->getValue(row, col)));
-			tgtRM->rae->weights1->setValue(row, col, tgtRM->rae->weights1->getValue(row, col) - RATE * (tgtRM->rae1->delWeight1->getValue(row, col) + ZETA * tgtRM->rae->weights1->getValue(row, col)));
+			srcRM->rae->weights1(row, col) = srcRM->rae->weights1(row, col) - RATE * (srcRM->rae1->delWeight1(row, col) + ZETA * srcRM->rae->weights1(row, col));
+			tgtRM->rae->weights1(row, col) = tgtRM->rae->weights1(row, col) - RATE * (tgtRM->rae1->delWeight1(row, col) + ZETA * tgtRM->rae->weights1(row, col));
 
-			srcRM->rae->weights1->setValue(row, col, srcRM->rae->weights1->getValue(row, col) - RATE * (srcRM->rae2->delWeight1->getValue(row, col) + ZETA * srcRM->rae->weights1->getValue(row, col)));
-			tgtRM->rae->weights1->setValue(row, col, tgtRM->rae->weights1->getValue(row, col) - RATE * (tgtRM->rae2->delWeight1->getValue(row, col) + ZETA * tgtRM->rae->weights1->getValue(row, col)));
+			srcRM->rae->weights1(row, col) = srcRM->rae->weights1(row, col) - RATE * (srcRM->rae2->delWeight1(row, col) + ZETA * srcRM->rae->weights1(row, col));
+			tgtRM->rae->weights1(row, col) = tgtRM->rae->weights1(row, col) - RATE * (tgtRM->rae2->delWeight1(row, col) + ZETA * tgtRM->rae->weights1(row, col));
 		}
 	}
 
-	for(int row = 0; row < srcRM->rae1->weights_b1->getRow(); row++)
+	for(int row = 0; row < srcRM->rae1->weights_b1.rows(); row++)
 	{
-		for(int col = 0; col < srcRM->rae1->weights_b1->getCol(); col++)
+		for(int col = 0; col < srcRM->rae1->weights_b1.cols(); col++)
 		{
-			srcRM->rae->weights_b1->setValue(row, col, srcRM->rae->weights_b1->getValue(row, col) - RATE * srcRM->rae1->delWeight1_b->getValue(row, col));
-			tgtRM->rae->weights_b1->setValue(row, col, tgtRM->rae->weights_b1->getValue(row, col) - RATE * tgtRM->rae1->delWeight1_b->getValue(row, col));
+			srcRM->rae->weights_b1(row, col) = srcRM->rae->weights_b1(row, col) - RATE * srcRM->rae1->delWeight1_b(row, col);
+			tgtRM->rae->weights_b1(row, col) = tgtRM->rae->weights_b1(row, col) - RATE * tgtRM->rae1->delWeight1_b(row, col);
 
-			srcRM->rae->weights_b1->setValue(row, col, srcRM->rae->weights_b1->getValue(row, col) - RATE * srcRM->rae2->delWeight1_b->getValue(row, col));
-			tgtRM->rae->weights_b1->setValue(row, col, tgtRM->rae->weights_b1->getValue(row, col) - RATE * tgtRM->rae2->delWeight1_b->getValue(row, col));
+			srcRM->rae->weights_b1(row, col) = srcRM->rae->weights_b1(row, col) - RATE * srcRM->rae2->delWeight1_b(row, col);
+			tgtRM->rae->weights_b1(row, col) = tgtRM->rae->weights_b1(row, col) - RATE * tgtRM->rae2->delWeight1_b(row, col);
 		}
 	}
 
-	for(int row = 0; row < srcRM->rae1->weights2->getRow(); row++)
+	for(int row = 0; row < srcRM->rae1->weights2.rows(); row++)
 	{
-		for(int col = 0; col < srcRM->rae1->weights2->getCol(); col++)
+		for(int col = 0; col < srcRM->rae1->weights2.cols(); col++)
 		{
-			srcRM->rae->weights2->setValue(row, col, srcRM->rae->weights2->getValue(row, col) - RATE * (srcRM->rae1->delWeight2->getValue(row, col) + ZETA * srcRM->rae->weights2->getValue(row, col)));
-			tgtRM->rae->weights2->setValue(row, col, tgtRM->rae->weights2->getValue(row, col) - RATE * (tgtRM->rae1->delWeight2->getValue(row, col) + ZETA * tgtRM->rae->weights2->getValue(row, col)));
+			srcRM->rae->weights2(row, col) = srcRM->rae->weights2(row, col) - RATE * (srcRM->rae1->delWeight2(row, col) + ZETA * srcRM->rae->weights2(row, col));
+			tgtRM->rae->weights2(row, col) = tgtRM->rae->weights2(row, col) - RATE * (tgtRM->rae1->delWeight2(row, col) + ZETA * tgtRM->rae->weights2(row, col));
 
-			srcRM->rae->weights2->setValue(row, col, srcRM->rae->weights2->getValue(row, col) - RATE * (srcRM->rae2->delWeight2->getValue(row, col) + ZETA * srcRM->rae->weights2->getValue(row, col)));
-			tgtRM->rae->weights2->setValue(row, col, tgtRM->rae->weights2->getValue(row, col) - RATE * (tgtRM->rae2->delWeight2->getValue(row, col) + ZETA * tgtRM->rae->weights2->getValue(row, col)));
+			srcRM->rae->weights2(row, col) = srcRM->rae->weights2(row, col) - RATE * (srcRM->rae2->delWeight2(row, col) + ZETA * srcRM->rae->weights2(row, col));
+			tgtRM->rae->weights2(row, col) = tgtRM->rae->weights2(row, col) - RATE * (tgtRM->rae2->delWeight2(row, col) + ZETA * tgtRM->rae->weights2(row, col));
 		}
 	}
 
-	for(int row = 0; row < srcRM->rae1->weights_b2->getRow(); row++)
+	for(int row = 0; row < srcRM->rae1->weights_b2.rows(); row++)
 	{
-		for(int col = 0; col < srcRM->rae1->weights_b2->getCol(); col++)
+		for(int col = 0; col < srcRM->rae1->weights_b2.cols(); col++)
 		{
-			srcRM->rae->weights_b2->setValue(row, col, srcRM->rae->weights_b2->getValue(row, col) - RATE * srcRM->rae1->delWeight2_b->getValue(row, col));
-			tgtRM->rae->weights_b2->setValue(row, col, tgtRM->rae->weights_b2->getValue(row, col) - RATE * tgtRM->rae1->delWeight2_b->getValue(row, col));
+			srcRM->rae->weights_b2(row, col) = srcRM->rae->weights_b2(row, col) - RATE * srcRM->rae1->delWeight2_b(row, col);
+			tgtRM->rae->weights_b2(row, col) = tgtRM->rae->weights_b2(row, col) - RATE * tgtRM->rae1->delWeight2_b(row, col);
 
-			srcRM->rae->weights_b2->setValue(row, col, srcRM->rae->weights_b2->getValue(row, col) - RATE * srcRM->rae2->delWeight2_b->getValue(row, col));
-			tgtRM->rae->weights_b2->setValue(row, col, tgtRM->rae->weights_b2->getValue(row, col) - RATE * tgtRM->rae2->delWeight2_b->getValue(row, col));
+			srcRM->rae->weights_b2(row, col) = srcRM->rae->weights_b2(row, col) - RATE * srcRM->rae2->delWeight2_b(row, col);
+			tgtRM->rae->weights_b2(row, col) = tgtRM->rae->weights_b2(row, col) - RATE * tgtRM->rae2->delWeight2_b(row, col);
 		}
 	}
 
-	srcRM->delWeight->setToZeros();
-	srcRM->delWeight_b->setToZeros();
-	tgtRM->delWeight->setToZeros();
-	tgtRM->delWeight_b->setToZeros();
+	srcRM->delWeight.setZero();
+	srcRM->delWeight_b.setZero();
+	tgtRM->delWeight.setZero();
+	tgtRM->delWeight_b.setZero();
 
 	delete srcRM->rae1;
 	delete srcRM->rae2;
@@ -161,23 +161,23 @@ double Domain::loss(int ind)
 
 	for(int i = 0; i < 2; i++)
 	{
-		lossVal += GAMMA * pow(srcRM->softmaxLayer->getValue(0, i) - tgtRM->softmaxLayer->getValue(0, i), 2) / 2;
+		lossVal += GAMMA * pow(srcRM->outputLayer(0, i) - tgtRM->outputLayer(0, i), 2) / 2;
 	}
 
-	cout << "Src softmax: [" << srcRM->softmaxLayer->getValue(0, 0) << " , " << srcRM->softmaxLayer->getValue(0, 1) << "]" << endl;	
-	cout << "Tgt softmax: [" << tgtRM->softmaxLayer->getValue(0, 0) << " , " << tgtRM->softmaxLayer->getValue(0, 1) << "]" << endl; 	
- 	cout << "Src output: [" << srcRM->outputLayer->getValue(0, 0) << " , " << srcRM->outputLayer->getValue(0, 1) << "]" << endl; 
-    cout << "Tgt output: [" << tgtRM->outputLayer->getValue(0, 0) << " , " << tgtRM->outputLayer->getValue(0, 1) << "]" << endl; 
+	cout << "Src softmax: [" << srcRM->softmaxLayer(0, 0) << " , " << srcRM->softmaxLayer(0, 1) << "]" << endl;	
+	cout << "Tgt softmax: [" << tgtRM->softmaxLayer(0, 0) << " , " << tgtRM->softmaxLayer(0, 1) << "]" << endl; 	
+ 	cout << "Src output: [" << srcRM->outputLayer(0, 0) << " , " << srcRM->outputLayer(0, 1) << "]" << endl; 
+    cout << "Tgt output: [" << tgtRM->outputLayer(0, 0) << " , " << tgtRM->outputLayer(0, 1) << "]" << endl; 
 	
 	if(trainingData[ind].first == 1)
 	{
-		lossVal += BETA * srcRM->softmaxLayer->getValue(0, 0) * -1.0;
-		lossVal += BETA * tgtRM->softmaxLayer->getValue(0, 0) * -1.0;
+		lossVal += BETA * srcRM->softmaxLayer(0, 0) * -1.0;
+		lossVal += BETA * tgtRM->softmaxLayer(0, 0) * -1.0;
 	}
 	else
 	{
-		lossVal += BETA * srcRM->softmaxLayer->getValue(0, 1) * -1.0;
-		lossVal += BETA * tgtRM->softmaxLayer->getValue(0, 1) * -1.0;
+		lossVal += BETA * srcRM->softmaxLayer(0, 1) * -1.0;
+		lossVal += BETA * tgtRM->softmaxLayer(0, 1) * -1.0;
 	}
 
 	cout << "After Ereo loss: " << lossVal << endl;	
@@ -213,17 +213,17 @@ void Domain::training()
 			tgtRM->rae2->trainRecError();
 
 			//对调序模型求导(Edis)
-			srcRM->trainRM(tgtRM->softmaxLayer, true);
-			tgtRM->trainRM(srcRM->softmaxLayer, true);
+			srcRM->trainRM(tgtRM->outputLayer, true);
+			tgtRM->trainRM(srcRM->outputLayer, true);
 
 			//Ereo
-			Vector* mono = new Vector(1,2);
-			Vector* invert = new Vector(1,2);
+			MatrixXd mono = MatrixXd(1,2);
+			MatrixXd invert = MatrixXd(1,2);
 
 			for (int j = 0; j < 2; j++)
 			{
-				mono->setValue(0, j, 1-j);
-				invert->setValue(0, j, j);
+				mono(0, j) = 1-j;
+				invert(0, j) = j;
 			}
 
 			if(trainingData[i].first == 1)
@@ -236,9 +236,6 @@ void Domain::training()
 				srcRM->trainRM(invert, false);
 				tgtRM->trainRM(invert, false);
 			}
-			
-			delete mono;
-			delete invert;
 		}
 
 		//更新权重
@@ -256,84 +253,33 @@ void Domain::logWeights()
 
 	srcWLog << "RM: \nW: \n";
 	tgtWLog << "RM: \nW: \n";
-
-	for(int row = 0; row < srcRM->weights->getRow(); row++)
-	{
-		for(int col = 0; col < srcRM->weights->getCol(); col++)
-		{
-			srcWLog << srcRM->weights->getValue(row, col) << " ";
-			tgtWLog << tgtRM->weights->getValue(row, col) << " ";
-		}
-		srcWLog << endl;
-		tgtWLog << endl;
-	}
+	srcWLog << srcRM->weights << endl;
+	tgtWLog << tgtRM->weights << endl;
 
 	srcWLog << "b: \n";
 	tgtWLog << "b: \n";
-
-	for(int row = 0; row < srcRM->weights_b->getRow(); row++)
-	{
-		for(int col = 0; col < srcRM->weights_b->getCol(); col++)
-		{
-			srcWLog << srcRM->weights_b->getValue(row, col) << " ";
-			tgtWLog << tgtRM->weights_b->getValue(row, col) << " ";
-		}
-		srcWLog << endl;
-		tgtWLog << endl;
-	}
+	srcWLog << srcRM->weights_b << endl;
+	tgtWLog << tgtRM->weights_b << endl;
 
 	srcWLog << "RAE: \nW1: \n";
 	tgtWLog << "RAE: \nW1: \n";
-
-	for(int row = 0; row < srcRM->rae->weights1->getRow(); row++)
-	{
-		for(int col = 0; col < srcRM->rae->weights1->getCol(); col++)
-		{
-			srcWLog << srcRM->rae->weights1->getValue(row, col) << " ";
-			tgtWLog << tgtRM->rae->weights1->getValue(row, col) << " ";
-		}
-		srcWLog << endl;
-		tgtWLog << endl;
-	}
+	srcWLog << srcRM->rae->weights1 << endl;
+	tgtWLog << tgtRM->rae->weights1 << endl;
 
 	srcWLog << "b1: \n";
 	tgtWLog << "b1: \n";
-	for(int row = 0; row < srcRM->rae->weights_b1->getRow(); row++)
-	{
-		for(int col = 0; col < srcRM->rae->weights_b1->getCol(); col++)
-		{
-			srcWLog << srcRM->rae->weights_b1->getValue(row, col) << " ";
-			tgtWLog << tgtRM->rae->weights_b1->getValue(row, col) << " ";
-		}
-		srcWLog << endl;
-		tgtWLog << endl;
-	}
+	srcWLog << srcRM->rae->weights_b1 << endl;
+	tgtWLog << tgtRM->rae->weights_b1 << endl;
 
 	srcWLog << "W2: \n";
 	tgtWLog << "W2: \n";
-	for(int row = 0; row < srcRM->rae->weights2->getRow(); row++)
-	{
-		for(int col = 0; col < srcRM->rae->weights2->getCol(); col++)
-		{
-			srcWLog << srcRM->rae->weights2->getValue(row, col) << " ";
-			tgtWLog << tgtRM->rae->weights2->getValue(row, col) << " ";
-		}
-		srcWLog << endl;
-		tgtWLog << endl;
-	}
+	srcWLog << srcRM->rae->weights2 << endl;
+	tgtWLog << tgtRM->rae->weights2 << endl;
 
 	srcWLog << "b2: \n";
 	tgtWLog << "b2: \n";
-	for(int row = 0; row < srcRM->rae->weights_b2->getRow(); row++)
-	{
-		for(int col = 0; col < srcRM->rae->weights_b2->getCol(); col++)
-		{
-			srcWLog << srcRM->rae->weights_b2->getValue(row, col) << " ";
-			tgtWLog << tgtRM->rae->weights_b2->getValue(row, col) << " ";
-		}
-		srcWLog << endl;
-		tgtWLog << endl;
-	}
+	srcWLog << srcRM->rae->weights_b2 << endl;
+	tgtWLog << tgtRM->rae->weights_b2 << endl;
 
 	srcWLog.close();
 	srcWLog.close();
@@ -356,7 +302,7 @@ void Domain::test()
 		srcRM->getData(trainingData[i].second["ct1"], trainingData[i].second["ct2"]);
 		tgtRM->getData(trainingData[i].second["et1"], trainingData[i].second["et2"]);
 
-		if(srcRM->outputLayer->getValue(0, 0) > srcRM->outputLayer->getValue(0,1))
+		if(srcRM->outputLayer(0, 0) > srcRM->outputLayer(0,1))
 		{
 			if(trainingData[i].first == 1)
 			{
@@ -371,7 +317,7 @@ void Domain::test()
 			}
 		}
 
-		if(tgtRM->outputLayer->getValue(0, 0) > tgtRM->outputLayer->getValue(0,1))
+		if(tgtRM->outputLayer(0, 0) > tgtRM->outputLayer(0,1))
 		{
 			if(trainingData[i].first == 1)
 			{
@@ -386,8 +332,8 @@ void Domain::test()
                         }
                 }
 
-		srcOut << trainingData[i].first << "\t\t[" << srcRM->outputLayer->getValue(0,0) << " , " << srcRM->outputLayer->getValue(0,1) << "]" << endl;
-		tgtOut << trainingData[i].first << "\t\t[" << tgtRM->outputLayer->getValue(0,0) << " , " << tgtRM->outputLayer->getValue(0,1) << "]" << endl;
+		srcOut << trainingData[i].first << "\t\t[" << srcRM->outputLayer(0,0) << " , " << srcRM->outputLayer(0,1) << "]" << endl;
+		tgtOut << trainingData[i].first << "\t\t[" << tgtRM->outputLayer(0,0) << " , " << tgtRM->outputLayer(0,1) << "]" << endl;
 	}
 
 	srcOut << "Precision: " << (double)srcCount/trainingData.size() << endl;

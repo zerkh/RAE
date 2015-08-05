@@ -1,4 +1,5 @@
 #include "RAE.h"
+#include "Util.h"
 
 RAE::RAE(Parameter* para, WordVec* words)
 {
@@ -6,45 +7,40 @@ RAE::RAE(Parameter* para, WordVec* words)
 	this->words = words;
 
 	RAETree = NULL;
-	weights1 = new Vector(vecSize, vecSize*2);
-	weights2 = new Vector(vecSize*2, vecSize);
-	weights_b1 = new Vector(1, vecSize);
-	weights_b2 = new Vector(1, vecSize*2);
+	weights1 = MatrixXd(vecSize, vecSize*2);
+	weights2 = MatrixXd(vecSize*2, vecSize);
+	weights_b1 = MatrixXd(1, vecSize);
+	weights_b2 = MatrixXd(1, vecSize*2);
 
-	delWeight1 = new Vector(weights1->getRow(), weights1->getCol());
-	delWeight1_b = new Vector(weights_b1->getRow(), weights_b1->getCol());
-	delWeight2 = new Vector(weights2->getRow(), weights2->getCol());
-	delWeight2_b = new Vector(weights_b2->getRow(), weights_b2->getCol());
+	delWeight1 = MatrixXd(weights1.rows(), weights1.cols());
+	delWeight1_b = MatrixXd(weights_b1.rows(), weights_b1.cols());
+	delWeight2 = MatrixXd(weights2.rows(), weights2.cols());
+	delWeight2_b = MatrixXd(weights_b2.rows(), weights_b2.cols());
 
-	delWeight1->setToZeros();
-	delWeight1_b->setToZeros();
-	delWeight2->setToZeros();
-	delWeight2_b->setToZeros();
+	delWeight1.setZero();
+	delWeight1_b.setZero();
+	delWeight2.setZero();
+	delWeight2_b.setZero();
 	
-	weights1->randInitVector();
-	weights2->randInitVector();
-	weights_b1->randInitVector();
-	weights_b2->randInitVector();	
+	weights1.setRandom();
+	weights2.setRandom();
+	weights_b1.setRandom();
+	weights_b2.setRandom();	
 }
 
 RAE::RAE(int size)
 {
 	RAETree = NULL;
 	this->vecSize = size;
-	delWeight1 = new Vector(vecSize, vecSize*2);
-	delWeight1_b = new Vector(1, vecSize);
-	delWeight2 = new Vector(vecSize*2, vecSize);
-	delWeight2_b = new Vector(1, vecSize*2);
-	
-	weights1 = NULL;
-	weights2 = NULL;
-	weights_b1 = NULL;
-	weights_b2 = NULL;	
+	delWeight1 = MatrixXd(vecSize, vecSize*2);
+	delWeight1_b = MatrixXd(1, vecSize);
+	delWeight2 = MatrixXd(vecSize*2, vecSize);
+	delWeight2_b = MatrixXd(1, vecSize*2);
 
-	delWeight1->setToZeros();
-	delWeight1_b->setToZeros();
-	delWeight2->setToZeros();
-	delWeight2_b->setToZeros();
+	delWeight1.setZero();
+	delWeight1_b.setZero();
+	delWeight2.setZero();
+	delWeight2_b.setZero();
 }
 
 double RAE::loss()
@@ -65,49 +61,17 @@ double RAE::loss()
 //显示参数
 void RAE::showWeights()
 {
-	cout << "W1\t" << "Row: " << weights1->getRow() << "\tCol: " << weights1->getCol() << endl;
-	for(int row = 0; row < weights1->getRow(); row++)
-	{
-		for(int col = 0; col < weights1->getCol(); col++)
-		{
-			cout << weights1->getValue(row, col) << " ";
-		}
+	cout << "W1\t" << "Row: " << weights1.rows() << "\tCol: " << weights1.cols() << endl;
+	cout << weights1 << endl;
 
-		cout << endl;
-	}
+	cout << "B1\t" << "Row: " << weights_b1.rows() << "\tCol: " << weights_b1.cols() << endl;
+	cout << weights_b1 << endl;
 
-	cout << "B1\t" << "Row: " << weights_b1->getRow() << "\tCol: " << weights_b1->getCol() << endl;
-	for(int row = 0; row < weights_b1->getRow(); row++)
-	{
-		for(int col = 0; col < weights_b1->getCol(); col++)
-		{
-			cout << weights_b1->getValue(row, col) << " ";
-		}
+	cout << "W2\t" << "Row: " << weights2.rows() << "\tCol: " << weights2.cols() << endl;
+	cout << weights2 << endl;
 
-		cout << endl;
-	}
-
-	cout << "W2\t" << "Row: " << weights2->getRow() << "\tCol: " << weights2->getCol() << endl;
-	for(int row = 0; row < weights2->getRow(); row++)
-	{
-		for(int col = 0; col < weights2->getCol(); col++)
-		{
-			cout << weights2->getValue(row, col) << " ";
-		}
-
-		cout << endl;
-	}
-
-	cout << "B2\t" << "Row: " << weights_b2->getRow() << "\tCol: " << weights_b2->getCol() << endl;
-	for(int row = 0; row < weights_b2->getRow(); row++)
-	{
-		for(int col = 0; col < weights_b2->getCol(); col++)
-		{
-			cout << weights_b2->getValue(row, col) << " ";
-		}
-
-		cout << endl;
-	}
+	cout << "B2\t" << "Row: " << weights_b2.rows() << "\tCol: " << weights_b2.cols() << endl;
+	cout << weights_b2 << endl;
 }
 
 //保存参数到文件
@@ -118,48 +82,16 @@ void RAE::logWeights(Parameter* para)
 	ofstream out(filename.c_str(), ios::out);
 
 	out << "W1" << endl;
-	for(int row = 0; row < weights1->getRow(); row++)
-	{
-		for(int col = 0; col < weights1->getCol(); col++)
-		{
-			out << weights1->getValue(row, col) << " ";
-		}
-
-		out << endl;
-	}
+	out << weights1 << endl;
 
 	out << "B1" << endl;
-	for(int row = 0; row < weights_b1->getRow(); row++)
-	{
-		for(int col = 0; col < weights_b1->getCol(); col++)
-		{
-			out << weights_b1->getValue(row, col) << " ";
-		}
-
-		out << endl;
-	}
+	out << weights_b1 << endl;
 
 	out << "W2" << endl;
-	for(int row = 0; row < weights2->getRow(); row++)
-	{
-		for(int col = 0; col < weights2->getCol(); col++)
-		{
-			out << weights2->getValue(row, col) << " ";
-		}
-
-		out << endl;
-	}
+	out << weights2 << endl;
 
 	out << "B2" << endl;
-	for(int row = 0; row < weights_b2->getRow(); row++)
-	{
-		for(int col = 0; col < weights_b2->getCol(); col++)
-		{
-			out << weights_b2->getValue(row, col) << " ";
-		}
-
-		out << endl;
-	}
+	out << weights_b2 << endl;
 }
 
 //构建RAE树
@@ -180,8 +112,8 @@ void RAE::buildTree(string bp)
 	{
 		if(!words->isInDict(tmp))
 		{
-			Vector* tmpVec = new Vector(1, vecSize);
-			tmpVec->setToZeros();
+			MatrixXd tmpVec = MatrixXd(1, vecSize);
+			tmpVec.setZero();
 			words->m_words[tmp] = tmpVec;
 		}
 
@@ -311,26 +243,16 @@ RAE* RAE::copy()
 	newRAE->words = this->words;
 	
 	newRAE->RAETree = NULL;
-	newRAE->weights1 = this->weights1->copy();
-	newRAE->weights_b1 = this->weights_b1->copy();
-	newRAE->weights2 = this->weights2->copy();
-	newRAE->weights_b2 = this->weights_b2->copy();
+	newRAE->weights1 = this->weights1;
+	newRAE->weights_b1 = this->weights_b1;
+	newRAE->weights2 = this->weights2;
+	newRAE->weights_b2 = this->weights_b2;
 
 	return newRAE;
 }
 
 RAE::~RAE()
 {
-	delete weights1;
-	delete weights_b1;
-	delete weights2;
-	delete weights_b2;
-
-	delete delWeight1;
-	delete delWeight1_b;
-	delete delWeight2;
-	delete delWeight2_b;
-
 	Node* n1 = RAETree->getRoot();
 	Node* n2 = RAETree->getRoot();
 
@@ -354,23 +276,23 @@ double RAE::decay()
 {
 	double val = 0;
 
-	for(int row = 0; row < weights1->getRow(); row++)
+	for(int row = 0; row < weights1.rows(); row++)
 	{
-		for(int col = 0; col < weights1->getCol(); col++)
+		for(int col = 0; col < weights1.cols(); col++)
 		{
-			val += pow(weights1->getValue(row, col), 2)/2;
-			val += pow(weights2->getValue(col, row), 2)/2;
+			val += pow(weights1(row, col), 2)/2;
+			val += pow(weights2(col, row), 2)/2;
 		}
 	}
 
-	for(int col = 0; col < weights_b1->getCol(); col++)
+	for(int col = 0; col < weights_b1.cols(); col++)
 	{
-		val += pow(weights_b1->getValue(0, col), 2)/2;
+		val += pow(weights_b1(0, col), 2)/2;
 	}
 
-	for(int col = 0; col < weights_b2->getCol(); col++)
+	for(int col = 0; col < weights_b2.cols(); col++)
 	{
-		val += pow(weights_b2->getValue(0, col), 2)/2;
+		val += pow(weights_b2(0, col), 2)/2;
 	}
 
 	return val;
@@ -383,52 +305,45 @@ void RAE::trainRecError()
 	//更新w2, b2
 	while(tmpNode->getNodeType() != BASED_NODE)
 	{
-		Vector* c = tmpNode->getLeftChildNode()->getVector()->concat(tmpNode->getRightChildNode()->getVector());
-		Vector* cRec = tmpNode->leftReconst->concat(tmpNode->rightReconst);
-		for(int row = 0; row < weights2->getRow(); row++)
+		MatrixXd c = concatMatrix(tmpNode->getLeftChildNode()->getVector(),tmpNode->getRightChildNode()->getVector());
+		MatrixXd cRec = concatMatrix(tmpNode->leftReconst,tmpNode->rightReconst);
+		for(int row = 0; row < weights2.rows(); row++)
 		{
-			double result = (cRec->getValue(0, row)-c->getValue(0, row)) * (1-pow(cRec->getValue(0, row), 2));
-			for(int col = 0; col < weights2->getCol(); col++)
+			double result = (cRec(0, row)-c(0, row)) * (1-pow(cRec(0, row), 2));
+			for(int col = 0; col < weights2.cols(); col++)
 			{
-				delWeight2->setValue(row, col, delWeight2->getValue(row,col) + ALPHA * result*tmpNode->getVector()->getValue(0, col));
+				delWeight2(row, col) = delWeight2(row,col) + ALPHA * result * tmpNode->getVector()(0, col);
 			}
-			delWeight2_b->setValue(0, row, ALPHA * result + delWeight2_b->getValue(0, row));
+			delWeight2_b(0, row) = ALPHA * result + delWeight2_b(0, row);
 		}
 
 		tmpNode = tmpNode->getLeftChildNode();
-
-		delete c;
-		delete cRec;
 	}
 
 	//仅对每一对重构中的权重求导
 	tmpNode = this->RAETree->getRoot();
-	Vector* tmpDelWb = new Vector(1, 2*vecSize);
+	MatrixXd tmpDelWb = MatrixXd(1, 2*vecSize);
 
 	while(tmpNode->getNodeType() != BASED_NODE)
 	{
-		Vector* c = tmpNode->getLeftChildNode()->getVector()->concat(tmpNode->getRightChildNode()->getVector());
-		Vector* cRec = tmpNode->leftReconst->concat(tmpNode->rightReconst);
-		for(int row = 0; row < weights2->getRow(); row++)
+		MatrixXd c = concatMatrix(tmpNode->getLeftChildNode()->getVector(),tmpNode->getRightChildNode()->getVector());
+		MatrixXd cRec = concatMatrix(tmpNode->leftReconst,tmpNode->rightReconst);
+		for(int row = 0; row < weights2.rows(); row++)
 		{
-			double result = (cRec->getValue(0, row)-c->getValue(0, row)) * (1-pow(cRec->getValue(0, row), 2));
-			tmpDelWb->setValue(0, row, result);
+			double result = (cRec(0, row)-c(0, row)) * (1-pow(cRec(0, row), 2));
+			tmpDelWb(0, row) = result;
 		}
 
-		tmpDelWb = tmpDelWb->multiply(weights2, false);
-		for(int row = 0; row < delWeight1->getRow(); row++)
+		tmpDelWb = tmpDelWb*weights2;
+		for(int row = 0; row < delWeight1.rows(); row++)
 		{
-			delWeight1_b->setValue(0, row, delWeight1_b->getValue(0, row)+ ALPHA * tmpDelWb->getValue(0, row));
-			for(int col = 0; col < delWeight1->getCol(); col++)
+			delWeight1_b(0, row) = delWeight1_b(0, row)+ ALPHA * tmpDelWb(0, row);
+			for(int col = 0; col < delWeight1.cols(); col++)
 			{
-				delWeight1->setValue(row, col, delWeight1->getValue(row, col) + ALPHA * tmpDelWb->getValue(0, row) * c->getValue(0, col));
+				delWeight1(row, col) = delWeight1(row, col) + ALPHA * tmpDelWb(0, row) * c(0, col);
 			}
 		}
 
 		tmpNode = tmpNode->getLeftChildNode();
-		delete c;
-		delete cRec;
 	}
-
-	delete tmpDelWb;
 }

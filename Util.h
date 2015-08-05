@@ -7,7 +7,9 @@
 #include <cstdlib>
 #include <cmath>
 #include <vector>
+#include <Eigen/Core>
 
+using namespace Eigen;
 using namespace std;
 
 inline string strip_str(string str)
@@ -25,6 +27,25 @@ inline string strip_str(string str)
 	}
 
 	return newStr;
+}
+
+inline MatrixXd concatMatrix(MatrixXd m1, MatrixXd m2)
+{
+	MatrixXd m = MatrixXd(m1.rows(), m1.cols()+m2.cols());
+
+	for(int col = 0; col < m.cols(); col++)
+	{
+		if(col < m1.cols())
+		{
+			m(0, col) = m1(0, col);
+		}
+		else if(col >= m1.cols())
+		{
+			m(0, col) = m2(0, col-m1.cols());
+		}
+	}
+
+	return m;
 }
 
 inline double getRand()

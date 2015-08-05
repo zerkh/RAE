@@ -1,7 +1,9 @@
 ﻿#ifndef RAETREE
 #define RAETREE
 #include "Constdef.h"
-#include "Vec.h"
+#include <Eigen/Core>
+
+using namespace Eigen;
 
 class Node
 {
@@ -10,15 +12,15 @@ private:
 	Node* leftChild;				//左子节点(通常为combined节点)
 	Node* rightChild;				//右子节点(通常为based节点)
 	int nodeType;					//节点类型
-	Vector* vec;					//存储向量值
+	MatrixXd vec;					//存储向量值
 	string word;
 	span sp;
 
 public:
-	Vector* leftReconst;				//左重建节点
-	Vector* rightReconst;				//右重建节点
+	MatrixXd leftReconst;				//左重建节点
+	MatrixXd rightReconst;				//右重建节点
 
-	Node(int nodeType, int start, int end, string word, Vector* vec, Node* parent, Node* leftChild, Node* rightChild)
+	Node(int nodeType, int start, int end, string word, MatrixXd vec, Node* parent, Node* leftChild, Node* rightChild)
 	{
 		sp = make_pair(start, end);
 		this->word = word;
@@ -33,11 +35,6 @@ public:
 
 	~Node()
 	{
-		if(leftReconst)
-		{
-			delete leftReconst;
-			delete rightReconst;
-		}
 	}
 
 	double getRecError()
@@ -49,9 +46,9 @@ public:
 			return RecError;
 		}
 
-		for(int i = 0; i < leftReconst->getCol(); i++)
+		for(int i = 0; i < leftReconst.cols(); i++)
 		{
-			RecError += pow(leftChild->getVector()->getValue(0, i) - leftReconst->getValue(0, i), 2) + pow(rightChild->getVector()->getValue(0, i) - rightReconst->getValue(0, i), 2);
+			RecError += pow(leftChild->getVector()(0, i) - leftReconst(0, i), 2) + pow(rightChild->getVector()(0, i) - rightReconst(0, i), 2);
 		}
 
 		return RecError / 2;
@@ -82,7 +79,7 @@ public:
 		return rightChild;
 	}
 
-	Vector* getVector()
+	MatrixXd getVector()
 	{
 		return vec;
 	}
@@ -112,7 +109,7 @@ public:
 		this->nodeType = nodeType;
 	}
 
-	void setVector(Vector* vec)
+	void setVector(MatrixXd vec)
 	{
 		this->vec = vec;
 	}
@@ -142,7 +139,7 @@ public:
 
 	Node* getRoot();
 
-	void merge(Node* newNode, Vector* w1, Vector* b1, Vector* w2, Vector* b2);
+	void merge(Node* newNode, MatrixXd w1, MatrixXd b1, MatrixXd w2, MatrixXd b2);
 };
 
 #endif

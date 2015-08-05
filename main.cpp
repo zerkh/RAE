@@ -1,7 +1,6 @@
 ﻿#include <iostream>
 #include <ctime>
 #include <sstream>
-#include "Vec.h"
 #include "Domain.h"
 #include "Parameter.h"
 #include "WordVec.h"

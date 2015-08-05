@@ -1,4 +1,5 @@
 #include "RAETree.h"
+#include "Util.h"
 
 Node* Tree::getRoot()
 {
@@ -10,13 +11,11 @@ Tree::Tree(Node* root)
 	this->root = root;
 }
 
-void Tree::merge(Node* newNode, Vector* w1, Vector* b1, Vector* w2, Vector* b2)
+void Tree::merge(Node* newNode, MatrixXd w1, MatrixXd b1, MatrixXd w2, MatrixXd b2)
 {
-	Vector* tmpCon = root->getVector()->concat(newNode->getVector());
-	Vector* tmpMul = tmpCon->multiply(w1, true);
-	Vector* parent = tmpMul->add(b1);
-	delete tmpCon;
-	delete tmpMul;
+	MatrixXd tmpCon = concatMatrix(root->getVector(),newNode->getVector());
+	MatrixXd tmpMul = tmpCon * w1.transpose();
+	MatrixXd parent = tmpMul + b1;
 
 	Node* pNode;
 	if(root->getSpan().second < newNode->getSpan().first)
@@ -32,16 +31,16 @@ void Tree::merge(Node* newNode, Vector* w1, Vector* b1, Vector* w2, Vector* b2)
 		newNode->setParentNode(pNode);
 	}
 
-	Vector* rec = parent->multiply(w2, true)->add(b2);
+	MatrixXd rec = parent * w2.transpose() + b2;
 
-	pNode->leftReconst = new Vector(rec->getRow(), rec->getCol()/2);
+	pNode->leftReconst = MatrixXd(rec.rows(), rec.cols()/2);
 
-	pNode->rightReconst = new Vector(rec->getRow(), rec->getCol()/2);
+	pNode->rightReconst = MatrixXd(rec.rows(), rec.cols()/2);
 
-	for(int i = 0; i < pNode->leftReconst->getCol(); i++)
+	for(int i = 0; i < pNode->leftReconst.cols(); i++)
 	{
-		pNode->leftReconst->setValue(0, i, rec->getValue(0, i));
-		pNode->rightReconst->setValue(0, i, rec->getValue(0, i+pNode->leftReconst->getCol()));
+		pNode->leftReconst(0, i) = rec(0, i);
+		pNode->rightReconst(0, i) = rec(0, i+pNode->leftReconst.cols());
 	}
 
 	root = pNode;

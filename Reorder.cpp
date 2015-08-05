@@ -9,34 +9,34 @@ ReorderModel::ReorderModel(Parameter* para, WordVec* words)
 	rae1 = rae->copy();
 	rae2 = rae->copy();
 
-	weights = new Vector(2, vecSize*2);
-	weights_b = new Vector(1, 2);
+	weights = MatrixXd(2, vecSize*2);
+	weights_b = MatrixXd(1, 2);
 
-	delWeight = new Vector(weights->getRow(), weights->getCol());
-	delWeight_b = new Vector(weights_b->getRow(), weights_b->getCol());
+	delWeight = MatrixXd(weights.rows(), weights.cols());
+	delWeight_b = MatrixXd(weights_b.rows(), weights_b.cols());
 
-	delWeight->setToZeros();
-	delWeight_b->setToZeros();
+	delWeight.setZero();
+	delWeight_b.setZero();
 
-	weights->randInitVector();
-	weights_b->randInitVector();
+	weights.setRandom();
+	weights_b.setRandom();
 
-	outputLayer = new Vector(1, 2);
-	softmaxLayer = new Vector(1, 2);
+	outputLayer = MatrixXd(1, 2);
+	softmaxLayer = MatrixXd(1, 2);
 }
 
 double ReorderModel::decay()
 {
 	double val = 0;
 
-	for(int row = 0; row < weights->getRow(); row++)
+	for(int row = 0; row < weights.rows(); row++)
 	{
-		for (int col = 0; col < weights->getCol(); col++)
+		for (int col = 0; col < weights.cols(); col++)
 		{
-			val += pow(weights->getValue(row, col), 2) / 2;
+			val += pow(weights(row, col), 2) / 2;
 		}
 
-		val += pow(weights_b->getValue(0, row), 2) / 2;
+		val += pow(weights_b(0, row), 2) / 2;
 	}
 
 	return val;
@@ -44,41 +44,39 @@ double ReorderModel::decay()
 
 void ReorderModel::softmax()
 {
-	Vector* tmpConcat = NULL;
+	MatrixXd tmpConcat;
 	tmpConcat = rae1->RAETree->getRoot()->getVector()->concat(rae2->RAETree->getRoot()->getVector());
-	Vector* tmpMultiply = tmpConcat->multiply(weights, true);
-	Vector* tmpOutput = tmpMultiply->add(weights_b);
-	delete tmpMultiply;
-	delete tmpConcat;
+	MatrixXd tmpMultiply = tmpConcat * weights.transpose();
+	MatrixXd tmpOutput = tmpMultiply + weights_b;
 
-	for(int row = 0;row < outputLayer->getRow(); row++)
+
+	for(int row = 0;row < outputLayer.rows(); row++)
 	{
-		for(int col = 0; col < outputLayer->getCol(); col++)
+		for(int col = 0; col < outputLayer.cols(); col++)
 		{
-			outputLayer->setValue(row, col, tmpOutput->getValue(row, col));
+			outputLayer(row, col) = tmpOutput(row, col);
 		}
 	}
-	delete tmpOutput;
 
 	double result;
 
-	result = exp(outputLayer->getValue(0, 0))/(exp(outputLayer->getValue(0, 0)) + exp(outputLayer->getValue(0, 1)));
+	result = exp(outputLayer(0, 0))/(exp(outputLayer(0, 0)) + exp(outputLayer(0, 1)));
 
-	outputLayer->setValue(0, 0, result);
-	outputLayer->setValue(0, 1, 1-result);	
+	outputLayer(0, 0) = result;
+	outputLayer(0, 1) = 1-result;	
 
-	softmaxLayer->setValue(0, 0, log(result));
-	softmaxLayer->setValue(0, 1, log(1 - result));
+	softmaxLayer(0, 0) = log(result);
+	softmaxLayer(0, 1) = log(1 - result);
 
-	if(softmaxLayer->getValue(0, 0) < -1 * numeric_limits<double>::max())
+	if(!finite(softmaxLayer(0, 0)))
 	{
-		softmaxLayer->setValue(0, 0, -1 * numeric_limits<double>::max());
+		softmaxLayer(0, 0) = -1 * numeric_limits<double>::max();
 	}
-	
-        if(softmaxLayer->getValue(0, 1) < -1 * numeric_limits<double>::max())
-        {       
-                softmaxLayer->setValue(0, 1, numeric_limits<double>::max());
-        }
+
+	if(!finite(softmaxLayer(0, 1) <= -1 * numeric_limits<double>::max()))
+	{       
+		softmaxLayer(0, 1) = -1 * numeric_limits<double>::max();
+	}
 }
 
 void ReorderModel::getData(string bp1, string bp2)
@@ -90,7 +88,7 @@ void ReorderModel::getData(string bp1, string bp2)
 	softmax();
 }
 
-void ReorderModel::trainRM(Vector* y, bool isSoftmax)
+void ReorderModel::trainRM(MatrixXd y, bool isSoftmax)
 {
 	double p;
 	if(isSoftmax)
@@ -102,59 +100,55 @@ void ReorderModel::trainRM(Vector* y, bool isSoftmax)
 		p = BETA;
 	}
 
-	Vector* theta = new Vector(delWeight_b->getRow(), delWeight_b->getCol());
+	MatrixXd theta = MatrixXd(delWeight_b.rows(), delWeight_b.cols());
 
 	//对W和Wb求导
 	if(isSoftmax)
 	{
-		for(int row = 0; row < weights->getRow(); row++)
+		for(int row = 0; row < weights.rows(); row++)
 		{
 			double result;
-			result = (softmaxLayer->getValue(0, row) - y->getValue(0, row)) * (1-outputLayer->getValue(0, row));
+			result = (outputLayer(0, row) - y(0, row)) * (exp(outputLayer(0, 0)) * exp(outputLayer(0, 1)) / pow(exp(outputLayer(0, 0)) + exp(outputLayer(0, 1)), 2) );
 
-			for(int col = 0; col < weights->getCol(); col++)
+			for(int col = 0; col < weights.cols(); col++)
 			{
-				Vector* tmpX = rae1->RAETree->getRoot()->getVector()->concat(rae2->RAETree->getRoot()->getVector());
-				delWeight->setValue(row, col, delWeight->getValue(row, col) + p * result * tmpX->getValue(0, col));
-
-				delete tmpX;
+				MatrixXd tmpX = rae1->RAETree->getRoot()->getVector()->concat(rae2->RAETree->getRoot()->getVector());
+				delWeight(row, col) = delWeight(row, col) + p * result * tmpX(0, col);
 			}
-			
-			delWeight_b->setValue(0, row, delWeight_b->getValue(0, row) + p * result);
-		/*	
-			cout << softmaxLayer->getValue(0, row) << endl;
-			cout << y->getValue(0, row) << endl;
-			cout << outputLayer->getValue(0, row) << endl;
+
+			delWeight_b(0, row) = delWeight_b(0, row) + p * result;
+			/*	
+			cout << softmaxLayer(0, row) << endl;
+			cout << y(0, row) << endl;
+			cout << outputLayer(0, row) << endl;
 			cout << p << " " << result << endl;
-		*/
-			theta->setValue(0, row, result);
+			*/
+			theta(0, row) = result;
 		}
 
 	}
 	else
 	{
-		for(int row = 0; row < weights->getRow(); row++)
+		for(int row = 0; row < weights.rows(); row++)
 		{
 			double result;
-			if(y->getValue(0, row) == 1)
+			if(y(0, row) == 1)
 			{
-				result = (1-outputLayer->getValue(0, row));
+				result = (1-outputLayer(0, row));
 			}
 			else
 			{
 				result = 0;
 			}
 
-			for(int col = 0; col < weights->getCol(); col++)
+			for(int col = 0; col < weights.cols(); col++)
 			{
-				Vector* tmpX = rae1->RAETree->getRoot()->getVector()->concat(rae2->RAETree->getRoot()->getVector());
-				delWeight->setValue(row, col, delWeight->getValue(row, col) - p * result * tmpX->getValue(0, col));
-
-				delete tmpX;
+				MatrixXd tmpX = rae1->RAETree->getRoot()->getVector()->concat(rae2->RAETree->getRoot()->getVector());
+				delWeight(row, col) = delWeight(row, col) - p * result * tmpX(0, col);
 			}
 
-			delWeight_b->setValue(0, row, delWeight_b->getValue(0, row) - p * result);
-			theta->setValue(0, row, result);
+			delWeight_b(0, row) = delWeight_b(0, row) - p * result;
+			theta(0, row) = result;
 		}
 	}
 
@@ -162,17 +156,16 @@ void ReorderModel::trainRM(Vector* y, bool isSoftmax)
 	Node* preNode1 = rae1->RAETree->getRoot();
 	Node* preNode2 = rae2->RAETree->getRoot();
 
-	Vector* tmp = theta;
-	theta = tmp->multiply(weights, false);
-	delete tmp;
+	MatrixXd tmp = theta;
+	theta = tmp * weights;
 
-	Vector* theta1 = new Vector(theta->getRow(), theta->getCol()/2);
-	Vector* theta2 = new Vector(theta->getRow(), theta->getCol()/2);
+	MatrixXd theta1 = MatrixXd(theta.rows(), theta.cols()/2);
+	MatrixXd theta2 = MatrixXd(theta.rows(), theta.cols()/2);
 
-	for(int i = 0; i < theta1->getCol(); i++)
+	for(int i = 0; i < theta1.cols(); i++)
 	{
-		theta1->setValue(0, i, theta->getValue(0, i));
-		theta2->setValue(0, i, theta->getValue(0, i+theta1->getCol()));
+		theta1(0, i) = theta(0, i);
+		theta2(0, i) = theta(0, i+theta1.cols());
 	}
 
 	while(preNode1->getNodeType() != BASED_NODE)
@@ -183,26 +176,25 @@ void ReorderModel::trainRM(Vector* y, bool isSoftmax)
 			{
 				if(col < vecSize)
 				{
-					delWeight->setValue(row, col, delWeight->getValue(row, col) + p * theta1->getValue(0, row)*preNode1->getLeftChildNode()->getVector()->getValue(0, col));
+					delWeight(row, col) = delWeight(row, col) + p * theta1(0, row) * (preNode1->getLeftChildNode()->getVector())(0, col);
 				}
 				else
 				{
-					delWeight->setValue(row, col, delWeight->getValue(row, col) + p * theta1->getValue(0, row)*preNode1->getRightChildNode()->getVector()->getValue(0, col-vecSize));
+					delWeight(row, col) = delWeight(row, col) + p * theta1(0, row) * (preNode1->getRightChildNode()->getVector())(0, col-vecSize);
 				}
 			}
 
-			delWeight_b->setValue(0, row, delWeight_b->getValue(0, row) + p * theta1->getValue(0, row));
+			delWeight_b(0, row) = delWeight_b(0, row) + p * theta1(0, row);
 		}
 
 		tmp = theta1;
-		theta1 = tmp->multiply(rae1->weights1, false);
-		delete tmp;
+		theta1 = tmp * rae1->weights1;
 
-		Vector* tmpTheta = new Vector(theta->getRow(), theta->getCol()/2);
+		MatrixXd tmpTheta = MatrixXd(theta.rows(), theta.cols()/2);
 
-		for(int i = 0; i < theta1->getCol(); i++)
+		for(int i = 0; i < theta1.cols(); i++)
 		{
-			tmpTheta->setValue(0, i, theta1->getValue(0, i));
+			tmpTheta(0, i) = theta1(0, i);
 		}
 
 		theta1 = tmpTheta;
@@ -217,33 +209,28 @@ void ReorderModel::trainRM(Vector* y, bool isSoftmax)
 			{
 				if(col < vecSize)
 				{
-					delWeight->setValue(row, col, delWeight->getValue(row, col) + p * theta2->getValue(0, row)*preNode2->getLeftChildNode()->getVector()->getValue(0, col));
+					delWeight(row, col) = delWeight(row, col) + p * theta2(0, row) * (preNode2->getLeftChildNode()->getVector())(0, col);
 				}
 				else
 				{
-					delWeight->setValue(row, col, delWeight->getValue(row, col) + p * theta2->getValue(0, row)*preNode2->getRightChildNode()->getVector()->getValue(0, col-vecSize));
+					delWeight(row, col) = delWeight(row, col) + p * theta2(0, row) * (preNode2->getRightChildNode()->getVector())(0, col-vecSize);
 				}
 			}
 
-			delWeight_b->setValue(0, row, delWeight_b->getValue(0, row) + p * theta2->getValue(0, row));
+			delWeight_b(0, row) = delWeight_b(0, row) + p * theta2(0, row);
 		}
 
 		tmp = theta2;
-		theta2 = tmp->multiply(rae1->weights1, false);
-		delete tmp;
+		theta2 = tmp * rae1->weights1;
 
-		Vector* tmpTheta = new Vector(theta->getRow(), theta->getCol()/2);
+		MatrixXd tmpTheta = MatrixXd(theta.rows(), theta.cols()/2);
 
-		for(int i = 0; i < theta2->getCol(); i++)
+		for(int i = 0; i < theta2.cols(); i++)
 		{
-			tmpTheta->setValue(0, i, theta2->getValue(0, i));
+			tmpTheta(0, i) = theta2(0, i);
 		}
 
 		theta2 = tmpTheta;
 		preNode2 = preNode2->getLeftChildNode();
 	}
-
-	delete theta;
-	delete theta1;
-	delete theta2;
 }

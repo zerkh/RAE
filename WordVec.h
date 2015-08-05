@@ -5,20 +5,21 @@
 #include <map>
 #include <cstdlib>
 #include "Parameter.h"
-#include "Vec.h"
+#include <Eigen/Core>
 
 using namespace std;
+using namespace Eigen;
 
 class WordVec
 {
 private:
-	typedef pair<string, Vector*>	Word;
+	typedef pair<string, MatrixXd>	Word;
 	int								amountOfWords;		//´Ê»ãÁ¿
 	int								amountOfStrings;	//´Ê×éÁ¿
 
 public:
-	static map<string, Vector*>			m_words;
-	static map<string, Vector*>			m_strings;
+	static map<string, MatrixXd>			m_words;
+	static map<string, MatrixXd>			m_strings;
 
 public:
 	WordVec();

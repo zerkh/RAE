@@ -2,7 +2,6 @@
 #define RAE_H
 
 #include <fstream>
-#include "Vec.h"
 #include "WordVec.h"
 #include "Parameter.h"
 #include "RAETree.h"
@@ -18,15 +17,15 @@ private:
 	
 public:
 	Tree* RAETree;
-	Vector* weights1;
-	Vector* weights_b1;
-	Vector* weights2;
-	Vector* weights_b2;
+	MatrixXd weights1;
+	MatrixXd weights_b1;
+	MatrixXd weights2;
+	MatrixXd weights_b2;
 
-	Vector* delWeight1;
-	Vector* delWeight1_b;
-	Vector* delWeight2;
-	Vector* delWeight2_b;
+	MatrixXd delWeight1;
+	MatrixXd delWeight1_b;
+	MatrixXd delWeight2;
+	MatrixXd delWeight2_b;
 
 	RAE(Parameter* para, WordVec* words);
 	void showWeights();
