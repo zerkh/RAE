@@ -2,8 +2,8 @@
 #include <fstream>
 #include <sstream>
 
-map<string, Vector*> WordVec::m_words;
-map<string, Vector*> WordVec::m_strings;
+map<string, MatrixXd> WordVec::m_words;
+map<string, MatrixXd> WordVec::m_strings;
 
 WordVec::WordVec()
 {
@@ -49,11 +49,11 @@ void WordVec::readFile(Parameter* para, string titleStr)
 			strin >> wordvec[i];
 		}
 
-		Vector* tmpVec = new Vector(1, size);
+		MatrixXd tmpVec = MatrixXd(1, size);
 
 		for(int i = 0; i < size; i++)
 		{
-			tmpVec->setValue(0, i, wordvec[i]);
+			tmpVec(0, i) = wordvec[i];
 		}
 
 		this->m_words.insert(make_pair(word, tmpVec));
@@ -77,19 +77,19 @@ bool WordVec::isInDict(string word)
 //显示所有词及向量
 void WordVec::showWords()
 {
-	for(map<string, Vector*>::iterator m_it = m_words.begin(); m_it != m_words.end(); m_it++)
+	for(map<string, MatrixXd>::iterator m_it = m_words.begin(); m_it != m_words.end(); m_it++)
 	{
 		cout << m_it->first << endl;
-		m_it->second->showVector();
+		cout << m_it->second << endl;
 	}
 }
 
 //显示所有词组及向量
 void WordVec::showStrings()
 {
-	for(map<string, Vector*>::iterator m_it = m_strings.begin(); m_it != m_strings.end(); m_it++)
+	for(map<string, MatrixXd>::iterator m_it = m_strings.begin(); m_it != m_strings.end(); m_it++)
 	{
 		cout << m_it->first << endl;
-		m_it->second->showVector();
+		cout << m_it->second << endl;
 	}
 }

@@ -1,5 +1,6 @@
 #include "Reorder.h"
 #include <limits>
+#include "Util.h"
 
 ReorderModel::ReorderModel(Parameter* para, WordVec* words)
 {
@@ -45,7 +46,7 @@ double ReorderModel::decay()
 void ReorderModel::softmax()
 {
 	MatrixXd tmpConcat;
-	tmpConcat = rae1->RAETree->getRoot()->getVector()->concat(rae2->RAETree->getRoot()->getVector());
+	tmpConcat = concatMatrix(rae1->RAETree->getRoot()->getVector(),rae2->RAETree->getRoot()->getVector());
 	MatrixXd tmpMultiply = tmpConcat * weights.transpose();
 	MatrixXd tmpOutput = tmpMultiply + weights_b;
 
@@ -112,7 +113,7 @@ void ReorderModel::trainRM(MatrixXd y, bool isSoftmax)
 
 			for(int col = 0; col < weights.cols(); col++)
 			{
-				MatrixXd tmpX = rae1->RAETree->getRoot()->getVector()->concat(rae2->RAETree->getRoot()->getVector());
+				MatrixXd tmpX = concatMatrix(rae1->RAETree->getRoot()->getVector(),rae2->RAETree->getRoot()->getVector());
 				delWeight(row, col) = delWeight(row, col) + p * result * tmpX(0, col);
 			}
 
@@ -143,7 +144,7 @@ void ReorderModel::trainRM(MatrixXd y, bool isSoftmax)
 
 			for(int col = 0; col < weights.cols(); col++)
 			{
-				MatrixXd tmpX = rae1->RAETree->getRoot()->getVector()->concat(rae2->RAETree->getRoot()->getVector());
+				MatrixXd tmpX = concatMatrix(rae1->RAETree->getRoot()->getVector(),rae2->RAETree->getRoot()->getVector());
 				delWeight(row, col) = delWeight(row, col) - p * result * tmpX(0, col);
 			}
 

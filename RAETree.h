@@ -1,7 +1,7 @@
 ﻿#ifndef RAETREE
 #define RAETREE
 #include "Constdef.h"
-#include <Eigen/Core>
+#include "Eigen/Core"
 
 using namespace Eigen;
 
@@ -29,8 +29,6 @@ public:
 		this->parent = parent;
 		this->leftChild = leftChild;
 		this->rightChild = rightChild;
-		this->leftReconst = NULL;
-		this->rightReconst = NULL;
 	}
 
 	~Node()
