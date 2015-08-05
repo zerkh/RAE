@@ -21,9 +21,6 @@ Domain::Domain(Parameter* para, string domainName, WordVec* srcWords, WordVec* t
 
 void Domain::upData()
 {
-	cout << srcRM->delWeight << endl;
-	cout << srcRM->delWeight_b << endl;
-
 	for(int row = 0; row < srcRM->weights.rows(); row++)
 	{
 		for(int col = 0; col < srcRM->weights.cols(); col++)
@@ -205,7 +202,7 @@ void Domain::training()
 			tgtRM->getData(trainingData[pos].second["et1"], trainingData[i].second["et2"]);
 			
 			if(i >= trainingData.size()-10 && i < trainingData.size())
-			{	
+			{
 				out<< count << " : " << pos << "th's " << "loss value : " << loss(pos) << endl;
 			}
 
