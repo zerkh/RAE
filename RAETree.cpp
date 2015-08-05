@@ -15,6 +15,10 @@ void Tree::merge(Node* newNode, MatrixXd w1, MatrixXd b1, MatrixXd w2, MatrixXd 
 {
 	MatrixXd tmpCon = concatMatrix(root->getVector(),newNode->getVector());
 	MatrixXd tmpMul = tmpCon * w1.transpose();
+
+	tmpCon.resize(0,0);
+	tmpMul.resize(0,0);
+
 	MatrixXd parent = tmpMul + b1;
 
 	Node* pNode;
@@ -44,4 +48,7 @@ void Tree::merge(Node* newNode, MatrixXd w1, MatrixXd b1, MatrixXd w2, MatrixXd 
 	}
 
 	root = pNode;
+
+	parent.resize(0,0);
+	rec.resize(0,0);
 }

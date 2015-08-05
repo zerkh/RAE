@@ -28,8 +28,8 @@ void Domain::upData()
 	{
 		for(int col = 0; col < srcRM->weights.cols(); col++)
 		{
-			srcRM->weights(row, col) = srcRM->weights(row, col) - RATE * (srcRM->delWeight(row, col)/trainingData.size() + ZETA * srcRM->weights(row, col));
-			tgtRM->weights(row, col) = tgtRM->weights(row, col) - RATE * (tgtRM->delWeight(row, col)/trainingData.size() + ZETA * tgtRM->weights(row, col));
+			srcRM->weights(row, col) = srcRM->weights(row, col) - RATE * (srcRM->delWeight(row, col) + ZETA * srcRM->weights(row, col));
+			tgtRM->weights(row, col) = tgtRM->weights(row, col) - RATE * (tgtRM->delWeight(row, col) + ZETA * tgtRM->weights(row, col));
 		}
 	}
 
@@ -37,8 +37,8 @@ void Domain::upData()
 	{
 		for(int col = 0; col < srcRM->weights_b.cols(); col++)
 		{
-			srcRM->weights_b(row, col) = srcRM->weights_b(row, col) - RATE * srcRM->delWeight_b(row, col)/trainingData.size();
-			tgtRM->weights_b(row, col) = tgtRM->weights_b(row, col) - RATE * tgtRM->delWeight_b(row, col)/trainingData.size();
+			srcRM->weights_b(row, col) = srcRM->weights_b(row, col) - RATE * srcRM->delWeight_b(row, col);
+			tgtRM->weights_b(row, col) = tgtRM->weights_b(row, col) - RATE * tgtRM->delWeight_b(row, col);
 		}
 	}
 
@@ -194,16 +194,19 @@ void Domain::training()
 	for(int count = 0; count < iterTime; count++)
 	{
 		//一轮训练
-		//for(int i = trainingData.size()-3; i < trainingData.size(); i++)
+		//for(int i = trainingData.size()-20000; i < trainingData.size(); i++)
 		for(int i = 0; i < trainingData.size(); i++)
 		{
+			srand((unsigned)time(0));
+			int pos = rand()%trainingData.size();
+
 			//获取实例
-			srcRM->getData(trainingData[i].second["ct1"], trainingData[i].second["ct2"]);
-			tgtRM->getData(trainingData[i].second["et1"], trainingData[i].second["et2"]);
+			srcRM->getData(trainingData[pos].second["ct1"], trainingData[i].second["ct2"]);
+			tgtRM->getData(trainingData[pos].second["et1"], trainingData[i].second["et2"]);
 			
 			if(i >= trainingData.size()-10 && i < trainingData.size())
 			{	
-				out<< count  << " : " << i << "th's " << "loss value : " << loss(i) << endl;
+				out<< count << " : " << pos << "th's " << "loss value : " << loss(pos) << endl;
 			}
 
 			//对rae求导
@@ -226,7 +229,7 @@ void Domain::training()
 				invert(0, j) = j;
 			}
 
-			if(trainingData[i].first == 1)
+			if(trainingData[pos].first == 1)
 			{
 				srcRM->trainRM(mono, false);
 				tgtRM->trainRM(mono, false);
@@ -236,10 +239,13 @@ void Domain::training()
 				srcRM->trainRM(invert, false);
 				tgtRM->trainRM(invert, false);
 			}
-		}
 
-		//更新权重
-		upData();
+			mono.resize(0,0);
+			invert.resize(0,0);
+			
+			//更新权重
+			upData();
+		}
 	}
 
 	//记录权重
@@ -296,7 +302,7 @@ void Domain::test()
 	int srcCount = 0;
 	int tgtCount = 0;
 
-	//for(int i = trainingData.size()-3; i < trainingData.size(); i++)
+	//for(int i = trainingData.size()-20000; i < trainingData.size(); i++)
 	for(int i = 0; i < trainingData.size(); i++)
 	{
 		srcRM->getData(trainingData[i].second["ct1"], trainingData[i].second["ct2"]);
@@ -338,6 +344,8 @@ void Domain::test()
 
 	srcOut << "Precision: " << (double)srcCount/trainingData.size() << endl;
 	tgtOut << "Precision: " << (double)tgtCount/trainingData.size() << endl;
+	//srcOut << "Precision: " << (double)srcCount/20000 << endl;
+        //tgtOut << "Precision: " << (double)tgtCount/20000 << endl;
 
 	srcOut.close();
 	tgtOut.close();
