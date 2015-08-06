@@ -3,6 +3,8 @@
 
 #include "Reorder.h"
 #include <fstream>
+#include <ctime>
+#include <cstdlib>
 
 class Domain
 {

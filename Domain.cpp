@@ -21,15 +21,12 @@ Domain::Domain(Parameter* para, string domainName, WordVec* srcWords, WordVec* t
 
 void Domain::upData()
 {
-	srcRM->delWeight->showVector();
-	srcRM->delWeight_b->showVector();
-
 	for(int row = 0; row < srcRM->weights->getRow(); row++)
 	{
 		for(int col = 0; col < srcRM->weights->getCol(); col++)
 		{
-			srcRM->weights->setValue(row, col, srcRM->weights->getValue(row, col) - RATE * (srcRM->delWeight->getValue(row, col)/trainingData.size() + ZETA * srcRM->weights->getValue(row, col)));
-			tgtRM->weights->setValue(row, col, tgtRM->weights->getValue(row, col) - RATE * (tgtRM->delWeight->getValue(row, col)/trainingData.size() + ZETA * tgtRM->weights->getValue(row, col)));
+			srcRM->weights->setValue(row, col, srcRM->weights->getValue(row, col) - RATE * (srcRM->delWeight->getValue(row, col) + ZETA * srcRM->weights->getValue(row, col)));
+			tgtRM->weights->setValue(row, col, tgtRM->weights->getValue(row, col) - RATE * (tgtRM->delWeight->getValue(row, col) + ZETA * tgtRM->weights->getValue(row, col)));
 		}
 	}
 
@@ -37,8 +34,8 @@ void Domain::upData()
 	{
 		for(int col = 0; col < srcRM->weights_b->getCol(); col++)
 		{
-			srcRM->weights_b->setValue(row, col, srcRM->weights_b->getValue(row, col) - RATE * srcRM->delWeight_b->getValue(row, col)/trainingData.size());
-			tgtRM->weights_b->setValue(row, col, tgtRM->weights_b->getValue(row, col) - RATE * tgtRM->delWeight_b->getValue(row, col)/trainingData.size());
+			srcRM->weights_b->setValue(row, col, srcRM->weights_b->getValue(row, col) - RATE * srcRM->delWeight_b->getValue(row, col));
+			tgtRM->weights_b->setValue(row, col, tgtRM->weights_b->getValue(row, col) - RATE * tgtRM->delWeight_b->getValue(row, col));
 		}
 	}
 
@@ -144,6 +141,8 @@ void Domain::loadTrainingData()
 double Domain::loss(int ind)
 {
 	double lossVal = 0;
+	srcRM->getData(trainingData[0].second["ct1"], trainingData[0].second["ct2"]);
+	tgtRM->getData(trainingData[0].second["et1"], trainingData[0].second["et2"]);
 
 	lossVal += ALPHA * srcRM->rae1->loss();
 	lossVal += ALPHA * srcRM->rae2->loss();
@@ -193,18 +192,22 @@ void Domain::training()
 {
 	for(int count = 0; count < iterTime; count++)
 	{
+		srand((unsigned)time(0));
 		//一轮训练
 		//for(int i = trainingData.size()-3; i < trainingData.size(); i++)
 		for(int i = 0; i < trainingData.size(); i++)
 		{
-			//获取实例
-			srcRM->getData(trainingData[i].second["ct1"], trainingData[i].second["ct2"]);
-			tgtRM->getData(trainingData[i].second["et1"], trainingData[i].second["et2"]);
-			
-			if(i >= trainingData.size()-10 && i < trainingData.size())
-			{	
-				out<< count  << " : " << i << "th's " << "loss value : " << loss(i) << endl;
+			//输出loss
+			if(i % 10000 == 0)
+			{
+				out << count << ": " << "0th: " << loss(0) << endl;
 			}
+
+			int pos = rand()%trainingData.size();
+
+			//获取实例
+			srcRM->getData(trainingData[pos].second["ct1"], trainingData[pos].second["ct2"]);
+			tgtRM->getData(trainingData[pos].second["et1"], trainingData[pos].second["et2"]);
 
 			//对rae求导
 			srcRM->rae1->trainRecError();
@@ -239,10 +242,10 @@ void Domain::training()
 			
 			delete mono;
 			delete invert;
-		}
 
-		//更新权重
-		upData();
+			//更新权重
+			upData();
+		}
 	}
 
 	//记录权重
@@ -350,7 +353,6 @@ void Domain::test()
 	int srcCount = 0;
 	int tgtCount = 0;
 
-	//for(int i = trainingData.size()-3; i < trainingData.size(); i++)
 	for(int i = 0; i < trainingData.size(); i++)
 	{
 		srcRM->getData(trainingData[i].second["ct1"], trainingData[i].second["ct2"]);
