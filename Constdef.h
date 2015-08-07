@@ -12,14 +12,14 @@ const int REC_NODE = 2;
 typedef pair<int, int> span;
 
 //Erec
-const double ALPHA = 0.2;
+static double ALPHA = 0.2;
 //Ereo
-const double BETA = 0.6;
+static double BETA = 0.01;
 //Edis
-const double GAMMA = 0;
+static double GAMMA = 0;
 //Decay
-const double ZETA = 0.01;
+static double ZETA = 0.001;
 //learning rate
-const double RATE = 0.65;
+static double RATE = 0.2;
 
 #endif

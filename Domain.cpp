@@ -141,8 +141,8 @@ void Domain::loadTrainingData()
 double Domain::loss(int ind)
 {
 	double lossVal = 0;
-	srcRM->getData(trainingData[0].second["ct1"], trainingData[0].second["ct2"]);
-	tgtRM->getData(trainingData[0].second["et1"], trainingData[0].second["et2"]);
+	srcRM->getData(trainingData[ind].second["ct1"], trainingData[ind].second["ct2"]);
+	tgtRM->getData(trainingData[ind].second["et1"], trainingData[ind].second["et2"]);
 
 	lossVal += ALPHA * srcRM->rae1->loss();
 	lossVal += ALPHA * srcRM->rae2->loss();
@@ -193,8 +193,12 @@ void Domain::training()
 	for(int count = 0; count < iterTime; count++)
 	{
 		srand((unsigned)time(0));
+		RATE = RATE/2;
+		
+		cout << "learning rate: " << RATE << endl << endl;
+
 		//Ò»ÂÖÑµÁ·
-		//for(int i = trainingData.size()-3; i < trainingData.size(); i++)
+		//for(int i = trainingData.size()-100; i < trainingData.size(); i++)
 		for(int i = 0; i < trainingData.size(); i++)
 		{
 			//Êä³öloss
@@ -353,6 +357,7 @@ void Domain::test()
 	int srcCount = 0;
 	int tgtCount = 0;
 
+	//for(int i = 0; i < 200; i++)
 	for(int i = 0; i < trainingData.size(); i++)
 	{
 		srcRM->getData(trainingData[i].second["ct1"], trainingData[i].second["ct2"]);
@@ -394,6 +399,8 @@ void Domain::test()
 
 	srcOut << "Precision: " << (double)srcCount/trainingData.size() << endl;
 	tgtOut << "Precision: " << (double)tgtCount/trainingData.size() << endl;
+	//srcOut << "Precision: " << (double)srcCount/200 << endl;
+	//tgtOut << "Precision: " << (double)tgtCount/200 << endl;
 
 	srcOut.close();
 	tgtOut.close();
