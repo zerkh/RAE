@@ -10,12 +10,12 @@
 
 using namespace std;
 
-void work( worker_arg_t *arg );
+void train( worker_arg_t *arg );
+void dev( worker_arg_t *arg );
+void test( worker_arg_t *arg );
 
 int main(int argc, char* argv[])
 {
-
-
 	double start, end;
 
 	start = clock();
@@ -70,7 +70,22 @@ int main(int argc, char* argv[])
 		cout << "Finish initializing " << v_domains[wid] << " in " << (end-start)/CLOCKS_PER_SEC << "s" << endl << endl;
 	}
 
-	Start_Workers(work, wargs, thread_num);
+	bool isDev = atoi(para->getPara("IsDev").c_str());
+	bool isTrain = atoi(para->getPara("IsTrain").c_str());
+	bool isTest = atoi(para->getPara("IsTest").c_str());
+
+	if(isTrain)
+	{
+		Start_Workers(train, wargs, thread_num);
+	}
+	else if(isDev)
+	{
+		Start_Workers(dev, wargs, thread_num);
+	}
+	else if(isTest)
+	{
+		Start_Workers(test, wargs, thread_num);
+	}
 
 	return 0;
 }
@@ -80,13 +95,65 @@ int main(int argc, char* argv[])
 /* 参数：worker_arg_t *arg，输入参数                                    */
 /* 返回：vector<string>                                                 */
 /************************************************************************/
-void work(worker_arg_t* arg)
+void train(worker_arg_t* arg)
 {
 	double start, end;
 
 	Domain* d = arg->domain;
 	cout << "Processing " << d->domainName << "......" << endl << endl;
 	
+	cout << "Loading " + d->domainName + " training data..." << endl << endl;
+	start = clock();
+	d->loadTrainingData();
+	end = clock();
+	cout << "The time of loading " + d->domainName + " training data is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
+
+	cout << "Starting training " + d->domainName + " ..." << endl << endl;
+	start = clock();
+	d->training();
+	end = clock();
+	cout << "The time of training " + d->domainName + " is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
+
+	cout << "Starting testing " + d->domainName + "..." << endl << endl;
+	start = clock();
+	d->test();
+	end = clock();
+	cout << "The time of testing " + d->domainName + " is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
+}
+
+void test(worker_arg_t* arg)
+{
+	double start, end;
+
+	Domain* d = arg->domain;
+	cout << "Processing " << d->domainName << "......" << endl << endl;
+
+	cout << "Loading " + d->domainName + " training data..." << endl << endl;
+	start = clock();
+	d->loadTrainingData();
+	end = clock();
+	cout << "The time of loading " + d->domainName + " training data is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
+
+	cout << "Starting training " + d->domainName + " ..." << endl << endl;
+	start = clock();
+	d->training();
+	end = clock();
+	cout << "The time of training " + d->domainName + " is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
+
+	cout << "Starting testing " + d->domainName + "..." << endl << endl;
+	start = clock();
+	d->test();
+	end = clock();
+	cout << "The time of testing " + d->domainName + " is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
+}
+
+void dev( worker_arg_t *arg )
+{
+	double start, end;
+
+	Domain* d = arg->domain;
+	cout << "Processing " << d->domainName << "......" << endl << endl;
+
 	cout << "Loading " + d->domainName + " training data..." << endl << endl;
 	start = clock();
 	d->loadTrainingData();

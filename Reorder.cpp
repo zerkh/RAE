@@ -74,11 +74,11 @@ void ReorderModel::softmax()
 	{
 		softmaxLayer->setValue(0, 0, -1 * numeric_limits<double>::max());
 	}
-	
-        if(softmaxLayer->getValue(0, 1) < -1 * numeric_limits<double>::max())
-        {       
-                softmaxLayer->setValue(0, 1, numeric_limits<double>::max());
-        }
+
+	if(softmaxLayer->getValue(0, 1) < -1 * numeric_limits<double>::max())
+	{       
+		softmaxLayer->setValue(0, 1, numeric_limits<double>::max());
+	}
 }
 
 void ReorderModel::getData(string bp1, string bp2)
@@ -119,14 +119,14 @@ void ReorderModel::trainRM(Vector* y, bool isSoftmax)
 
 				delete tmpX;
 			}
-			
+
 			delWeight_b->setValue(0, row, delWeight_b->getValue(0, row) + p * result);
-		/*	
+			/*	
 			cout << softmaxLayer->getValue(0, row) << endl;
 			cout << y->getValue(0, row) << endl;
 			cout << outputLayer->getValue(0, row) << endl;
 			cout << p << " " << result << endl;
-		*/
+			*/
 			theta->setValue(0, row, result);
 		}
 
