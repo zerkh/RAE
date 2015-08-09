@@ -131,7 +131,7 @@ void Domain::loadTrainingData()
 	{
 		int order;
 		map<string, string> m_tmp;
-		vector<string> subOfLine = splitBySpace(line);
+		vector<string> subOfLine = splitBySign(line);
 
 		if(subOfLine[0] == "mono")
 		{
@@ -144,7 +144,8 @@ void Domain::loadTrainingData()
 
 		for(int i = 1; i < subOfLine.size(); i++)
 		{
-			m_tmp.insert(make_pair(subOfLine[i].substr(0, 3), subOfLine[i].substr(4, subOfLine[i].size()-4)));
+			int pos = subOfLine[i].find('=');
+			m_tmp.insert(make_pair(subOfLine[i].substr(0, pos), subOfLine[i].substr(pos+1, subOfLine[i].size()-pos)));
 		}
 
 		trainingData.push_back(make_pair(order, m_tmp));

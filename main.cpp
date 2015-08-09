@@ -128,17 +128,11 @@ void test(worker_arg_t* arg)
 	Domain* d = arg->domain;
 	cout << "Processing " << d->domainName << "......" << endl << endl;
 
-	cout << "Loading " + d->domainName + " training data..." << endl << endl;
+	cout << "Loading " + d->domainName + " testing data..." << endl << endl;
 	start = clock();
 	d->loadTrainingData();
 	end = clock();
-	cout << "The time of loading " + d->domainName + " training data is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
-
-	cout << "Starting training " + d->domainName + " ..." << endl << endl;
-	start = clock();
-	d->training();
-	end = clock();
-	cout << "The time of training " + d->domainName + " is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
+	cout << "The time of loading " + d->domainName + " testing data is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
 
 	cout << "Starting testing " + d->domainName + "..." << endl << endl;
 	start = clock();
@@ -154,11 +148,11 @@ void dev( worker_arg_t *arg )
 	Domain* d = arg->domain;
 	cout << "Processing " << d->domainName << "......" << endl << endl;
 
-	cout << "Loading " + d->domainName + " training data..." << endl << endl;
+	cout << "Loading " + d->domainName + " dev data..." << endl << endl;
 	start = clock();
 	d->loadTrainingData();
 	end = clock();
-	cout << "The time of loading " + d->domainName + " training data is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
+	cout << "The time of loading " + d->domainName + " dev data is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
 
 	cout << "Starting training " + d->domainName + " ..." << endl << endl;
 	start = clock();
