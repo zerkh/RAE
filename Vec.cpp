@@ -50,7 +50,6 @@ Vector::Vector(int row, int col)
 
 Vector::~Vector()
 {
-	cout << "start delete " << row << endl;
 	for(int i = 0; i < row; i++)
 	{
 		delete []vec[i];

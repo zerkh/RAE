@@ -18,7 +18,7 @@ void Tree::merge(Node* newNode, Vector* w1, Vector* b1, Vector* w2, Vector* b2)
 	delete tmpCon;
 	delete tmpMul;
 
-	Node* pNode;
+	Node* pNode = NULL;
 	if(root->getSpan().second < newNode->getSpan().first)
 	{
 		pNode = new Node(COMBINED_NODE, root->getSpan().first, newNode->getSpan().second, root->getWord() + " " +newNode->getWord(), parent, NULL, root, newNode);
