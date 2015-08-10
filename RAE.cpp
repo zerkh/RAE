@@ -295,7 +295,7 @@ void RAE::buildTree(string bp)
 				nodePos = pos1;
 			}
 
-			delete tmpTree;
+			delete tmpTree->getRoot();
 		}
 
 		RAETree->merge(treeNodes[nodePos], weights1, weights_b1, weights2, weights_b2);

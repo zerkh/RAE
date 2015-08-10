@@ -166,12 +166,10 @@ double Domain::loss(int ind)
 	lossVal += ALPHA * tgtRM->rae1->loss();
 	lossVal += ALPHA * tgtRM->rae2->loss();
 	
-	/*
 	cout << "srcRM->rae1->loss: " << srcRM->rae1->loss() << endl;
 	cout << "srcRM->rae2->loss: " << srcRM->rae2->loss() << endl;
 	cout << "tgtRM->rae1->loss: " << tgtRM->rae1->loss() << endl;
 	cout << "tgtRM->rae2->loss: " << tgtRM->rae2->loss() << endl;
-	*/
 
 	cout << "loss: " << lossVal << endl;
 
@@ -221,7 +219,7 @@ void Domain::training()
 			//Êä³öloss
 			if(i % 10000 == 0)
 			{
-				out << count << ": " << "0th: " << loss(0) << endl;
+				out << count  << ": " << "0th: " << loss(0) << endl;
 			}
 
 			int pos = rand()%trainingData.size();

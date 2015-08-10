@@ -77,7 +77,7 @@ void ReorderModel::softmax()
 
 	if(softmaxLayer->getValue(0, 1) < -1 * numeric_limits<double>::max())
 	{       
-		softmaxLayer->setValue(0, 1, numeric_limits<double>::max());
+		softmaxLayer->setValue(0, 1, -1 * numeric_limits<double>::max());
 	}
 }
 
@@ -104,6 +104,7 @@ void ReorderModel::trainRM(Vector* y, bool isSoftmax)
 
 	Vector* theta = new Vector(delWeight_b->getRow(), delWeight_b->getCol());
 
+	cout << "Reorder 107" << endl;
 	//对W和Wb求导
 	if(isSoftmax)
 	{
@@ -111,17 +112,18 @@ void ReorderModel::trainRM(Vector* y, bool isSoftmax)
 		{
 			double result;
 			result = (softmaxLayer->getValue(0, row) - y->getValue(0, row)) * (1-outputLayer->getValue(0, row));
-
+			
 			for(int col = 0; col < weights->getCol(); col++)
 			{
 				Vector* tmpX = rae1->RAETree->getRoot()->getVector()->concat(rae2->RAETree->getRoot()->getVector());
 				delWeight->setValue(row, col, delWeight->getValue(row, col) + p * result * tmpX->getValue(0, col));
-
+			
 				delete tmpX;
 			}
 
+			cout << "Reorder 123" << endl;
 			delWeight_b->setValue(0, row, delWeight_b->getValue(0, row) + p * result);
-			/*	
+			/*
 			cout << softmaxLayer->getValue(0, row) << endl;
 			cout << y->getValue(0, row) << endl;
 			cout << outputLayer->getValue(0, row) << endl;
@@ -153,11 +155,13 @@ void ReorderModel::trainRM(Vector* y, bool isSoftmax)
 				delete tmpX;
 			}
 
+			cout << "Reorder 159" << endl;
 			delWeight_b->setValue(0, row, delWeight_b->getValue(0, row) - p * result);
 			theta->setValue(0, row, result);
 		}
 	}
 
+	cout << "Reorder 162" << endl;
 	//对W1和Wb1求导
 	Node* preNode1 = rae1->RAETree->getRoot();
 	Node* preNode2 = rae2->RAETree->getRoot();
@@ -165,7 +169,9 @@ void ReorderModel::trainRM(Vector* y, bool isSoftmax)
 	Vector* tmp = theta;
 	theta = tmp->multiply(weights, false);
 	delete tmp;
+	tmp = NULL;
 
+	cout << "Reorder 171" << endl;
 	Vector* theta1 = new Vector(theta->getRow(), theta->getCol()/2);
 	Vector* theta2 = new Vector(theta->getRow(), theta->getCol()/2);
 
@@ -196,7 +202,10 @@ void ReorderModel::trainRM(Vector* y, bool isSoftmax)
 
 		tmp = theta1;
 		theta1 = tmp->multiply(rae1->weights1, false);
+		cout << "Reorder 199" << endl;
 		delete tmp;
+		tmp = NULL;
+		cout << "Reorder 201" << endl;		
 
 		Vector* tmpTheta = new Vector(theta->getRow(), theta->getCol()/2);
 
@@ -206,6 +215,7 @@ void ReorderModel::trainRM(Vector* y, bool isSoftmax)
 		}
 
 		theta1 = tmpTheta;
+		tmpTheta = NULL;
 		preNode1 = preNode1->getLeftChildNode();
 	}
 
@@ -231,7 +241,10 @@ void ReorderModel::trainRM(Vector* y, bool isSoftmax)
 
 		tmp = theta2;
 		theta2 = tmp->multiply(rae1->weights1, false);
+		cout << "Reorder 243" << endl;
 		delete tmp;
+		tmp = NULL;
+		cout << "Reorder 246" << endl;
 
 		Vector* tmpTheta = new Vector(theta->getRow(), theta->getCol()/2);
 
@@ -241,11 +254,18 @@ void ReorderModel::trainRM(Vector* y, bool isSoftmax)
 		}
 
 		theta2 = tmpTheta;
+		tmpTheta = NULL;
 		preNode2 = preNode2->getLeftChildNode();
 	}
 
-	cout << "Reorder 246" << endl;
+	cout << "Reorder 259" << endl;
 	delete theta;
+	theta = NULL;
+	cout << "Reorder 261" << endl;
 	delete theta1;
+	theta1 = NULL;
+	cout << "Reorder 263" << endl;
 	delete theta2;
+	theta2 = NULL;
+	cout << "Reorder 263" << endl;
 }
