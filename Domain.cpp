@@ -226,19 +226,25 @@ void Domain::training()
 
 			int pos = rand()%trainingData.size();
 
+			cout << "Domain 229" << endl;
 			//获取实例
 			srcRM->getData(trainingData[pos].second["ct1"], trainingData[pos].second["ct2"]);
 			tgtRM->getData(trainingData[pos].second["et1"], trainingData[pos].second["et2"]);
+			cout << "Domain 233" << endl;
 
+			cout << "Domain 235" << endl;
 			//对rae求导
 			srcRM->rae1->trainRecError();
 			srcRM->rae2->trainRecError();
 			tgtRM->rae1->trainRecError();
 			tgtRM->rae2->trainRecError();
+			cout << "Domain 241" << endl;
 
+			cout << "Domain 243" << endl;
 			//对调序模型求导(Edis)
 			srcRM->trainRM(tgtRM->softmaxLayer, true);
 			tgtRM->trainRM(srcRM->softmaxLayer, true);
+			cout << "Domain 247" << endl;
 
 			//Ereo
 			Vector* mono = new Vector(1,2);
@@ -264,8 +270,10 @@ void Domain::training()
 			delete mono;
 			delete invert;
 
+			cout << "Domain 273" << endl;
 			//更新权重
 			upData();
+			cout << "Domain 276" << endl;
 		}
 	}
 

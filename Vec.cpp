@@ -1,4 +1,5 @@
 #include "Vec.h"
+#include <cstdlib>
 
 void Vector::setToZeros()
 {
@@ -106,7 +107,7 @@ Vector* Vector::multiply(Vector* sec_Vec, bool is_Transpose)
 		else
 		{
 			cerr << "Dimension Error" << endl;
-			return this;
+			exit(-1);
 		}
 	}
 	else
@@ -135,7 +136,7 @@ Vector* Vector::multiply(Vector* sec_Vec, bool is_Transpose)
 		else
 		{
 			cerr << "Dimension Error" << endl;
-			return this;
+			exit(-1);
 		}
 	}
 }

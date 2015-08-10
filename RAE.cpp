@@ -197,7 +197,8 @@ void RAE::buildTree(string bp)
 		RAETree = new Tree(treeNodes[0]);
 		return;
 	}
-	
+
+	cout << "RAE 201" << endl;	
 	//选取Erec最小的两个based节点
 	vector<double> v_recError;
 	for(int i = 0; i < treeNodes.size()-1; i++)
@@ -207,7 +208,9 @@ void RAE::buildTree(string bp)
 		v_recError.push_back(RAETree->getRoot()->getRecError());
 		delete RAETree;
 	}
+	cout << "rae 211" << endl;
 
+	cout << "rae 213" << endl;
 	int minNode = 0;
 	double minRecError = v_recError[0];
 	for(int i = 1; i< v_recError.size(); i++)
@@ -218,6 +221,7 @@ void RAE::buildTree(string bp)
 			minRecError = v_recError[i];
 		}
 	}
+	cout << "rae 224" << endl;
 
 	//建立RAE树
 	RAETree = new Tree(treeNodes[minNode]);
@@ -230,6 +234,7 @@ void RAE::buildTree(string bp)
 		return;
 	}
 
+	cout << "rae 237" << endl;
 	//添加新节点直到覆盖整个短语
 	while(treeNodes.size() != 1)
 	{
@@ -296,7 +301,10 @@ void RAE::buildTree(string bp)
 		RAETree->merge(treeNodes[nodePos], weights1, weights_b1, weights2, weights_b2);
 		treeNodes.erase(treeNodes.begin()+nodePos);
 	}
+	
+	cout << "rae 305" << endl;
 	RAETree->merge(treeNodes[0], weights1, weights_b1, weights2, weights_b2);
+	cout << "rae 307" << endl;
 }
 
 int RAE::getVecSize()
@@ -414,7 +422,7 @@ void RAE::trainRecError()
 			double result = (cRec->getValue(0, row)-c->getValue(0, row)) * (1-pow(cRec->getValue(0, row), 2));
 			tmpDelWb->setValue(0, row, result);
 		}
-
+		
 		tmpDelWb = tmpDelWb->multiply(weights2, false);
 		for(int row = 0; row < delWeight1->getRow(); row++)
 		{
@@ -428,6 +436,8 @@ void RAE::trainRecError()
 		tmpNode = tmpNode->getLeftChildNode();
 		delete c;
 		delete cRec;
+		delete tmpDelWb;
+		tmpDelWb = new Vector(1, 2*vecSize);
 	}
 
 	delete tmpDelWb;

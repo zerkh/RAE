@@ -174,7 +174,7 @@ void ReorderModel::trainRM(Vector* y, bool isSoftmax)
 		theta1->setValue(0, i, theta->getValue(0, i));
 		theta2->setValue(0, i, theta->getValue(0, i+theta1->getCol()));
 	}
-
+	cout << "Reorder 177" << endl;
 	while(preNode1->getNodeType() != BASED_NODE)
 	{
 		for(int row = 0; row < vecSize; row++)
@@ -183,15 +183,15 @@ void ReorderModel::trainRM(Vector* y, bool isSoftmax)
 			{
 				if(col < vecSize)
 				{
-					delWeight->setValue(row, col, delWeight->getValue(row, col) + p * theta1->getValue(0, row)*preNode1->getLeftChildNode()->getVector()->getValue(0, col));
+					rae1->delWeight1->setValue(row, col, rae1->delWeight1->getValue(row, col) + p * theta1->getValue(0, row)*preNode1->getLeftChildNode()->getVector()->getValue(0, col));
 				}
 				else
 				{
-					delWeight->setValue(row, col, delWeight->getValue(row, col) + p * theta1->getValue(0, row)*preNode1->getRightChildNode()->getVector()->getValue(0, col-vecSize));
+					rae1->delWeight1->setValue(row, col, rae1->delWeight1->getValue(row, col) + p * theta1->getValue(0, row)*preNode1->getRightChildNode()->getVector()->getValue(0, col-vecSize));
 				}
 			}
 
-			delWeight_b->setValue(0, row, delWeight_b->getValue(0, row) + p * theta1->getValue(0, row));
+			rae1->delWeight1_b->setValue(0, row, rae1->delWeight1_b->getValue(0, row) + p * theta1->getValue(0, row));
 		}
 
 		tmp = theta1;
@@ -209,6 +209,7 @@ void ReorderModel::trainRM(Vector* y, bool isSoftmax)
 		preNode1 = preNode1->getLeftChildNode();
 	}
 
+	cout << "Reorder 212" << endl;
 	while(preNode2->getNodeType() != BASED_NODE)
 	{
 		for(int row = 0; row < vecSize; row++)
@@ -217,15 +218,15 @@ void ReorderModel::trainRM(Vector* y, bool isSoftmax)
 			{
 				if(col < vecSize)
 				{
-					delWeight->setValue(row, col, delWeight->getValue(row, col) + p * theta2->getValue(0, row)*preNode2->getLeftChildNode()->getVector()->getValue(0, col));
+					rae2->delWeight1->setValue(row, col, rae2->delWeight1->getValue(row, col) + p * theta2->getValue(0, row)*preNode2->getLeftChildNode()->getVector()->getValue(0, col));
 				}
 				else
 				{
-					delWeight->setValue(row, col, delWeight->getValue(row, col) + p * theta2->getValue(0, row)*preNode2->getRightChildNode()->getVector()->getValue(0, col-vecSize));
+					rae2->delWeight1->setValue(row, col, rae2->delWeight1->getValue(row, col) + p * theta2->getValue(0, row)*preNode2->getRightChildNode()->getVector()->getValue(0, col-vecSize));
 				}
 			}
 
-			delWeight_b->setValue(0, row, delWeight_b->getValue(0, row) + p * theta2->getValue(0, row));
+			rae2->delWeight1_b->setValue(0, row, rae2->delWeight1_b->getValue(0, row) + p * theta2->getValue(0, row));
 		}
 
 		tmp = theta2;
@@ -243,6 +244,7 @@ void ReorderModel::trainRM(Vector* y, bool isSoftmax)
 		preNode2 = preNode2->getLeftChildNode();
 	}
 
+	cout << "Reorder 246" << endl;
 	delete theta;
 	delete theta1;
 	delete theta2;
