@@ -53,11 +53,9 @@ Vector::~Vector()
 	for(int i = 0; i < row; i++)
 	{
 		delete []vec[i];
-		vec[i] = NULL;
 	}
 	
 	delete[] vec;
-	vec = NULL;
 }
 
 int Vector::getCol()

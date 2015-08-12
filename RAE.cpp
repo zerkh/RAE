@@ -170,11 +170,7 @@ void RAE::buildTree(string bp)
 	stringstream ss(bp);
 	string tmp;
 
-	if(RAETree)
-	{
-		delete RAETree;
-		RAETree = NULL;
-	}
+	delete RAETree;
 
 	while(ss >> tmp)
 	{
@@ -345,10 +341,7 @@ RAE::~RAE()
 	while(n2 != NULL)
 	{
 		n2 = n1->getRightChildNode();
-		if(n2 != NULL)
-		{	
-			delete n2;
-		}
+		delete n2;
 		
 		n2 = n1->getLeftChildNode();
 		delete n1;

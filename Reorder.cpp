@@ -169,7 +169,6 @@ void ReorderModel::trainRM(Vector* y, bool isSoftmax)
 	Vector* tmp = theta;
 	theta = tmp->multiply(weights, false);
 	delete tmp;
-	tmp = NULL;
 
 	cout << "Reorder 171" << endl;
 	Vector* theta1 = new Vector(theta->getRow(), theta->getCol()/2);
@@ -203,11 +202,7 @@ void ReorderModel::trainRM(Vector* y, bool isSoftmax)
 		tmp = theta1;
 		theta1 = tmp->multiply(rae1->weights1, false);
 		cout << "Reorder 199" << endl;
-		if(tmp)
-		{
-			delete tmp;
-			tmp = NULL;
-		}
+		delete tmp;
 		cout << "Reorder 201" << endl;		
 
 		Vector* tmpTheta = new Vector(theta->getRow(), theta->getCol()/2);
@@ -245,11 +240,7 @@ void ReorderModel::trainRM(Vector* y, bool isSoftmax)
 		tmp = theta2;
 		theta2 = tmp->multiply(rae1->weights1, false);
 		cout << "Reorder 243" << endl;
-		if(tmp)
-		{
-			delete tmp;
-			tmp = NULL;
-		}
+		delete tmp;
 		cout << "Reorder 246" << endl;
 
 		Vector* tmpTheta = new Vector(theta->getRow(), theta->getCol()/2);
@@ -265,22 +256,10 @@ void ReorderModel::trainRM(Vector* y, bool isSoftmax)
 	}
 
 	cout << "Reorder 259" << endl;
-	if(theta)
-	{
-		delete theta;
-		theta = NULL;
-	}
+	delete theta;
 	cout << "Reorder 261" << endl;
-	if(theta1)
-	{
-		delete theta1;
-		theta1 = NULL;
-	}
+	delete theta1;
 	cout << "Reorder 263" << endl;
-	if(theta2)
-	{
-		delete theta2;
-		theta2 = NULL;
-	}
+	delete theta2;
 	cout << "Reorder 263" << endl;
 }
