@@ -18,6 +18,8 @@ public:
 
 	void setToZeros();
 
+	Vector* operator =(Vector* vec);
+
 	Vector* multiply(Vector* sec_Vec, bool is_Transpose);
 
 	double getValue(int row, int col);

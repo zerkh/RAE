@@ -48,6 +48,16 @@ Vector::Vector(int row, int col)
 	}
 }
 
+Vector* Vector::operator =(Vector* other)
+{
+	if(this != other)
+	{
+		memcpy(vec, other->vec, other->getRow()*other->getCol());
+	}
+
+	return this;
+}
+
 Vector::~Vector()
 {
 	for(int i = 0; i < row; i++)
