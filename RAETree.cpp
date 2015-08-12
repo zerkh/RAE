@@ -25,7 +25,7 @@ void Tree::showTree()
 	rightNode = root->getRightChildNode();
 
 	int count = 0;
-
+	
 	cout << root->getSpan().first << "," << root->getSpan().second << "\t" << root->getWord() << " " << root->getNodeType() << endl;
 
 	while(leftNode != NULL)
@@ -35,8 +35,8 @@ void Tree::showTree()
 		cout << leftNode->getSpan().first << "," << leftNode->getSpan().second << "\t" << leftNode->getWord() << " " << leftNode->getNodeType() << endl;
 		cout << rightNode->getSpan().first << "," << rightNode->getSpan().second << "\t" << rightNode->getWord() << " " << rightNode->getNodeType() << endl;
 
-		leftNode = leftNode->getLeftChildNode();
 		rightNode = leftNode->getRightChildNode();
+		leftNode = leftNode->getLeftChildNode();
 	}
 }
 
