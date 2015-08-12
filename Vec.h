@@ -18,7 +18,7 @@ public:
 
 	void setToZeros();
 
-	Vector* operator =(Vector* vec);
+	Vector(const Vector* other);
 
 	Vector* multiply(Vector* sec_Vec, bool is_Transpose);
 

@@ -1,5 +1,6 @@
 #include "Vec.h"
 #include <cstdlib>
+#include <string.h>
 
 void Vector::setToZeros()
 {
@@ -46,16 +47,6 @@ Vector::Vector(int row, int col)
 			vec[i][j] = 0;
 		}
 	}
-}
-
-Vector* Vector::operator =(Vector* other)
-{
-	if(this != other)
-	{
-		memcpy(vec, other->vec, other->getRow()*other->getCol());
-	}
-
-	return this;
 }
 
 Vector::~Vector()
