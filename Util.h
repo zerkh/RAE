@@ -79,4 +79,13 @@ inline vector<string> splitBySign(string line)
 	return subStr;
 }
 
+void operator delete(void* p)
+{
+	if (p)
+	{
+		free(p);
+		p = NULL;
+	}
+}
+
 #endif
