@@ -198,7 +198,7 @@ void RAE::buildTree(string bp)
 		return;
 	}
 
-	cout << "RAE 201" << endl;	
+	cout << "RAE 201" << endl;
 	//选取Erec最小的两个based节点
 	vector<double> v_recError;
 	for(int i = 0; i < treeNodes.size()-1; i++)
@@ -206,7 +206,7 @@ void RAE::buildTree(string bp)
 		RAETree = new Tree(treeNodes[i]);
 		RAETree->merge(treeNodes[i+1], weights1, weights_b1, weights2, weights_b2);
 		v_recError.push_back(RAETree->getRoot()->getRecError());
-		delete RAETree;
+		delete RAETree->getRoot();
 	}
 	cout << "rae 211" << endl;
 
