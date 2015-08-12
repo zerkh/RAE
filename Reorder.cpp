@@ -166,6 +166,9 @@ void ReorderModel::trainRM(Vector* y, bool isSoftmax)
 	Node* preNode1 = rae1->RAETree->getRoot();
 	Node* preNode2 = rae2->RAETree->getRoot();
 
+	rae1->RAETree->showTree();
+	rae2->RAETree->showTree();
+
 	Vector* tmp = theta;
 	theta = tmp->multiply(weights, false);
 	delete tmp;

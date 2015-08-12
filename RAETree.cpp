@@ -10,6 +10,36 @@ Tree::Tree(Node* root)
 	this->root = root;
 }
 
+void Tree::showTree()
+{
+	Node* leftNode;
+	Node* rightNode;
+
+	if(root == NULL)
+	{
+		cout << "NULL" << endl;
+		return;
+	}
+
+	leftNode = root->getLeftChildNode();
+	rightNode = root->getRightChildNode();
+
+	int count = 0;
+
+	cout << root->getSpan().first << "," << root->getSpan().second << "\t" << root->getWord() << " " << root->getNodeType() << endl;
+
+	while(leftNode != NULL)
+	{
+		count++;
+		cout << count << endl;
+		cout << leftNode->getSpan().first << "," << leftNode->getSpan().second << "\t" << leftNode->getWord() << " " << leftNode->getNodeType() << endl;
+		cout << rightNode->getSpan().first << "," << rightNode->getSpan().second << "\t" << rightNode->getWord() << " " << rightNode->getNodeType() << endl;
+
+		leftNode = leftNode->getLeftChildNode();
+		rightNode = leftNode->getRightChildNode();
+	}
+}
+
 void Tree::merge(Node* newNode, Vector* w1, Vector* b1, Vector* w2, Vector* b2)
 {
 	Vector* tmpCon = root->getVector()->concat(newNode->getVector());

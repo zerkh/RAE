@@ -140,6 +140,8 @@ public:
 		}
 	}
 
+	void showTree();
+
 	Node* getRoot();
 
 	void merge(Node* newNode, Vector* w1, Vector* b1, Vector* w2, Vector* b2);
