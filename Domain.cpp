@@ -115,7 +115,7 @@ void Domain::loadTrainingData()
 	{
 		int order;
 		map<string, string> m_tmp;
-		vector<string> subOfLine = splitBySpace(line);
+		vector<string> subOfLine = splitBySign(line);
 
 		if(subOfLine[0] == "mono")
 		{
