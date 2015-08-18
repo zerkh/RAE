@@ -20,6 +20,6 @@ const double GAMMA = 0;
 //Decay
 const double ZETA = 0.01;
 //learning rate
-const double RATE = 0.65;
+const double RATE = 0.00005;
 
 #endif

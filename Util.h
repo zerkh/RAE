@@ -76,17 +76,25 @@ inline double getRand()
 	return X;
 }
 
-inline vector<string> splitBySpace(string line)
+inline vector<string> splitBySign(string line)
 {
 	vector<string> subStr;
 
-	string str;
-	stringstream ss(line);
+	int spos = line.find("ct1=");
+	subStr.push_back(line.substr(0, spos-1));
 
-	while(ss >> str)
-	{
-		subStr.push_back(str);
-	}
+	int epos = line.find("et1=");
+	subStr.push_back(line.substr(spos, epos-1-spos));
+
+	spos = epos;
+	epos = line.find("ct2=");
+	subStr.push_back(line.substr(spos, epos-1-spos));
+
+	spos = epos;
+	epos = line.find("et2=");
+	subStr.push_back(line.substr(spos, epos-1-spos));
+
+	subStr.push_back(line.substr(epos, line.size()-epos));
 
 	return subStr;
 }

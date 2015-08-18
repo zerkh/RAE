@@ -13,8 +13,6 @@ void work( worker_arg_t *arg );
 
 int main(int argc, char* argv[])
 {
-
-
 	double start, end;
 
 	start = clock();
