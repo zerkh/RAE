@@ -59,10 +59,6 @@ void ReorderModel::softmax()
 		}
 	}
 
-	tmpConcat.resize(0,0);
-	tmpMultiply.resize(0,0);
-	tmpOutput.resize(0,0);
-
 	double result;
 
 	result = exp(outputLayer(0, 0))/(exp(outputLayer(0, 0)) + exp(outputLayer(0, 1)));
@@ -119,8 +115,6 @@ void ReorderModel::trainRM(MatrixXd y, bool isSoftmax)
 			{
 				MatrixXd tmpX = concatMatrix(rae1->RAETree->getRoot()->getVector(),rae2->RAETree->getRoot()->getVector());
 				delWeight(row, col) = delWeight(row, col) + p * result * tmpX(0, col);
-
-				tmpX.resize(0,0);
 			}
 
 			delWeight_b(0, row) = delWeight_b(0, row) + p * result;
@@ -152,8 +146,6 @@ void ReorderModel::trainRM(MatrixXd y, bool isSoftmax)
 			{
 				MatrixXd tmpX = concatMatrix(rae1->RAETree->getRoot()->getVector(),rae2->RAETree->getRoot()->getVector());
 				delWeight(row, col) = delWeight(row, col) - p * result * tmpX(0, col);
-
-				tmpX.resize(0,0);
 			}
 
 			delWeight_b(0, row) = delWeight_b(0, row) - p * result;
@@ -241,11 +233,5 @@ void ReorderModel::trainRM(MatrixXd y, bool isSoftmax)
 
 		theta2 = tmpTheta;
 		preNode2 = preNode2->getLeftChildNode();
-		tmpTheta.resize(0,0);
 	}
-
-	theta.resize(0,0);
-	theta1.resize(0,0);
-	theta2.resize(0,0);
-	tmp.resize(0,0);
 }

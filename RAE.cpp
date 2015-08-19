@@ -318,8 +318,6 @@ void RAE::trainRecError()
 		}
 
 		tmpNode = tmpNode->getLeftChildNode();
-		c.resize(0,0);
-		cRec.resize(0,0);
 	}
 
 	//仅对每一对重构中的权重求导
@@ -347,9 +345,5 @@ void RAE::trainRecError()
 		}
 
 		tmpNode = tmpNode->getLeftChildNode();
-		c.resize(0,0);
-		cRec.resize(0,0);
 	}
-
-	tmpDelWb.resize(0,0);
 }

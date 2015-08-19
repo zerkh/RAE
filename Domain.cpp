@@ -190,11 +190,11 @@ void Domain::training()
 {
 	for(int count = 0; count < iterTime; count++)
 	{
+		srand((unsigned)time(0));
 		//一轮训练
 		//for(int i = trainingData.size()-20000; i < trainingData.size(); i++)
 		for(int i = 0; i < trainingData.size(); i++)
 		{
-			srand((unsigned)time(0));
 			int pos = rand()%trainingData.size();
 
 			//获取实例
