@@ -157,8 +157,7 @@ void ReorderModel::trainRM(MatrixXd y, bool isSoftmax)
 	Node* preNode1 = rae1->RAETree->getRoot();
 	Node* preNode2 = rae2->RAETree->getRoot();
 
-	MatrixXd tmp = theta;
-	theta = tmp * weights;
+	theta = theta * weights;
 
 	MatrixXd theta1 = MatrixXd(theta.rows(), theta.cols()/2);
 	MatrixXd theta2 = MatrixXd(theta.rows(), theta.cols()/2);
@@ -188,8 +187,7 @@ void ReorderModel::trainRM(MatrixXd y, bool isSoftmax)
 			rae1->delWeight1_b(0, row) = rae1->delWeight1_b(0, row) + p * theta1(0, row);
 		}
 
-		tmp = theta1;
-		theta1 = tmp * rae1->weights1;
+		theta1 = theta1 * rae1->weights1;
 
 		MatrixXd tmpTheta = MatrixXd(theta.rows(), theta.cols()/2);
 
@@ -221,8 +219,7 @@ void ReorderModel::trainRM(MatrixXd y, bool isSoftmax)
 			rae2->delWeight2_b(0, row) = rae2->delWeight2_b(0, row) + p * theta2(0, row);
 		}
 
-		tmp = theta2;
-		theta2 = tmp * rae2->weights1;
+		theta2 = theta2 * rae2->weights1;
 
 		MatrixXd tmpTheta = MatrixXd(theta.rows(), theta.cols()/2);
 
