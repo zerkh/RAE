@@ -77,7 +77,7 @@ public:
 		return rightChild;
 	}
 
-	MatrixXd getVector()
+	MatrixXd& getVector()
 	{
 		return vec;
 	}

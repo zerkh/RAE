@@ -13,10 +13,7 @@ Tree::Tree(Node* root)
 
 void Tree::merge(Node* newNode, MatrixXd w1, MatrixXd b1, MatrixXd w2, MatrixXd b2)
 {
-	MatrixXd tmpCon = concatMatrix(root->getVector(),newNode->getVector());
-	MatrixXd tmpMul = tmpCon * w1.transpose();
-
-	MatrixXd parent = tmpMul + b1;
+	MatrixXd parent = concatMatrix(root->getVector(),newNode->getVector()) * w1.transpose() + b1;
 
 	Node* pNode;
 	if(root->getSpan().second < newNode->getSpan().first)
