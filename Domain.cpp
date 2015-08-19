@@ -156,12 +156,11 @@ double Domain::loss(int ind)
 	lossVal += ALPHA * tgtRM->rae1->loss();
 	lossVal += ALPHA * tgtRM->rae2->loss();
 	
-	/*
+	
 	cout << "srcRM->rae1->loss: " << srcRM->rae1->loss() << endl;
 	cout << "srcRM->rae2->loss: " << srcRM->rae2->loss() << endl;
 	cout << "tgtRM->rae1->loss: " << tgtRM->rae1->loss() << endl;
 	cout << "tgtRM->rae2->loss: " << tgtRM->rae2->loss() << endl;
-	*/
 
 	cout << "loss: " << lossVal << endl;
 
@@ -201,30 +200,35 @@ void Domain::training()
 	{
 		srand((unsigned)time(0));
 		//一轮训练
-		//for(int i = trainingData.size()-20000; i < trainingData.size(); i++)
-		for(int i = 0; i < trainingData.size(); i++)
+		for(int i = trainingData.size()-10; i < trainingData.size(); i++)
+		//for(int i = 0; i < trainingData.size(); i++)
 		{
 			int pos = rand()%trainingData.size();
 
 			//获取实例
-			srcRM->getData(trainingData[pos].second["ct1"], trainingData[i].second["ct2"]);
-			tgtRM->getData(trainingData[pos].second["et1"], trainingData[i].second["et2"]);
+			srcRM->getData(trainingData[pos].second["ct1"], trainingData[pos].second["ct2"]);
+			tgtRM->getData(trainingData[pos].second["et1"], trainingData[pos].second["et2"]);
 			
 			if(i >= trainingData.size()-10 && i < trainingData.size())
 			{
 				out<< count << " : " << pos << "th's " << "loss value : " << loss(pos) << endl;
 			}
 
+			cout << "domain reconstruct error" << endl;
 			//对rae求导
 			srcRM->rae1->trainRecError();
 			srcRM->rae2->trainRecError();
 			tgtRM->rae1->trainRecError();
 			tgtRM->rae2->trainRecError();
+			cout << "domain reconstruct error" << endl;
 
+			cout << "Domain Edis" << endl;
 			//对调序模型求导(Edis)
 			srcRM->trainRM(tgtRM->outputLayer, true);
 			tgtRM->trainRM(srcRM->outputLayer, true);
+			cout << "Domain Edis" << endl;
 
+			cout << "Domain Rreo" << endl;
 			//Ereo
 			MatrixXd mono = MatrixXd(1,2);
 			MatrixXd invert = MatrixXd(1,2);
@@ -245,9 +249,7 @@ void Domain::training()
 				srcRM->trainRM(invert, false);
 				tgtRM->trainRM(invert, false);
 			}
-
-			mono.resize(0,0);
-			invert.resize(0,0);
+			cout << "Domain Ereo" << endl;
 			
 			//更新权重
 			upData();
@@ -308,8 +310,8 @@ void Domain::test()
 	int srcCount = 0;
 	int tgtCount = 0;
 
-	//for(int i = trainingData.size()-20000; i < trainingData.size(); i++)
-	for(int i = 0; i < trainingData.size(); i++)
+	for(int i = trainingData.size()-100; i < trainingData.size(); i++)
+	//for(int i = 0; i < trainingData.size(); i++)
 	{
 		srcRM->getData(trainingData[i].second["ct1"], trainingData[i].second["ct2"]);
 		tgtRM->getData(trainingData[i].second["et1"], trainingData[i].second["et2"]);

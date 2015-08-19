@@ -191,7 +191,7 @@ void ReorderModel::trainRM(MatrixXd y, bool isSoftmax)
 
 		MatrixXd tmpTheta = MatrixXd(theta.rows(), theta.cols()/2);
 
-		for(int i = 0; i < theta1.cols(); i++)
+		for(int i = 0; i < theta.cols()/2; i++)
 		{
 			tmpTheta(0, i) = theta1(0, i);
 		}
@@ -223,7 +223,7 @@ void ReorderModel::trainRM(MatrixXd y, bool isSoftmax)
 
 		MatrixXd tmpTheta = MatrixXd(theta.rows(), theta.cols()/2);
 
-		for(int i = 0; i < theta2.cols(); i++)
+		for(int i = 0; i < theta.cols()/2; i++)
 		{
 			tmpTheta(0, i) = theta2(0, i);
 		}
