@@ -151,6 +151,9 @@ double Domain::loss(int ind)
 {
 	double lossVal = 0;
 
+	srcRM->getData(trainingData[ind].second["ct1"], trainingData[ind].second["ct2"]);
+	tgtRM->getData(trainingData[ind].second["et1"], trainingData[ind].second["et2"]);
+
 	lossVal += ALPHA * srcRM->rae1->loss();
 	lossVal += ALPHA * srcRM->rae2->loss();
 	lossVal += ALPHA * tgtRM->rae1->loss();

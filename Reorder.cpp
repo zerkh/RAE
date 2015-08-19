@@ -74,7 +74,7 @@ void ReorderModel::softmax()
 		softmaxLayer(0, 0) = -1 * numeric_limits<double>::max();
 	}
 
-	if(!finite(softmaxLayer(0, 1) <= -1 * numeric_limits<double>::max()))
+	if(!finite(softmaxLayer(0, 1)))
 	{       
 		softmaxLayer(0, 1) = -1 * numeric_limits<double>::max();
 	}
