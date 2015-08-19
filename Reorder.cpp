@@ -177,15 +177,15 @@ void ReorderModel::trainRM(MatrixXd y, bool isSoftmax)
 			{
 				if(col < vecSize)
 				{
-					delWeight(row, col) = delWeight(row, col) + p * theta1(0, row) * (preNode1->getLeftChildNode()->getVector())(0, col);
+					rae1->delWeight1(row, col) = rae1->delWeight1(row, col) + p * theta1(0, row) * (preNode1->getLeftChildNode()->getVector())(0, col);
 				}
 				else
 				{
-					delWeight(row, col) = delWeight(row, col) + p * theta1(0, row) * (preNode1->getRightChildNode()->getVector())(0, col-vecSize);
+					rae1->delWeight1(row, col) = rae1->delWeight1(row, col) + p * theta1(0, row) * (preNode1->getRightChildNode()->getVector())(0, col-vecSize);
 				}
 			}
 
-			delWeight_b(0, row) = delWeight_b(0, row) + p * theta1(0, row);
+			rae1->delWeight1_b(0, row) = rae1->delWeight1_b(0, row) + p * theta1(0, row);
 		}
 
 		tmp = theta1;
@@ -210,19 +210,19 @@ void ReorderModel::trainRM(MatrixXd y, bool isSoftmax)
 			{
 				if(col < vecSize)
 				{
-					delWeight(row, col) = delWeight(row, col) + p * theta2(0, row) * (preNode2->getLeftChildNode()->getVector())(0, col);
+					rae2->delWeight1(row, col) = rae2->delWeight1(row, col) + p * theta2(0, row) * (preNode2->getLeftChildNode()->getVector())(0, col);
 				}
 				else
 				{
-					delWeight(row, col) = delWeight(row, col) + p * theta2(0, row) * (preNode2->getRightChildNode()->getVector())(0, col-vecSize);
+					rae2->delWeight1(row, col) = rae2->delWeight1(row, col) + p * theta2(0, row) * (preNode2->getRightChildNode()->getVector())(0, col-vecSize);
 				}
 			}
 
-			delWeight_b(0, row) = delWeight_b(0, row) + p * theta2(0, row);
+			rae2->delWeight2_b(0, row) = rae2->delWeight2_b(0, row) + p * theta2(0, row);
 		}
 
 		tmp = theta2;
-		theta2 = tmp * rae1->weights1;
+		theta2 = tmp * rae2->weights1;
 
 		MatrixXd tmpTheta = MatrixXd(theta.rows(), theta.cols()/2);
 
