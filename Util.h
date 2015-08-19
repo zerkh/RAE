@@ -29,7 +29,7 @@ inline string strip_str(string str)
 	return newStr;
 }
 
-inline MatrixXd& concatMatrix(MatrixXd m1, MatrixXd m2)
+inline MatrixXd concatMatrix(MatrixXd m1, MatrixXd m2)
 {
 	MatrixXd m = MatrixXd(m1.rows(), m1.cols()+m2.cols());
 

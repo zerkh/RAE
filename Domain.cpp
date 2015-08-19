@@ -2,14 +2,23 @@
 
 Domain::Domain(Parameter* para, string domainName, WordVec* srcWords, WordVec* tgtWords)
 {
-	/*
-	WordVec* srcWords = new WordVec();
-	srcWords->readFile(para, domainName+"Target");
+	bool isDev = atoi(para->getPara("IsDev").c_str());
+	bool isTrain = atoi(para->getPara("IsTrain").c_str());
+	bool isTest = atoi(para->getPara("IsTest").c_str());
 
-	WordVec* tgtWords = new WordVec();
-	tgtWords->readFile(para, domainName+"Source");
-	*/
-	dataFile = para->getPara(domainName + "DataFile");
+	if(isDev)
+	{
+		dataFile = para->getPara(domainName + "DevDataFile");
+	}
+	else if(isTrain)
+	{
+		dataFile = para->getPara(domainName + "DataFile");
+	}
+	else if(isTest)
+	{
+		dataFile = para->getPara(domainName + "TestDataFile");
+	}
+
 	iterTime = atoi(para->getPara("IterationTime").c_str());
 
 	this->domainName = domainName;
