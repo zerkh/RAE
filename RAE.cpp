@@ -322,12 +322,13 @@ void RAE::trainRecError()
 
 	//仅对每一对重构中的权重求导
 	tmpNode = this->RAETree->getRoot();
-	MatrixXd tmpDelWb = MatrixXd(1, 2*vecSize);
 
 	while(tmpNode->getNodeType() != BASED_NODE)
 	{
 		MatrixXd c = concatMatrix(tmpNode->getLeftChildNode()->getVector(),tmpNode->getRightChildNode()->getVector());
 		MatrixXd cRec = concatMatrix(tmpNode->leftReconst,tmpNode->rightReconst);
+		MatrixXd tmpDelWb = MatrixXd(1, 2*vecSize);
+
 		for(int row = 0; row < weights2.rows(); row++)
 		{
 			double result = (cRec(0, row)-c(0, row)) * (1-pow(cRec(0, row), 2));
