@@ -12,9 +12,9 @@ const int REC_NODE = 2;
 typedef pair<int, int> span;
 
 //Erec
-const double ALPHA = 0.2;
+const double ALPHA = 0.02;
 //Ereo
-const double BETA = 0.6;
+const double BETA = 0.06;
 //Edis
 const double GAMMA = 0;
 //Decay

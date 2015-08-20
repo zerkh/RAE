@@ -50,7 +50,6 @@ void ReorderModel::softmax()
 	MatrixXd tmpMultiply = tmpConcat * weights.transpose();
 	MatrixXd tmpOutput = tmpMultiply + weights_b;
 
-
 	for(int row = 0;row < outputLayer.rows(); row++)
 	{
 		for(int col = 0; col < outputLayer.cols(); col++)
