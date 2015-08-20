@@ -127,12 +127,18 @@ public:
 
 		n1 = root;
 		n2 = root;
-		while(n2->getNodeType() != BASED_NODE)
+		while(n2 != NULL)
 		{
+			n2 = n1->getRightChildNode();
+			delete n2;
+			n2 = NULL;
 			n2 = n1->getLeftChildNode();
 			delete n1;
+			n1 = NULL;
 			n1 = n2;
 		}
+
+		root = NULL;
 	}
 
 	Node* getRoot();
