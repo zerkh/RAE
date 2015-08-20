@@ -208,14 +208,18 @@ void Domain::training()
 		{
 			int pos = rand()%trainingData.size();
 
-			//获取实例
-			srcRM->getData(trainingData[pos].second["ct1"], trainingData[pos].second["ct2"]);
-			tgtRM->getData(trainingData[pos].second["et1"], trainingData[pos].second["et2"]);
-			
+			cout << "Domain calc loss" << endl;
 			if(i >= trainingData.size()-10 && i < trainingData.size())
 			{
 				out<< count << " : " << pos << "th's " << "loss value : " << loss(pos) << endl;
 			}
+			cout << "Domain clac loss" << endl;
+
+			cout << "Domain getData" << endl;
+			//获取实例
+			srcRM->getData(trainingData[pos].second["ct1"], trainingData[pos].second["ct2"]);
+			tgtRM->getData(trainingData[pos].second["et1"], trainingData[pos].second["et2"]);
+			cout << "Domain getData" << endl;			
 
 			cout << "domain reconstruct error" << endl;
 			//对rae求导
