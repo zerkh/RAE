@@ -339,6 +339,12 @@ void RAE::trainRecError()
 		}
 
 		tmpDelWb = tmpDelWb*weights2;
+
+		for(int col = 0; col < tmpDelWb.cols(); col++)
+		{
+			tmpDelWb(0, col) *= (1-pow(tmpNode->getVector()(0, col), 2));
+		}
+
 		for(int row = 0; row < delWeight1.rows(); row++)
 		{
 			delWeight1_b(0, row) = delWeight1_b(0, row)+ ALPHA * tmpDelWb(0, row);

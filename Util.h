@@ -33,7 +33,7 @@ inline MatrixXd tanh(MatrixXd m)
 {
 	for(int row = 0; row < m.rows(); row++)
 	{
-		for(int col = 0; col < m.rows(); row++)
+		for(int col = 0; col < m.cols(); col++)
 		{
 			m(row, col) = (exp(m(row, col))-exp(-m(row, col)))/(exp(m(row, col))+exp(-m(row, col)));
 		}

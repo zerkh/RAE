@@ -61,8 +61,8 @@ void ReorderModel::softmax()
 
 	double result, o1, o2;
 
-	o1 = outputLayer(0,0);
-	o2 = outputLayer(0,1);
+	o1 = exp(outputLayer(0,0));
+	o2 = exp(outputLayer(0,1));
 	if(exp(outputLayer(0,1)) == 0 && exp(outputLayer(0,0)) == 0)
 	{
 		o1 = 1;
@@ -172,6 +172,7 @@ void ReorderModel::trainRM(MatrixXd y, bool isSoftmax)
 	Node* preNode2 = rae2->RAETree->getRoot();
 
 	theta = theta * weights;
+
 	MatrixXd theta1 = MatrixXd(theta.rows(), theta.cols()/2);
 	MatrixXd theta2 = MatrixXd(theta.rows(), theta.cols()/2);
 
@@ -183,6 +184,11 @@ void ReorderModel::trainRM(MatrixXd y, bool isSoftmax)
 
 	while(preNode1->getNodeType() != BASED_NODE)
 	{
+		for(int col = 0; col < theta1.cols(); col++)
+		{
+			theta1(0, col) *= (1-pow(preNode1->getVector()(0,col), 2));
+		}
+
 		for(int row = 0; row < vecSize; row++)
 		{
 			for(int col = 0; col < vecSize*2; col++)
@@ -215,6 +221,11 @@ void ReorderModel::trainRM(MatrixXd y, bool isSoftmax)
 
 	while(preNode2->getNodeType() != BASED_NODE)
 	{
+		for(int col = 0; col < theta2.cols(); col++)
+		{
+			theta2(0, col) *= (1-pow(preNode2->getVector()(0,col), 2));
+		}
+
 		for(int row = 0; row < vecSize; row++)
 		{
 			for(int col = 0; col < vecSize*2; col++)
