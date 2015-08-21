@@ -63,18 +63,13 @@ void ReorderModel::softmax()
 
 	ofstream log1("Reorder.log", ios::app);
 	log1 << "Concat:\n" << tmpConcat << endl<<endl;
-	log1 << "Output:\n" << outputLayer << endl << endl;
-	log1 << "RAE1\n";
-	rae1->RAETree->showTree();
-	log1 << "RAE2\n";
-	rae2->RAETree->showTree();
-	log1 << "RAE weight1:\n" << rae1->weights1 << endl << endl;
-	log1 << "RAE weight2:\n" << rae2->weights1 << endl << endl;
+	log1 << "pre Output:\n" << outputLayer << endl << endl;
 	result = (exp(outputLayer(0, 0))+1)/(exp(outputLayer(0, 0)) + exp(outputLayer(0, 1)) +2 );
 
 	outputLayer(0, 0) = result;
-	outputLayer(0, 1) = 1-result;	
+	outputLayer(0, 1) = 1-result;
 
+	log1 << "after Output:\n" << outputLayer << endl << endl;
 	softmaxLayer(0, 0) = log(result);
 	softmaxLayer(0, 1) = log(1 - result);
 
@@ -167,7 +162,7 @@ void ReorderModel::trainRM(MatrixXd y, bool isSoftmax)
 
 	log << "pre theta\n" << theta << endl << endl;
 	theta = theta * weights;
-
+	log << "after theta\n" << theta << endl << endl;
 	MatrixXd theta1 = MatrixXd(theta.rows(), theta.cols()/2);
 	MatrixXd theta2 = MatrixXd(theta.rows(), theta.cols()/2);
 
