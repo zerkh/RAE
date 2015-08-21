@@ -59,17 +59,28 @@ void ReorderModel::softmax()
 		}
 	}
 
-	double result;
+	double result, o1, o2;
 
-	ofstream log1("Reorder.log", ios::app);
-	log1 << "Concat:\n" << tmpConcat << endl<<endl;
-	log1 << "pre Output:\n" << outputLayer << endl << endl;
-	result = (exp(outputLayer(0, 0))+1)/(exp(outputLayer(0, 0)) + exp(outputLayer(0, 1)) +2 );
+	if(exp(outputLayer(0,1)) == 0 && exp(outputLayer(0,0)) == 0)
+	{
+		o1 = 1;
+		o2 = 1;
+	}
+	else
+	{
+		if(!finite(exp(outputLayer(0,1))) )
+		{
+			o2 = numeric_limits<double>::max() * 0.1;
+		}
+		if(!finite(exp(outputLayer(0,0))) )
+		{
+			o1 = numeric_limits<double>::max() * 0.1;
+		}
+	}
+	result = (exp(outputLayer(0, 0)))/(exp(outputLayer(0, 0)) + exp(outputLayer(0, 1)));
 
 	outputLayer(0, 0) = result;
 	outputLayer(0, 1) = 1-result;
-
-	log1 << "after Output:\n" << outputLayer << endl << endl;
 	softmaxLayer(0, 0) = log(result);
 	softmaxLayer(0, 1) = log(1 - result);
 
@@ -95,7 +106,6 @@ void ReorderModel::getData(string bp1, string bp2)
 
 void ReorderModel::trainRM(MatrixXd y, bool isSoftmax)
 {
-	ofstream log("Reorder.log", ios::app);
 	double p;
 	if(isSoftmax)
 	{
@@ -107,8 +117,6 @@ void ReorderModel::trainRM(MatrixXd y, bool isSoftmax)
 	}
 
 	MatrixXd theta = MatrixXd(delWeight_b.rows(), delWeight_b.cols());
-	log << "y:\n" << y << endl;
-	log << "outputlayer:\n" << outputLayer << endl;
 
 	//对W和Wb求导
 	if(isSoftmax)
@@ -160,9 +168,7 @@ void ReorderModel::trainRM(MatrixXd y, bool isSoftmax)
 	Node* preNode1 = rae1->RAETree->getRoot();
 	Node* preNode2 = rae2->RAETree->getRoot();
 
-	log << "pre theta\n" << theta << endl << endl;
 	theta = theta * weights;
-	log << "after theta\n" << theta << endl << endl;
 	MatrixXd theta1 = MatrixXd(theta.rows(), theta.cols()/2);
 	MatrixXd theta2 = MatrixXd(theta.rows(), theta.cols()/2);
 
