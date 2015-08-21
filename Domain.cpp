@@ -175,7 +175,7 @@ double Domain::loss(int ind)
 	cout << "Src softmax: [" << srcRM->softmaxLayer(0, 0) << " , " << srcRM->softmaxLayer(0, 1) << "]" << endl;	
 	cout << "Tgt softmax: [" << tgtRM->softmaxLayer(0, 0) << " , " << tgtRM->softmaxLayer(0, 1) << "]" << endl; 	
  	cout << "Src output: [" << srcRM->outputLayer(0, 0) << " , " << srcRM->outputLayer(0, 1) << "]" << endl; 
-    cout << "Tgt output: [" << tgtRM->outputLayer(0, 0) << " , " << tgtRM->outputLayer(0, 1) << "]" << endl; 
+    	cout << "Tgt output: [" << tgtRM->outputLayer(0, 0) << " , " << tgtRM->outputLayer(0, 1) << "]" << endl; 
 	
 	if(trainingData[ind].first == 1)
 	{
@@ -203,39 +203,37 @@ void Domain::training()
 	{
 		srand((unsigned)time(0));
 		//一轮训练
-		for(int i = trainingData.size()-10; i < trainingData.size(); i++)
+		for(int i = trainingData.size()-100; i < trainingData.size(); i++)
 		//for(int i = 0; i < trainingData.size(); i++)
 		{
 			int pos = rand()%trainingData.size();
 
-			cout << "Domain calc loss" << endl;
 			if(i >= trainingData.size()-10 && i < trainingData.size())
 			{
 				out<< count << " : " << pos << "th's " << "loss value : " << loss(pos) << endl;
 			}
-			cout << "Domain clac loss" << endl;
 
-			cout << "Domain getData" << endl;
+			//cout << "Domain getData" << endl;
 			//获取实例
 			srcRM->getData(trainingData[pos].second["ct1"], trainingData[pos].second["ct2"]);
 			tgtRM->getData(trainingData[pos].second["et1"], trainingData[pos].second["et2"]);
-			cout << "Domain getData" << endl;			
+			//cout << "Domain getData" << endl;			
 
-			cout << "domain reconstruct error" << endl;
+			//cout << "domain reconstruct error" << endl;
 			//对rae求导
 			srcRM->rae1->trainRecError();
 			srcRM->rae2->trainRecError();
 			tgtRM->rae1->trainRecError();
 			tgtRM->rae2->trainRecError();
-			cout << "domain reconstruct error" << endl;
+			//cout << "domain reconstruct error" << endl;
 
-			cout << "Domain Edis" << endl;
+			//cout << "Domain Edis" << endl;
 			//对调序模型求导(Edis)
 			srcRM->trainRM(tgtRM->outputLayer, true);
 			tgtRM->trainRM(srcRM->outputLayer, true);
-			cout << "Domain Edis" << endl;
+			//cout << "Domain Edis" << endl;
 
-			cout << "Domain Rreo" << endl;
+			//cout << "Domain Rreo" << endl;
 			//Ereo
 			MatrixXd mono = MatrixXd(1,2);
 			MatrixXd invert = MatrixXd(1,2);
@@ -256,7 +254,7 @@ void Domain::training()
 				srcRM->trainRM(invert, false);
 				tgtRM->trainRM(invert, false);
 			}
-			cout << "Domain Ereo" << endl;
+			//cout << "Domain Ereo" << endl;
 			
 			//更新权重
 			upData();

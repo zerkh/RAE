@@ -1,6 +1,7 @@
 #include "Reorder.h"
 #include <limits>
 #include "Util.h"
+#include <fstream>
 
 ReorderModel::ReorderModel(Parameter* para, WordVec* words)
 {
@@ -60,7 +61,10 @@ void ReorderModel::softmax()
 
 	double result;
 
-	result = exp(outputLayer(0, 0))/(exp(outputLayer(0, 0)) + exp(outputLayer(0, 1)));
+	ofstream log1("Reorder.log", ios::app);
+	log1 << "Concat:\n" << tmpConcat << endl<<endl;
+	log1 << "Output:\n" << outputLayer << endl << endl;
+	result = (exp(outputLayer(0, 0))+1)/(exp(outputLayer(0, 0)) + exp(outputLayer(0, 1)) +2 );
 
 	outputLayer(0, 0) = result;
 	outputLayer(0, 1) = 1-result;	
@@ -90,6 +94,7 @@ void ReorderModel::getData(string bp1, string bp2)
 
 void ReorderModel::trainRM(MatrixXd y, bool isSoftmax)
 {
+	ofstream log("Reorder.log", ios::app);
 	double p;
 	if(isSoftmax)
 	{
@@ -101,6 +106,8 @@ void ReorderModel::trainRM(MatrixXd y, bool isSoftmax)
 	}
 
 	MatrixXd theta = MatrixXd(delWeight_b.rows(), delWeight_b.cols());
+	log << "y:\n" << y << endl;
+	log << "outputlayer:\n" << outputLayer << endl;
 
 	//对W和Wb求导
 	if(isSoftmax)
@@ -108,7 +115,7 @@ void ReorderModel::trainRM(MatrixXd y, bool isSoftmax)
 		for(int row = 0; row < weights.rows(); row++)
 		{
 			double result;
-			result = (outputLayer(0, row) - y(0, row)) * (exp(outputLayer(0, 0)) * exp(outputLayer(0, 1)) / pow(exp(outputLayer(0, 0)) + exp(outputLayer(0, 1)), 2) );
+			result = (outputLayer(0, row) - y(0, row)) * (exp(outputLayer(0, 0)) * exp(outputLayer(0, 1)));
 
 			for(int col = 0; col < weights.cols(); col++)
 			{
@@ -117,12 +124,8 @@ void ReorderModel::trainRM(MatrixXd y, bool isSoftmax)
 			}
 
 			delWeight_b(0, row) = delWeight_b(0, row) + p * result;
-			/*	
-			cout << softmaxLayer(0, row) << endl;
-			cout << y(0, row) << endl;
-			cout << outputLayer(0, row) << endl;
-			cout << p << " " << result << endl;
-			*/
+				
+					
 			theta(0, row) = result;
 		}
 
@@ -156,6 +159,7 @@ void ReorderModel::trainRM(MatrixXd y, bool isSoftmax)
 	Node* preNode1 = rae1->RAETree->getRoot();
 	Node* preNode2 = rae2->RAETree->getRoot();
 
+	log << "pre theta\n" << theta << endl << endl;
 	theta = theta * weights;
 
 	MatrixXd theta1 = MatrixXd(theta.rows(), theta.cols()/2);

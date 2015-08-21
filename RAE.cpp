@@ -1,5 +1,6 @@
 #include "RAE.h"
 #include "Util.h"
+#include <fstream>
 
 RAE::RAE(Parameter* para, WordVec* words)
 {
@@ -102,13 +103,6 @@ void RAE::buildTree(string bp)
 	stringstream ss(bp);
 	string tmp;
 
-	ofstream log("rae.log", "w");
-	log << "Start" << endl;
-	log << weights1 << endl << endl;
-	log << weights_b1 << endl << endl;
-	log << weights2 << endl << endl;
-	log << weights_b2 << endl << endl;
-
 	if(RAETree)
 	{
 		delete RAETree;
@@ -162,8 +156,6 @@ void RAE::buildTree(string bp)
 	//½¨Á¢RAEÊ÷
 	RAETree = new Tree(treeNodes[minNode]);
 	RAETree->merge(treeNodes[minNode+1], weights1, weights_b1, weights2, weights_b2);
-	log << "Start building tree......" << endl;
-	log << RAETree->getRoot()->getVector() << endl << endl;
 
 	treeNodes.erase(treeNodes.begin()+minNode, treeNodes.begin()+minNode+2);
 
@@ -237,11 +229,8 @@ void RAE::buildTree(string bp)
 
 		RAETree->merge(treeNodes[nodePos], weights1, weights_b1, weights2, weights_b2);
 		treeNodes.erase(treeNodes.begin()+nodePos);
-		log << RAETree->getRoot()->getVector();
 	}
 	RAETree->merge(treeNodes[0], weights1, weights_b1, weights2, weights_b2);
-	log << RAETree->getRoot()->getVector() << endl;
-	log << "end" << endl;
 }
 
 int RAE::getVecSize()
