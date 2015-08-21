@@ -144,6 +144,8 @@ public:
 	Node* getRoot();
 
 	void merge(Node* newNode, MatrixXd w1, MatrixXd b1, MatrixXd w2, MatrixXd b2);
+
+	void showTree();
 };
 
 #endif

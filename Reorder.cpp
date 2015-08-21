@@ -64,6 +64,12 @@ void ReorderModel::softmax()
 	ofstream log1("Reorder.log", ios::app);
 	log1 << "Concat:\n" << tmpConcat << endl<<endl;
 	log1 << "Output:\n" << outputLayer << endl << endl;
+	log1 << "RAE1\n";
+	rae1->RAETree->showTree();
+	log1 << "RAE2\n";
+	rae2->RAETree->showTree();
+	log1 << "RAE weight1:\n" << rae1->weights1 << endl << endl;
+	log1 << "RAE weight2:\n" << rae2->weights1 << endl << endl;
 	result = (exp(outputLayer(0, 0))+1)/(exp(outputLayer(0, 0)) + exp(outputLayer(0, 1)) +2 );
 
 	outputLayer(0, 0) = result;

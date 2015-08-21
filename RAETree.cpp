@@ -43,3 +43,33 @@ void Tree::merge(Node* newNode, MatrixXd w1, MatrixXd b1, MatrixXd w2, MatrixXd 
 
 	root = pNode;
 }
+
+void Tree::showTree()
+{
+	Node* leftNode;
+	Node* rightNode;
+
+	if(root == NULL)
+	{
+		cout << "NULL" << endl;
+		return;
+	}
+
+	leftNode = root->getLeftChildNode();
+	rightNode = root->getRightChildNode();
+
+	int count = 0;
+
+	cout << root->getSpan().first << "," << root->getSpan().second << "\t" << root->getWord() << " " << root->getNodeType() << endl;
+
+	while(leftNode != NULL)
+	{
+		count++;
+		cout << count << endl;
+		cout << leftNode->getSpan().first << "," << leftNode->getSpan().second << "\t" << leftNode->getWord() << " " << leftNode->getNodeType() << endl;
+		cout << rightNode->getSpan().first << "," << rightNode->getSpan().second << "\t" << rightNode->getWord() << " " << rightNode->getNodeType() << endl;
+
+		rightNode = leftNode->getRightChildNode();
+		leftNode = leftNode->getLeftChildNode();
+	}
+}
