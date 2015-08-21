@@ -15,6 +15,8 @@ void Tree::merge(Node* newNode, MatrixXd w1, MatrixXd b1, MatrixXd w2, MatrixXd 
 {
 	MatrixXd parent = concatMatrix(root->getVector(),newNode->getVector()) * w1.transpose() + b1;
 
+	parent = tanh(parent);
+
 	Node* pNode;
 	if(root->getSpan().second < newNode->getSpan().first)
 	{
@@ -30,6 +32,8 @@ void Tree::merge(Node* newNode, MatrixXd w1, MatrixXd b1, MatrixXd w2, MatrixXd 
 	}
 
 	MatrixXd rec = parent * w2.transpose() + b2;
+
+	rec = tanh(rec);
 
 	pNode->leftReconst = MatrixXd(rec.rows(), rec.cols()/2);
 

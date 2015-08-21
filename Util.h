@@ -29,6 +29,19 @@ inline string strip_str(string str)
 	return newStr;
 }
 
+inline MatrixXd tanh(MatrixXd m)
+{
+	for(int row = 0; row < m.rows(); row++)
+	{
+		for(int col = 0; col < m.rows(); row++)
+		{
+			m(row, col) = (exp(m(row, col))-exp(-m(row, col)))/(exp(m(row, col))+exp(-m(row, col)));
+		}
+	}
+
+	return m;
+}
+
 inline MatrixXd concatMatrix(MatrixXd m1, MatrixXd m2)
 {
 	MatrixXd m = MatrixXd(m1.rows(), m1.cols()+m2.cols());

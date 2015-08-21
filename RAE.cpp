@@ -304,14 +304,12 @@ void RAE::trainRecError()
 {
 	Node* tmpNode = this->RAETree->getRoot();
 
-	cout << "Start" << endl;
 	//¸üÐÂw2, b2
 	while(tmpNode->getNodeType() != BASED_NODE)
 	{
 		MatrixXd c = concatMatrix(tmpNode->getLeftChildNode()->getVector(),tmpNode->getRightChildNode()->getVector());
 		MatrixXd cRec = concatMatrix(tmpNode->leftReconst,tmpNode->rightReconst);
-		cout << "c:\n" << c << endl << endl;
-		cout << "cRec:\n" << cRec << endl << endl;
+
 		for(int row = 0; row < weights2.rows(); row++)
 		{
 			double result = (cRec(0, row)-c(0, row)) * (1-pow(cRec(0, row), 2));
