@@ -172,10 +172,10 @@ double Domain::loss(int ind)
 		lossVal += GAMMA * pow(srcRM->outputLayer(0, i) - tgtRM->outputLayer(0, i), 2) / 2;
 	}
 
-	cout << "Src softmax: [" << srcRM->softmaxLayer(0, 0) << " , " << srcRM->softmaxLayer(0, 1) << "]" << endl;	
-	cout << "Tgt softmax: [" << tgtRM->softmaxLayer(0, 0) << " , " << tgtRM->softmaxLayer(0, 1) << "]" << endl; 	
+	//cout << "Src softmax: [" << srcRM->softmaxLayer(0, 0) << " , " << srcRM->softmaxLayer(0, 1) << "]" << endl;	
+	//cout << "Tgt softmax: [" << tgtRM->softmaxLayer(0, 0) << " , " << tgtRM->softmaxLayer(0, 1) << "]" << endl; 	
  	cout << "Src output: [" << srcRM->outputLayer(0, 0) << " , " << srcRM->outputLayer(0, 1) << "]" << endl; 
-    cout << "Tgt output: [" << tgtRM->outputLayer(0, 0) << " , " << tgtRM->outputLayer(0, 1) << "]" << endl; 
+    	cout << "Tgt output: [" << tgtRM->outputLayer(0, 0) << " , " << tgtRM->outputLayer(0, 1) << "]" << endl; 
 	
 	if(trainingData[ind].first == 1)
 	{
@@ -188,11 +188,11 @@ double Domain::loss(int ind)
 		lossVal += BETA * tgtRM->softmaxLayer(0, 1) * -1.0;
 	}
 
-	cout << "After Ereo loss: " << lossVal << endl;	
+	//cout << "After Ereo loss: " << lossVal << endl;	
 
 	lossVal += ZETA * (srcRM->decay() + tgtRM->decay() + srcRM->rae->decay() + tgtRM->rae->decay());
 
-	cout << "After Decay loss: " << lossVal << endl;
+	//cout << "After Decay loss: " << lossVal << endl;
 
 	return lossVal;
 }

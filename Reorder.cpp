@@ -61,6 +61,8 @@ void ReorderModel::softmax()
 
 	double result, o1, o2;
 
+	o1 = outputLayer(0,0);
+	o2 = outputLayer(0,1);
 	if(exp(outputLayer(0,1)) == 0 && exp(outputLayer(0,0)) == 0)
 	{
 		o1 = 1;
@@ -77,7 +79,7 @@ void ReorderModel::softmax()
 			o1 = numeric_limits<double>::max() * 0.1;
 		}
 	}
-	result = (exp(outputLayer(0, 0)))/(exp(outputLayer(0, 0)) + exp(outputLayer(0, 1)));
+	result = o1/(o1+o2);	
 
 	outputLayer(0, 0) = result;
 	outputLayer(0, 1) = 1-result;
@@ -163,6 +165,7 @@ void ReorderModel::trainRM(MatrixXd y, bool isSoftmax)
 			theta(0, row) = result;
 		}
 	}
+
 
 	//对W1和Wb1求导
 	Node* preNode1 = rae1->RAETree->getRoot();
