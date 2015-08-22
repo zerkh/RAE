@@ -203,14 +203,14 @@ void Domain::training()
 	{
 		srand((unsigned)time(0));
 		//Ò»ÂÖÑµÁ·
-		for(int i = trainingData.size()-100; i < trainingData.size(); i++)
-		//for(int i = 0; i < trainingData.size(); i++)
+		//for(int i = trainingData.size()-100; i < trainingData.size(); i++)
+		for(int i = 0; i < trainingData.size(); i++)
 		{
 			int pos = rand()%trainingData.size();
 
 			if(i >= 0 && i < trainingData.size())
 			{
-				out<< count << " : " << pos << "th's " << "loss value : " << loss(0) << endl;
+				out<< count << " : " << "0" << "th's " << "loss value : " << loss(0) << endl;
 			}
 
 			//cout << "Domain getData" << endl;
@@ -315,8 +315,8 @@ void Domain::test()
 	int srcCount = 0;
 	int tgtCount = 0;
 
-	for(int i = trainingData.size()-100; i < trainingData.size(); i++)
-	//for(int i = 0; i < trainingData.size(); i++)
+	//for(int i = trainingData.size()-100; i < trainingData.size(); i++)
+	for(int i = 0; i < trainingData.size(); i++)
 	{
 		srcRM->getData(trainingData[i].second["ct1"], trainingData[i].second["ct2"]);
 		tgtRM->getData(trainingData[i].second["et1"], trainingData[i].second["et2"]);

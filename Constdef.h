@@ -13,14 +13,14 @@ const int REC_NODE = 2;
 typedef pair<int, int> span;
 
 //Erec
-const double ALPHA = 1 * pow(10, -20);
+const double ALPHA = 5 * pow(10, -2);
 //Ereo
-const double BETA = 1 * pow(10, -20);
+const double BETA = 8 * pow(10, -2);
 //Edis
-const double GAMMA = 1 * pow(10, -20);
+const double GAMMA = 6 * pow(10, -2);
 //Decay
-const double ZETA = 1 * pow(10, -20);
+const double ZETA = 1 * pow(10, -3);
 //learning rate
-const double RATE = 1 * pow(10, -20);
+const double RATE = 5 * pow(10, -3);
 
 #endif
