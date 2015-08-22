@@ -160,12 +160,12 @@ double Domain::loss(int ind)
 	lossVal += ALPHA * tgtRM->rae2->loss();
 	
 	
-	cout << "srcRM->rae1->loss: " << srcRM->rae1->loss() << endl;
-	cout << "srcRM->rae2->loss: " << srcRM->rae2->loss() << endl;
-	cout << "tgtRM->rae1->loss: " << tgtRM->rae1->loss() << endl;
-	cout << "tgtRM->rae2->loss: " << tgtRM->rae2->loss() << endl;
+	//cout << "srcRM->rae1->loss: " << srcRM->rae1->loss() << endl;
+	//cout << "srcRM->rae2->loss: " << srcRM->rae2->loss() << endl;
+	//cout << "tgtRM->rae1->loss: " << tgtRM->rae1->loss() << endl;
+	//cout << "tgtRM->rae2->loss: " << tgtRM->rae2->loss() << endl;
 
-	cout << "loss: " << lossVal << endl;
+	//cout << "loss: " << lossVal << endl;
 
 	for(int i = 0; i < 2; i++)
 	{
@@ -174,8 +174,8 @@ double Domain::loss(int ind)
 
 	//cout << "Src softmax: [" << srcRM->softmaxLayer(0, 0) << " , " << srcRM->softmaxLayer(0, 1) << "]" << endl;	
 	//cout << "Tgt softmax: [" << tgtRM->softmaxLayer(0, 0) << " , " << tgtRM->softmaxLayer(0, 1) << "]" << endl; 	
- 	cout << "Src output: [" << srcRM->outputLayer(0, 0) << " , " << srcRM->outputLayer(0, 1) << "]" << endl; 
-    cout << "Tgt output: [" << tgtRM->outputLayer(0, 0) << " , " << tgtRM->outputLayer(0, 1) << "]" << endl; 
+ 	//cout << "Src output: [" << srcRM->outputLayer(0, 0) << " , " << srcRM->outputLayer(0, 1) << "]" << endl; 
+    //cout << "Tgt output: [" << tgtRM->outputLayer(0, 0) << " , " << tgtRM->outputLayer(0, 1) << "]" << endl; 
 	
 	if(trainingData[ind].first == 1)
 	{
@@ -188,13 +188,273 @@ double Domain::loss(int ind)
 		lossVal += BETA * tgtRM->softmaxLayer(0, 1) * -1.0;
 	}
 
-	cout << "After Ereo loss: " << lossVal << endl;	
+	//cout << "After Ereo loss: " << lossVal << endl;	
 
 	lossVal += ZETA * (srcRM->decay() + tgtRM->decay() + srcRM->rae->decay() + tgtRM->rae->decay());
 
-	cout << "After Decay loss: " << lossVal << endl;
+	//cout << "After Decay loss: " << lossVal << endl;
 
 	return lossVal;
+}
+
+void Domain::loadWeights()
+{
+	ifstream src("src"+domainName+"Weights.log", ios::in);
+	ifstream tgt("tgt"+domainName+"Weights.log", ios::in);
+
+	bool rae_w1 = false;
+	bool rae_b1 = false;
+	bool rae_w2 = false;
+	bool rae_b2 = false;
+	bool rm_w = false;
+	bool rm_b = false;
+	int row = 0;
+
+	string line;
+	while(getline(src, line))
+	{
+		if(line.find("W:") == 0)
+		{
+			row = 0;
+			rm_w = true;
+			continue;
+		}
+		if(line.find("b:") == 0)
+		{
+			row = 0;
+			rm_w = false;
+			rm_b = true;
+			continue;
+		}
+		if(line.find("W1:") == 0)
+		{
+			row = 0;
+			rm_b = false;
+			rae_w1 = true;
+			continue;
+		}
+		if(line.find("W2:") == 0)
+		{
+			row = 0;
+			rae_b1 = false;
+			rae_w2 = true;
+			continue;
+		}
+		if(line.find("b1:") == 0)
+		{
+			row = 0;
+			rae_w1 = false;
+			rae_b1 = true;
+			continue;
+		}
+		if(line.find("b2:") == 0)
+		{
+			row = 0;
+			rae_w2 = false;
+			rae_b2 = true;
+			continue;
+		}
+
+		if(rm_w)
+		{
+			stringstream ss(line);
+
+			for(int col = 0; col < srcRM->weights.cols(); col++)
+			{
+				ss >> srcRM->weights(row, col);
+			}
+		}
+		if(rm_b)
+		{
+			stringstream ss(line);
+
+			for(int col = 0; col < srcRM->weights_b.cols(); col++)
+			{
+				ss >> srcRM->weights_b(row, col);
+			}
+		}
+		if(rae_w1)
+		{
+			stringstream ss(line);
+
+			for(int col = 0; col < srcRM->rae->weights1.cols(); col++)
+			{
+				ss >> srcRM->rae->weights1(row, col);
+			}
+		}
+		if(rae_w2)
+		{
+			stringstream ss(line);
+
+			for(int col = 0; col < srcRM->rae->weights2.cols(); col++)
+			{
+				ss >> srcRM->rae->weights2(row, col);
+			}
+		}
+		if(rae_b2)
+		{
+			stringstream ss(line);
+
+			for(int col = 0; col < srcRM->rae->weights_b2.cols(); col++)
+			{
+				ss >> srcRM->rae->weights_b2(row, col);
+			}
+		}
+		if(rae_b1)
+		{
+			stringstream ss(line);
+
+			for(int col = 0; col < srcRM->rae->weights_b1.cols(); col++)
+			{
+				ss >> srcRM->rae->weights_b1(row, col);
+			}
+		}
+
+		row++;
+	}
+	srcRM->rae1 = srcRM->rae->copy();
+	srcRM->rae2 = srcRM->rae->copy();
+	src.close();
+
+	rae_b2 = false;
+	while(getline(tgt, line))
+	{
+		if(line.find("W:") == 0)
+		{
+			row = 0;
+			rm_w = true;
+			continue;
+		}
+		if(line.find("b:") == 0)
+		{
+			row = 0;
+			rm_w = false;
+			rm_b = true;
+			continue;
+		}
+		if(line.find("W1:") == 0)
+		{
+			row = 0;
+			rm_b = false;
+			rae_w1 = true;
+			continue;
+		}
+		if(line.find("W2:") == 0)
+		{
+			row = 0;
+			rae_b1 = false;
+			rae_w2 = true;
+			continue;
+		}
+		if(line.find("b1:") == 0)
+		{
+			row = 0;
+			rae_w1 = false;
+			rae_b1 = true;
+			continue;
+		}
+		if(line.find("b2:") == 0)
+		{
+			row = 0;
+			rae_w2 = false;
+			rae_b2 = true;
+			continue;
+		}
+
+		if(rm_w)
+		{
+			stringstream ss(line);
+
+			for(int col = 0; col < tgtRM->weights.cols(); col++)
+			{
+				ss >> tgtRM->weights(row, col);
+			}
+		}
+		if(rm_b)
+		{
+			stringstream ss(line);
+
+			for(int col = 0; col < tgtRM->weights_b.cols(); col++)
+			{
+				ss >> tgtRM->weights_b(row, col);
+			}
+		}
+		if(rae_w1)
+		{
+			stringstream ss(line);
+
+			for(int col = 0; col < tgtRM->rae->weights1.cols(); col++)
+			{
+				ss >> tgtRM->rae->weights1(row, col);
+			}
+		}
+		if(rae_w2)
+		{
+			stringstream ss(line);
+
+			for(int col = 0; col < tgtRM->rae->weights2.cols(); col++)
+			{
+				ss >> tgtRM->rae->weights2(row, col);
+			}
+		}
+		if(rae_b2)
+		{
+			stringstream ss(line);
+
+			for(int col = 0; col < tgtRM->rae->weights_b2.cols(); col++)
+			{
+				ss >> tgtRM->rae->weights_b2(row, col);
+			}
+		}
+		if(rae_b1)
+		{
+			stringstream ss(line);
+
+			for(int col = 0; col < tgtRM->rae->weights_b1.cols(); col++)
+			{
+				ss >> tgtRM->rae->weights_b1(row, col);
+			}
+		}
+
+		row++;
+	}
+	tgtRM->rae1 = tgtRM->rae->copy();
+	tgtRM->rae2 = tgtRM->rae->copy();
+	tgt.close();
+}
+
+void Domain::loadTestingData()
+{
+	ifstream in(dataFile.c_str(), ios::in);
+
+	trainingData.clear();
+	string line;
+	while(getline(in, line))
+	{
+		int order;
+		map<string, string> m_tmp;
+		vector<string> subOfLine = splitBySign(line);
+
+		if(subOfLine[0] == "mono")
+		{
+			order = 1;
+		}
+		else if(subOfLine[0] == "invert")
+		{
+			order = 0;
+		}
+
+		for(int i = 1; i < subOfLine.size(); i++)
+		{
+			m_tmp.insert(make_pair(subOfLine[i].substr(0, 3), subOfLine[i].substr(4, subOfLine[i].size()-4)));
+		}
+
+		trainingData.push_back(make_pair(order, m_tmp));
+	}
+
+	in.close();
+
+	logWeights();
 }
 
 void Domain::training()
@@ -202,6 +462,7 @@ void Domain::training()
 	for(int count = 0; count < iterTime; count++)
 	{
 		srand((unsigned)time(0));
+		RATE /= 2;
 		//Ò»ÂÖÑµÁ·
 		//for(int i = trainingData.size()-100; i < trainingData.size(); i++)
 		for(int i = 0; i < trainingData.size(); i++)
@@ -357,8 +618,6 @@ void Domain::test()
 
 	srcOut << "Precision: " << (double)srcCount/trainingData.size() << endl;
 	tgtOut << "Precision: " << (double)tgtCount/trainingData.size() << endl;
-	//srcOut << "Precision: " << (double)srcCount/20000 << endl;
-        //tgtOut << "Precision: " << (double)tgtCount/20000 << endl;
 
 	srcOut.close();
 	tgtOut.close();

@@ -23,6 +23,8 @@ public:
 	double loss(int ind);
 	void test();
 	void logWeights();
+	void loadTestingData();
+	void loadWeights();
 };
 
 #endif // !DOMAIN_H

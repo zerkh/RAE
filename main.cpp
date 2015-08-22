@@ -113,11 +113,12 @@ void train(worker_arg_t* arg)
 	end = clock();
 	cout << "The time of training " + d->domainName + " is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
 
+/*
 	cout << "Starting testing " + d->domainName + "..." << endl << endl;
 	start = clock();
 	d->test();
 	end = clock();
-	cout << "The time of testing " + d->domainName + " is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
+	cout << "The time of testing " + d->domainName + " is " << (end-start)/CLOCKS_PER_SEC << endl << endl;*/
 }
 
 void test(worker_arg_t* arg)
@@ -129,7 +130,7 @@ void test(worker_arg_t* arg)
 
 	cout << "Loading " + d->domainName + " testing data..." << endl << endl;
 	start = clock();
-	d->loadTrainingData();
+	d->loadTestingData();
 	end = clock();
 	cout << "The time of loading " + d->domainName + " testing data is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
 
