@@ -1,10 +1,6 @@
 #ifndef PARAMETER_H
 #define PARAMETER_H
 
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <map>
 #include "Util.h"
 using namespace std;
 

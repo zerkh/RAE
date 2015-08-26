@@ -1,5 +1,7 @@
 ﻿#ifndef RAETREE
 #define RAETREE
+
+#include "Util.h"
 #include "Constdef.h"
 #include "Eigen/Core"
 

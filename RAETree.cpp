@@ -1,5 +1,4 @@
 #include "RAETree.h"
-#include "Util.h"
 
 Node* Tree::getRoot()
 {

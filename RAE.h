@@ -1,13 +1,10 @@
 #ifndef RAE_H
 #define RAE_H
 
-#include <fstream>
 #include "WordVec.h"
 #include "Parameter.h"
 #include "RAETree.h"
-#include <vector>
-#include <sstream>
-#include <map>
+#include "Util.h"
 
 class RAE
 {

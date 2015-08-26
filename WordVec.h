@@ -1,9 +1,7 @@
 #ifndef WORDVEC_H
 #define WORDVEC_H
 
-#include <iostream>
-#include <map>
-#include <cstdlib>
+#include "Util.h"
 #include "Parameter.h"
 #include "Eigen/Core"
 

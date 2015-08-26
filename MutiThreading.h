@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "Domain.h"
+#include "Util.h"
 #include <unistd.h>
 #include <sys/wait.h>
 

@@ -2,7 +2,7 @@
 #define DOMAIN_H
 
 #include "Reorder.h"
-#include <fstream>
+#include "Util.h"
 
 class Domain
 {

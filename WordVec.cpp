@@ -1,6 +1,4 @@
 #include "WordVec.h"
-#include <fstream>
-#include <sstream>
 
 map<string, MatrixXd> WordVec::m_words;
 map<string, MatrixXd> WordVec::m_strings;

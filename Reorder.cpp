@@ -1,7 +1,4 @@
 #include "Reorder.h"
-#include <limits>
-#include "Util.h"
-#include <fstream>
 
 ReorderModel::ReorderModel(Parameter* para, WordVec* words)
 {

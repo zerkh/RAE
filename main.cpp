@@ -1,11 +1,8 @@
-﻿#include <iostream>
-#include <ctime>
-#include <sstream>
+﻿#include "Util.h"
 #include "Domain.h"
 #include "Parameter.h"
 #include "WordVec.h"
 #include "MutiThreading.h"
-#include <vector>
 
 using namespace std;
 

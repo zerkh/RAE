@@ -4,10 +4,15 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <fstream>
+#include <limits>
 #include <cstdlib>
 #include <cmath>
+#include <ctime>
+#include <map>
 #include <vector>
 #include "Eigen/Core"
+#include "lbfgs.h"
 
 using namespace Eigen;
 using namespace std;

@@ -1,6 +1,4 @@
 #include "RAE.h"
-#include "Util.h"
-#include <fstream>
 
 RAE::RAE(Parameter* para, WordVec* words)
 {

@@ -1,5 +1,7 @@
 #ifndef REORDER_H
 #define REORDER_H
+
+#include "Util.h"
 #include "RAE.h"
 #include "Parameter.h"
 #include "WordVec.h"
