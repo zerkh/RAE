@@ -249,23 +249,16 @@ RAE* RAE::copy()
 
 RAE::~RAE()
 {
-	Node* n1 = RAETree->getRoot();
-	Node* n2 = RAETree->getRoot();
+	delete RAETree;
 
-	while(n2 != NULL)
-	{
-		n2 = n1->getRightChildNode();
-		if(n2 != NULL)
-		{	
-			delete n2;
-		}
-		
-		n2 = n1->getLeftChildNode();
-		delete n1;
-		
-		n1 = n2;
-	}
-
+	weights1.resize(0, 0);
+	weights2.resize(0, 0);
+	weights_b1.resize(0, 0);
+	weights_b2.resize(0, 0);
+	delWeight1.resize(0, 0);
+	delWeight1_b.resize(0, 0);
+	delWeight2.resize(0, 0);
+	delWeight2_b.resize(0, 0);
 }
 
 lbfgsfloatval_t RAE::decay()

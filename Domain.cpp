@@ -82,11 +82,16 @@ void Domain::upData(lbfgsfloatval_t* g)
 	tgtRM->delWeight.setZero();
 	tgtRM->delWeight_b.setZero();
 
-	srcRM->rae1 = srcRM->rae;
-	srcRM->rae2 = srcRM->rae;
+	delete srcRM->rae1;
+	delete srcRM->rae2;
+	delete tgtRM->rae1;
+	delete tgtRM->rae2;
 
-	tgtRM->rae1 = tgtRM->rae;
-	tgtRM->rae2 = tgtRM->rae;
+	srcRM->rae1 = srcRM->rae->copy();
+	srcRM->rae2 = srcRM->rae->copy();
+
+	tgtRM->rae1 = tgtRM->rae->copy();
+	tgtRM->rae2 = tgtRM->rae->copy();
 }
 
 //读取单领域训练数据
