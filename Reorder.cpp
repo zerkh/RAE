@@ -124,9 +124,9 @@ void ReorderModel::softmax()
 void ReorderModel::getData(string bp1, string bp2)
 {
 	rae1->buildTree(bp1);
-
+	
 	rae2->buildTree(bp2);
-
+	
 	softmax();
 }
 
