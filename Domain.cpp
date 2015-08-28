@@ -38,27 +38,27 @@ int Domain::getWeightsSize()
 
 void Domain::upData(lbfgsfloatval_t* g)
 {
-	MatrixLBFGS g_srcWeights(g, srcRM->weights.rows(), srcRM->weights.cols());
-	MatrixLBFGS g_srcWeights_b(g+srcRM->weights.rows()*srcRM->weights.cols(), srcRM->weights_b.rows(), srcRM->weights_b.cols());
-	MatrixLBFGS g_srcRAEWeights1(g+srcRM->getRMWeightSize(), srcRM->rae->weights1.rows(), srcRM->rae->weights1.cols());
-	MatrixLBFGS g_srcRAEWeights_b1(g+srcRM->getRMWeightSize()+srcRM->rae->weights1.rows()*srcRM->rae->weights1.cols(), srcRM->rae->weights_b1.rows(), srcRM->rae->weights_b1.cols());
-	MatrixLBFGS g_srcRAEWeights2(g+srcRM->getRMWeightSize()+srcRM->rae->weights1.rows()*srcRM->rae->weights1.cols()+
+	Map<MatrixLBFGS> g_srcWeights(g, srcRM->weights.rows(), srcRM->weights.cols());
+	Map<MatrixLBFGS> g_srcWeights_b(g+srcRM->weights.rows()*srcRM->weights.cols(), srcRM->weights_b.rows(), srcRM->weights_b.cols());
+	Map<MatrixLBFGS> g_srcRAEWeights1(g+srcRM->getRMWeightSize(), srcRM->rae->weights1.rows(), srcRM->rae->weights1.cols());
+	Map<MatrixLBFGS> g_srcRAEWeights_b1(g+srcRM->getRMWeightSize()+srcRM->rae->weights1.rows()*srcRM->rae->weights1.cols(), srcRM->rae->weights_b1.rows(), srcRM->rae->weights_b1.cols());
+	Map<MatrixLBFGS> g_srcRAEWeights2(g+srcRM->getRMWeightSize()+srcRM->rae->weights1.rows()*srcRM->rae->weights1.cols()+
 									srcRM->rae->weights_b1.rows()*srcRM->rae->weights_b1.cols(),
 									srcRM->rae->weights2.rows(), srcRM->rae->weights2.cols());
-	MatrixLBFGS g_srcRAEWeights_b2(g+srcRM->getRMWeightSize()+srcRM->rae->weights1.rows()*srcRM->rae->weights1.cols()+
+	Map<MatrixLBFGS> g_srcRAEWeights_b2(g+srcRM->getRMWeightSize()+srcRM->rae->weights1.rows()*srcRM->rae->weights1.cols()+
 									srcRM->rae->weights_b1.rows()*srcRM->rae->weights_b1.cols()+
 									srcRM->rae->weights2.rows()*srcRM->rae->weights2.cols(),
 									srcRM->rae->weights_b2.rows(), srcRM->rae->weights_b2.cols());
 
 	int base = srcRM->getRMWeightSize() + srcRM->rae->getRAEWeightSize();
-	MatrixLBFGS g_tgtWeights(g+base, srcRM->weights.rows(), srcRM->weights.cols());
-	MatrixLBFGS g_tgtWeights_b(g+base+srcRM->weights.rows()*srcRM->weights.cols(), srcRM->weights_b.rows(), srcRM->weights_b.cols());
-	MatrixLBFGS g_tgtRAEWeights1(g+base+srcRM->getRMWeightSize(), srcRM->rae->weights1.rows(), srcRM->rae->weights1.cols());
-	MatrixLBFGS g_tgtRAEWeights_b1(g+base+srcRM->getRMWeightSize()+srcRM->rae->weights1.rows()*srcRM->rae->weights1.cols(), srcRM->rae->weights_b1.rows(), srcRM->rae->weights_b1.cols());
-	MatrixLBFGS g_tgtRAEWeights2(g+base+srcRM->getRMWeightSize()+srcRM->rae->weights1.rows()*srcRM->rae->weights1.cols()+
+	Map<MatrixLBFGS> g_tgtWeights(g+base, srcRM->weights.rows(), srcRM->weights.cols());
+	Map<MatrixLBFGS> g_tgtWeights_b(g+base+srcRM->weights.rows()*srcRM->weights.cols(), srcRM->weights_b.rows(), srcRM->weights_b.cols());
+	Map<MatrixLBFGS> g_tgtRAEWeights1(g+base+srcRM->getRMWeightSize(), srcRM->rae->weights1.rows(), srcRM->rae->weights1.cols());
+	Map<MatrixLBFGS> g_tgtRAEWeights_b1(g+base+srcRM->getRMWeightSize()+srcRM->rae->weights1.rows()*srcRM->rae->weights1.cols(), srcRM->rae->weights_b1.rows(), srcRM->rae->weights_b1.cols());
+	Map<MatrixLBFGS> g_tgtRAEWeights2(g+base+srcRM->getRMWeightSize()+srcRM->rae->weights1.rows()*srcRM->rae->weights1.cols()+
 		srcRM->rae->weights_b1.rows()*srcRM->rae->weights_b1.cols(),
 		srcRM->rae->weights2.rows(), srcRM->rae->weights2.cols());
-	MatrixLBFGS g_tgtRAEWeights_b2(g+base+srcRM->getRMWeightSize()+srcRM->rae->weights1.rows()*srcRM->rae->weights1.cols()+
+	Map<MatrixLBFGS> g_tgtRAEWeights_b2(g+base+srcRM->getRMWeightSize()+srcRM->rae->weights1.rows()*srcRM->rae->weights1.cols()+
 		srcRM->rae->weights_b1.rows()*srcRM->rae->weights_b1.cols()+
 		srcRM->rae->weights2.rows()*srcRM->rae->weights2.cols(),
 		srcRM->rae->weights_b2.rows(), srcRM->rae->weights_b2.cols());
