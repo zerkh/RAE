@@ -10,9 +10,9 @@ Tree::Tree(Node* root)
 	this->root = root;
 }
 
-void Tree::merge(Node* newNode, MatrixXd w1, MatrixXd b1, MatrixXd w2, MatrixXd b2)
+void Tree::merge(Node* newNode, MatrixLBFGS w1, MatrixLBFGS b1, MatrixLBFGS w2, MatrixLBFGS b2)
 {
-	MatrixXd parent = concatMatrix(root->getVector(),newNode->getVector()) * w1.transpose() + b1;
+	MatrixLBFGS parent = concatMatrix(root->getVector(),newNode->getVector()) * w1.transpose() + b1;
 
 	parent = tanh(parent);
 
@@ -30,13 +30,13 @@ void Tree::merge(Node* newNode, MatrixXd w1, MatrixXd b1, MatrixXd w2, MatrixXd 
 		newNode->setParentNode(pNode);
 	}
 
-	MatrixXd rec = parent * w2.transpose() + b2;
+	MatrixLBFGS rec = parent * w2.transpose() + b2;
 
 	rec = tanh(rec);
 
-	pNode->leftReconst = MatrixXd(rec.rows(), rec.cols()/2);
+	pNode->leftReconst = MatrixLBFGS(rec.rows(), rec.cols()/2);
 
-	pNode->rightReconst = MatrixXd(rec.rows(), rec.cols()/2);
+	pNode->rightReconst = MatrixLBFGS(rec.rows(), rec.cols()/2);
 
 	for(int i = 0; i < pNode->leftReconst.cols(); i++)
 	{

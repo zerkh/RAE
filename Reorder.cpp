@@ -5,28 +5,37 @@ ReorderModel::ReorderModel(Parameter* para, WordVec* words)
 	vecSize = atoi(para->getPara("WordVecSize").c_str());
 
 	rae = new RAE(para, words);
-	rae1 = rae->copy();
-	rae2 = rae->copy();
 
-	weights = MatrixXd(2, vecSize*2);
-	weights_b = MatrixXd(1, 2);
+	weights = MatrixLBFGS(2, vecSize*2);
+	weights_b = MatrixLBFGS(1, 2);
 
-	delWeight = MatrixXd(weights.rows(), weights.cols());
-	delWeight_b = MatrixXd(weights_b.rows(), weights_b.cols());
+	delWeight = MatrixLBFGS(weights.rows(), weights.cols());
+	delWeight_b = MatrixLBFGS(weights_b.rows(), weights_b.cols());
 
 	delWeight.setZero();
 	delWeight_b.setZero();
 
-	weights.setRandom();
-	weights_b.setRandom();
-
-	outputLayer = MatrixXd(1, 2);
-	softmaxLayer = MatrixXd(1, 2);
+	outputLayer = MatrixLBFGS(1, 2);
+	softmaxLayer = MatrixLBFGS(1, 2);
 }
 
-double ReorderModel::decay()
+void ReorderModel::updateWeights(const lbfgsfloatval_t* x, int base)
 {
-	double val = 0;
+	weights = Map<MatrixLBFGS>(x+base, 2, vecSize*2);
+	weights_b = Map<MatrixLBFGS>(x+base+2*2*vecSize, 1,2);
+
+	rae->weights1 = Map<MatrixLBFGS>(x+base+getRMWeightSize(), vecSize, 2*vecSize);
+	rae->weights_b1 = Map<MatrixLBFGS>(x+base+getRMWeightSize()+2*vecSize*vecSize, 1, vecSize);
+	rae->weights2 = Map<MatrixLBFGS>(x+base+getRMWeightSize()+2*vecSize*vecSize+vecSize, 2*vecSize, vecSize);
+	rae->weights_b2 = Map<MatrixLBFGS>(x+base+getRMWeightSize()+2*vecSize*vecSize+vecSize+2*vecSize*vecSize, 1, 2*vecSize);
+
+	rae1 = rae->copy();
+	rae2 = rae->copy();
+}
+
+lbfgsfloatval_t ReorderModel::decay()
+{
+	lbfgsfloatval_t val = 0;
 
 	for(int row = 0; row < weights.rows(); row++)
 	{
@@ -41,12 +50,17 @@ double ReorderModel::decay()
 	return val;
 }
 
+int ReorderModel::getRMWeightSize()
+{
+	return (vecSize*2*2 + 2);
+}
+
 void ReorderModel::softmax()
 {
-	MatrixXd tmpConcat;
+	MatrixLBFGS tmpConcat;
 	tmpConcat = concatMatrix(rae1->RAETree->getRoot()->getVector(),rae2->RAETree->getRoot()->getVector());
-	MatrixXd tmpMultiply = tmpConcat * weights.transpose();
-	MatrixXd tmpOutput = tmpMultiply + weights_b;
+	MatrixLBFGS tmpMultiply = tmpConcat * weights.transpose();
+	MatrixLBFGS tmpOutput = tmpMultiply + weights_b;
 
 	for(int row = 0;row < outputLayer.rows(); row++)
 	{
@@ -56,7 +70,7 @@ void ReorderModel::softmax()
 		}
 	}
 
-	double result, o1, o2;
+	lbfgsfloatval_t result, o1, o2;
 
 	o1 = exp(outputLayer(0,0));
 	o2 = exp(outputLayer(0,1));
@@ -69,11 +83,11 @@ void ReorderModel::softmax()
 	{
 		if(!finite(exp(outputLayer(0,1))) )
 		{
-			o2 = numeric_limits<double>::max() * 0.1;
+			o2 = numeric_limits<lbfgsfloatval_t>::max() * 0.1;
 		}
 		if(!finite(exp(outputLayer(0,0))) )
 		{
-			o1 = numeric_limits<double>::max() * 0.1;
+			o1 = numeric_limits<lbfgsfloatval_t>::max() * 0.1;
 		}
 	}
 	result = o1/(o1+o2);	
@@ -85,12 +99,12 @@ void ReorderModel::softmax()
 
 	if(!finite(softmaxLayer(0, 0)))
 	{
-		softmaxLayer(0, 0) = -1 * numeric_limits<double>::max();
+		softmaxLayer(0, 0) = -1 * numeric_limits<lbfgsfloatval_t>::max();
 	}
 
 	if(!finite(softmaxLayer(0, 1)))
 	{       
-		softmaxLayer(0, 1) = -1 * numeric_limits<double>::max();
+		softmaxLayer(0, 1) = -1 * numeric_limits<lbfgsfloatval_t>::max();
 	}
 }
 
@@ -103,9 +117,9 @@ void ReorderModel::getData(string bp1, string bp2)
 	softmax();
 }
 
-void ReorderModel::trainRM(MatrixXd y, bool isSoftmax)
+void ReorderModel::trainRM(MatrixLBFGS y, bool isSoftmax)
 {
-	double p;
+	lbfgsfloatval_t p;
 	if(isSoftmax)
 	{
 		p = GAMMA;
@@ -115,19 +129,19 @@ void ReorderModel::trainRM(MatrixXd y, bool isSoftmax)
 		p = BETA;
 	}
 
-	MatrixXd theta = MatrixXd(delWeight_b.rows(), delWeight_b.cols());
+	MatrixLBFGS theta = MatrixLBFGS(delWeight_b.rows(), delWeight_b.cols());
 
 	//对W和Wb求导
 	if(isSoftmax)
 	{
 		for(int row = 0; row < weights.rows(); row++)
 		{
-			double result;
+			lbfgsfloatval_t result;
 			result = (outputLayer(0, row) - y(0, row)) * (exp(outputLayer(0, 0)) * exp(outputLayer(0, 1)));
 
 			for(int col = 0; col < weights.cols(); col++)
 			{
-				MatrixXd tmpX = concatMatrix(rae1->RAETree->getRoot()->getVector(),rae2->RAETree->getRoot()->getVector());
+				MatrixLBFGS tmpX = concatMatrix(rae1->RAETree->getRoot()->getVector(),rae2->RAETree->getRoot()->getVector());
 				delWeight(row, col) = delWeight(row, col) + p * result * tmpX(0, col);
 			}
 
@@ -142,7 +156,7 @@ void ReorderModel::trainRM(MatrixXd y, bool isSoftmax)
 	{
 		for(int row = 0; row < weights.rows(); row++)
 		{
-			double result;
+			lbfgsfloatval_t result;
 			if(y(0, row) == 1)
 			{
 				result = (1-outputLayer(0, row));
@@ -154,7 +168,7 @@ void ReorderModel::trainRM(MatrixXd y, bool isSoftmax)
 
 			for(int col = 0; col < weights.cols(); col++)
 			{
-				MatrixXd tmpX = concatMatrix(rae1->RAETree->getRoot()->getVector(),rae2->RAETree->getRoot()->getVector());
+				MatrixLBFGS tmpX = concatMatrix(rae1->RAETree->getRoot()->getVector(),rae2->RAETree->getRoot()->getVector());
 				delWeight(row, col) = delWeight(row, col) - p * result * tmpX(0, col);
 			}
 
@@ -170,8 +184,8 @@ void ReorderModel::trainRM(MatrixXd y, bool isSoftmax)
 
 	theta = theta * weights;
 
-	MatrixXd theta1 = MatrixXd(theta.rows(), theta.cols()/2);
-	MatrixXd theta2 = MatrixXd(theta.rows(), theta.cols()/2);
+	MatrixLBFGS theta1 = MatrixLBFGS(theta.rows(), theta.cols()/2);
+	MatrixLBFGS theta2 = MatrixLBFGS(theta.rows(), theta.cols()/2);
 
 	for(int i = 0; i < theta1.cols(); i++)
 	{
@@ -205,7 +219,7 @@ void ReorderModel::trainRM(MatrixXd y, bool isSoftmax)
 
 		theta1 = theta1 * rae1->weights1;
 
-		MatrixXd tmpTheta = MatrixXd(theta.rows(), theta.cols()/2);
+		MatrixLBFGS tmpTheta = MatrixLBFGS(theta.rows(), theta.cols()/2);
 
 		for(int i = 0; i < theta.cols()/2; i++)
 		{
@@ -242,7 +256,7 @@ void ReorderModel::trainRM(MatrixXd y, bool isSoftmax)
 
 		theta2 = theta2 * rae2->weights1;
 
-		MatrixXd tmpTheta = MatrixXd(theta.rows(), theta.cols()/2);
+		MatrixLBFGS tmpTheta = MatrixLBFGS(theta.rows(), theta.cols()/2);
 
 		for(int i = 0; i < theta.cols()/2; i++)
 		{

@@ -6,35 +6,36 @@ RAE::RAE(Parameter* para, WordVec* words)
 	this->words = words;
 
 	RAETree = NULL;
-	weights1 = MatrixXd(vecSize, vecSize*2);
-	weights2 = MatrixXd(vecSize*2, vecSize);
-	weights_b1 = MatrixXd(1, vecSize);
-	weights_b2 = MatrixXd(1, vecSize*2);
 
-	delWeight1 = MatrixXd(weights1.rows(), weights1.cols());
-	delWeight1_b = MatrixXd(weights_b1.rows(), weights_b1.cols());
-	delWeight2 = MatrixXd(weights2.rows(), weights2.cols());
-	delWeight2_b = MatrixXd(weights_b2.rows(), weights_b2.cols());
+	delWeight1 = MatrixLBFGS(weights1.rows(), weights1.cols());
+	delWeight1_b = MatrixLBFGS(weights_b1.rows(), weights_b1.cols());
+	delWeight2 = MatrixLBFGS(weights2.rows(), weights2.cols());
+	delWeight2_b = MatrixLBFGS(weights_b2.rows(), weights_b2.cols());
 
 	delWeight1.setZero();
 	delWeight1_b.setZero();
 	delWeight2.setZero();
 	delWeight2_b.setZero();
-	
-	weights1.setRandom();
-	weights2.setRandom();
-	weights_b1.setRandom();
-	weights_b2.setRandom();	
+}
+
+void RAE::initWeights(lbfgsfloatval_t* x, int base)
+{
+
+}
+
+int RAE::getRAEWeightSize()
+{
+	return (vecSize*vecSize*2*2 + vecSize + vecSize*2);
 }
 
 RAE::RAE(int size)
 {
 	RAETree = NULL;
 	this->vecSize = size;
-	delWeight1 = MatrixXd(vecSize, vecSize*2);
-	delWeight1_b = MatrixXd(1, vecSize);
-	delWeight2 = MatrixXd(vecSize*2, vecSize);
-	delWeight2_b = MatrixXd(1, vecSize*2);
+	delWeight1 = MatrixLBFGS(vecSize, vecSize*2);
+	delWeight1_b = MatrixLBFGS(1, vecSize);
+	delWeight2 = MatrixLBFGS(vecSize*2, vecSize);
+	delWeight2_b = MatrixLBFGS(1, vecSize*2);
 
 	delWeight1.setZero();
 	delWeight1_b.setZero();
@@ -42,10 +43,10 @@ RAE::RAE(int size)
 	delWeight2_b.setZero();
 }
 
-double RAE::loss()
+lbfgsfloatval_t RAE::loss()
 {
 	Node* tmpNode = this->RAETree->getRoot();
-	double val = 0;
+	lbfgsfloatval_t val = 0;
 
 	while(tmpNode->getNodeType() != BASED_NODE)
 	{
@@ -111,7 +112,7 @@ void RAE::buildTree(string bp)
 	{
 		if(!words->isInDict(tmp))
 		{
-			MatrixXd tmpVec = MatrixXd(1, vecSize);
+			MatrixLBFGS tmpVec = MatrixLBFGS(1, vecSize);
 			tmpVec.setZero();
 			words->m_words[tmp] = tmpVec;
 		}
@@ -130,7 +131,7 @@ void RAE::buildTree(string bp)
 	}
 	
 	//选取Erec最小的两个based节点
-	vector<double> v_recError;
+	vector<lbfgsfloatval_t> v_recError;
 	for(int i = 0; i < treeNodes.size()-1; i++)
 	{
 		RAETree = new Tree(treeNodes[i]);
@@ -141,7 +142,7 @@ void RAE::buildTree(string bp)
 	}
 
 	int minNode = 0;
-	double minRecError = v_recError[0];
+	lbfgsfloatval_t minRecError = v_recError[0];
 	for(int i = 1; i< v_recError.size(); i++)
 	{
 		if(v_recError[i] < minRecError)
@@ -203,7 +204,7 @@ void RAE::buildTree(string bp)
 				}
 			}
 
-			double recError;
+			lbfgsfloatval_t recError;
 
 			Tree* tmpTree = new Tree(RAETree->getRoot());
 			tmpTree->merge(treeNodes[pos1], weights1, weights_b1, weights2, weights_b2);
@@ -272,9 +273,9 @@ RAE::~RAE()
 
 }
 
-double RAE::decay()
+lbfgsfloatval_t RAE::decay()
 {
-	double val = 0;
+	lbfgsfloatval_t val = 0;
 
 	for(int row = 0; row < weights1.rows(); row++)
 	{
@@ -305,12 +306,12 @@ void RAE::trainRecError()
 	//更新w2, b2
 	while(tmpNode->getNodeType() != BASED_NODE)
 	{
-		MatrixXd c = concatMatrix(tmpNode->getLeftChildNode()->getVector(),tmpNode->getRightChildNode()->getVector());
-		MatrixXd cRec = concatMatrix(tmpNode->leftReconst,tmpNode->rightReconst);
+		MatrixLBFGS c = concatMatrix(tmpNode->getLeftChildNode()->getVector(),tmpNode->getRightChildNode()->getVector());
+		MatrixLBFGS cRec = concatMatrix(tmpNode->leftReconst,tmpNode->rightReconst);
 
 		for(int row = 0; row < weights2.rows(); row++)
 		{
-			double result = (cRec(0, row)-c(0, row)) * (1-pow(cRec(0, row), 2));
+			lbfgsfloatval_t result = (cRec(0, row)-c(0, row)) * (1-pow(cRec(0, row), 2));
 			for(int col = 0; col < weights2.cols(); col++)
 			{
 				delWeight2(row, col) = delWeight2(row,col) + ALPHA * result * tmpNode->getVector()(0, col);
@@ -326,13 +327,13 @@ void RAE::trainRecError()
 
 	while(tmpNode->getNodeType() != BASED_NODE)
 	{
-		MatrixXd c = concatMatrix(tmpNode->getLeftChildNode()->getVector(),tmpNode->getRightChildNode()->getVector());
-		MatrixXd cRec = concatMatrix(tmpNode->leftReconst,tmpNode->rightReconst);
-		MatrixXd tmpDelWb = MatrixXd(1, 2*vecSize);
+		MatrixLBFGS c = concatMatrix(tmpNode->getLeftChildNode()->getVector(),tmpNode->getRightChildNode()->getVector());
+		MatrixLBFGS cRec = concatMatrix(tmpNode->leftReconst,tmpNode->rightReconst);
+		MatrixLBFGS tmpDelWb = MatrixLBFGS(1, 2*vecSize);
 
 		for(int row = 0; row < weights2.rows(); row++)
 		{
-			double result = (cRec(0, row)-c(0, row)) * (1-pow(cRec(0, row), 2));
+			lbfgsfloatval_t result = (cRec(0, row)-c(0, row)) * (1-pow(cRec(0, row), 2));
 			tmpDelWb(0, row) = result;
 		}
 

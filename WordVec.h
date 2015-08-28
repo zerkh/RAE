@@ -11,13 +11,13 @@ using namespace Eigen;
 class WordVec
 {
 private:
-	typedef pair<string, MatrixXd>	Word;
+	typedef pair<string, MatrixLBFGS>	Word;
 	int								amountOfWords;		//´Ê»ãÁ¿
 	int								amountOfStrings;	//´Ê×éÁ¿
 
 public:
-	static map<string, MatrixXd>			m_words;
-	static map<string, MatrixXd>			m_strings;
+	static map<string, MatrixLBFGS>			m_words;
+	static map<string, MatrixLBFGS>			m_strings;
 
 public:
 	WordVec();

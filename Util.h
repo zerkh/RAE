@@ -13,6 +13,7 @@
 #include <vector>
 #include "Eigen/Core"
 #include "lbfgs.h"
+#include "Constdef.h"
 
 using namespace Eigen;
 using namespace std;
@@ -34,7 +35,7 @@ inline string strip_str(string str)
 	return newStr;
 }
 
-inline MatrixXd tanh(MatrixXd m)
+inline MatrixLBFGS tanh(MatrixLBFGS m)
 {
 	for(int row = 0; row < m.rows(); row++)
 	{
@@ -47,9 +48,9 @@ inline MatrixXd tanh(MatrixXd m)
 	return m;
 }
 
-inline MatrixXd concatMatrix(MatrixXd m1, MatrixXd m2)
+inline MatrixLBFGS concatMatrix(MatrixLBFGS m1, MatrixLBFGS m2)
 {
-	MatrixXd m = MatrixXd(m1.rows(), m1.cols()+m2.cols());
+	MatrixLBFGS m = MatrixLBFGS(m1.rows(), m1.cols()+m2.cols());
 
 	for(int col = 0; col < m.cols(); col++)
 	{
@@ -66,18 +67,18 @@ inline MatrixXd concatMatrix(MatrixXd m1, MatrixXd m2)
 	return m;
 }
 
-inline double getRand()
+inline lbfgsfloatval_t getRand()
 {
-	static double V1, V2, S;
+	static lbfgsfloatval_t V1, V2, S;
 	static int phase = 0;
-	double X;
+	lbfgsfloatval_t X;
 
 	if ( phase == 0 ) 
 	{
 		do 
 		{
-			double U1 = (double)rand() / RAND_MAX;
-			double U2 = (double)rand() / RAND_MAX;
+			lbfgsfloatval_t U1 = (lbfgsfloatval_t)rand() / RAND_MAX;
+			lbfgsfloatval_t U2 = (lbfgsfloatval_t)rand() / RAND_MAX;
 
 			V1 = 2 * U1 - 1;
 			V2 = 2 * U2 - 1;

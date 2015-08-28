@@ -34,7 +34,7 @@ extern "C" {
 #endif/*__cplusplus*/
 
 /*
- * The default precision of floating point values is 64bit (double).
+ * The default precision of floating point values is 64bit (lbfgsfloatval_t).
  */
 #ifndef LBFGS_FLOAT
 #define LBFGS_FLOAT     64
@@ -51,10 +51,10 @@ extern "C" {
 typedef float lbfgsfloatval_t;
 
 #elif   LBFGS_FLOAT == 64
-typedef double lbfgsfloatval_t;
+typedef lbfgsfloatval_t lbfgsfloatval_t;
 
 #else
-#error "libLBFGS supports single (float; LBFGS_FLOAT = 32) or double (double; LBFGS_FLOAT=64) precision only."
+#error "libLBFGS supports single (float; LBFGS_FLOAT = 32) or lbfgsfloatval_t (lbfgsfloatval_t; LBFGS_FLOAT=64) precision only."
 
 #endif
 
@@ -575,11 +575,11 @@ Among the various ports of L-BFGS, this library provides several features:
 - <b>Cross platform.</b> The source code can be compiled on Microsoft Visual
   Studio 2010, GNU C Compiler (gcc), etc.
 - <b>Configurable precision</b>: A user can choose single-precision (float)
-  or double-precision (double) accuracy by changing ::LBFGS_FLOAT macro.
+  or lbfgsfloatval_t-precision (lbfgsfloatval_t) accuracy by changing ::LBFGS_FLOAT macro.
 - <b>SSE/SSE2 optimization</b>:
   This library includes SSE/SSE2 optimization (written in compiler intrinsics)
   for vector arithmetic operations on Intel/AMD processors. The library uses
-  SSE for float values and SSE2 for double values. The SSE/SSE2 optimization
+  SSE for float values and SSE2 for lbfgsfloatval_t values. The SSE/SSE2 optimization
   routine is disabled by default.
 
 This library is used by:

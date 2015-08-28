@@ -1,7 +1,7 @@
 #include "WordVec.h"
 
-map<string, MatrixXd> WordVec::m_words;
-map<string, MatrixXd> WordVec::m_strings;
+map<string, MatrixLBFGS> WordVec::m_words;
+map<string, MatrixLBFGS> WordVec::m_strings;
 
 WordVec::WordVec()
 {
@@ -39,7 +39,7 @@ void WordVec::readFile(Parameter* para, string titleStr)
 		stringstream strin(line);
 
 		string word;
-		double* wordvec = new double[size];
+		lbfgsfloatval_t* wordvec = new lbfgsfloatval_t[size];
 
 		strin >> word;
 		for(int i = 0; i < size; i++)
@@ -47,7 +47,7 @@ void WordVec::readFile(Parameter* para, string titleStr)
 			strin >> wordvec[i];
 		}
 
-		MatrixXd tmpVec = MatrixXd(1, size);
+		MatrixLBFGS tmpVec = MatrixLBFGS(1, size);
 
 		for(int i = 0; i < size; i++)
 		{
@@ -75,7 +75,7 @@ bool WordVec::isInDict(string word)
 //显示所有词及向量
 void WordVec::showWords()
 {
-	for(map<string, MatrixXd>::iterator m_it = m_words.begin(); m_it != m_words.end(); m_it++)
+	for(map<string, MatrixLBFGS>::iterator m_it = m_words.begin(); m_it != m_words.end(); m_it++)
 	{
 		cout << m_it->first << endl;
 		cout << m_it->second << endl;
@@ -85,7 +85,7 @@ void WordVec::showWords()
 //显示所有词组及向量
 void WordVec::showStrings()
 {
-	for(map<string, MatrixXd>::iterator m_it = m_strings.begin(); m_it != m_strings.end(); m_it++)
+	for(map<string, MatrixLBFGS>::iterator m_it = m_strings.begin(); m_it != m_strings.end(); m_it++)
 	{
 		cout << m_it->first << endl;
 		cout << m_it->second << endl;

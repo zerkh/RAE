@@ -12,7 +12,7 @@ void test( worker_arg_t *arg );
 
 int main(int argc, char* argv[])
 {
-	double start, end;
+	lbfgsfloatval_t start, end;
 
 	start = clock();
 	Parameter* para = new Parameter(argv[1]);
@@ -93,7 +93,7 @@ int main(int argc, char* argv[])
 /************************************************************************/
 void train(worker_arg_t* arg)
 {
-	double start, end;
+	lbfgsfloatval_t start, end;
 
 	Domain* d = arg->domain;
 	cout << "Processing " << d->domainName << "......" << endl << endl;
@@ -120,7 +120,7 @@ void train(worker_arg_t* arg)
 
 void test(worker_arg_t* arg)
 {
-	double start, end;
+	lbfgsfloatval_t start, end;
 
 	Domain* d = arg->domain;
 	cout << "Processing " << d->domainName << "......" << endl << endl;
@@ -140,7 +140,7 @@ void test(worker_arg_t* arg)
 
 void dev( worker_arg_t *arg )
 {
-	double start, end;
+	lbfgsfloatval_t start, end;
 
 	Domain* d = arg->domain;
 	cout << "Processing " << d->domainName << "......" << endl << endl;

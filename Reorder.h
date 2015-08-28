@@ -19,18 +19,20 @@ public:
 	RAE* rae2;
 	RAE* rae;
 
-	MatrixXd weights;
-	MatrixXd weights_b;
+	MatrixLBFGS weights;
+	MatrixLBFGS weights_b;
 	
-	MatrixXd outputLayer;
-	MatrixXd softmaxLayer;
+	MatrixLBFGS outputLayer;
+	MatrixLBFGS softmaxLayer;
 
-	MatrixXd delWeight;
-	MatrixXd delWeight_b;
+	MatrixLBFGS delWeight;
+	MatrixLBFGS delWeight_b;
 
-	double decay();
+	lbfgsfloatval_t decay();
+	int getRMWeightSize();
+	void updateWeights(const lbfgsfloatval_t* x, int base);
 	void softmax();
-	void trainRM(MatrixXd y, bool isSoftmax);
+	void trainRM(MatrixLBFGS y, bool isSoftmax);
 	ReorderModel(Parameter* para, WordVec* words);
 	void getData(string bp1, string bp2);
 };

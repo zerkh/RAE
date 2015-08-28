@@ -14,15 +14,15 @@ private:
 	
 public:
 	Tree* RAETree;
-	MatrixXd weights1;
-	MatrixXd weights_b1;
-	MatrixXd weights2;
-	MatrixXd weights_b2;
+	MatrixLBFGS weights1;
+	MatrixLBFGS weights_b1;
+	MatrixLBFGS weights2;
+	MatrixLBFGS weights_b2;
 
-	MatrixXd delWeight1;
-	MatrixXd delWeight1_b;
-	MatrixXd delWeight2;
-	MatrixXd delWeight2_b;
+	MatrixLBFGS delWeight1;
+	MatrixLBFGS delWeight1_b;
+	MatrixLBFGS delWeight2;
+	MatrixLBFGS delWeight2_b;
 
 	RAE(Parameter* para, WordVec* words);
 	void showWeights();
@@ -30,8 +30,10 @@ public:
 	int getVecSize();
 	void buildTree(string bp);
 	void trainRecError();
-	double loss();
-	double decay();
+	lbfgsfloatval_t loss();
+	lbfgsfloatval_t decay();
+	int getRAEWeightSize();
+	void initWeights(lbfgsfloatval_t* x, int base);
 	RAE* copy();
 	RAE(int size);
 	~RAE();

@@ -14,15 +14,15 @@ private:
 	Node* leftChild;				//左子节点(通常为combined节点)
 	Node* rightChild;				//右子节点(通常为based节点)
 	int nodeType;					//节点类型
-	MatrixXd vec;					//存储向量值
+	MatrixLBFGS vec;					//存储向量值
 	string word;
 	span sp;
 
 public:
-	MatrixXd leftReconst;				//左重建节点
-	MatrixXd rightReconst;				//右重建节点
+	MatrixLBFGS leftReconst;				//左重建节点
+	MatrixLBFGS rightReconst;				//右重建节点
 
-	Node(int nodeType, int start, int end, string word, MatrixXd vec, Node* parent, Node* leftChild, Node* rightChild)
+	Node(int nodeType, int start, int end, string word, MatrixLBFGS vec, Node* parent, Node* leftChild, Node* rightChild)
 	{
 		sp = make_pair(start, end);
 		this->word = word;
@@ -37,9 +37,9 @@ public:
 	{
 	}
 
-	double getRecError()
+	lbfgsfloatval_t getRecError()
 	{
-		double RecError = 0;
+		lbfgsfloatval_t RecError = 0;
 
 		if(leftChild == NULL && rightChild == NULL)
 		{
@@ -79,7 +79,7 @@ public:
 		return rightChild;
 	}
 
-	MatrixXd getVector()
+	MatrixLBFGS getVector()
 	{
 		return vec;
 	}
@@ -109,7 +109,7 @@ public:
 		this->nodeType = nodeType;
 	}
 
-	void setVector(MatrixXd vec)
+	void setVector(MatrixLBFGS vec)
 	{
 		this->vec = vec;
 	}
@@ -145,7 +145,7 @@ public:
 
 	Node* getRoot();
 
-	void merge(Node* newNode, MatrixXd w1, MatrixXd b1, MatrixXd w2, MatrixXd b2);
+	void merge(Node* newNode, MatrixLBFGS w1, MatrixLBFGS b1, MatrixLBFGS w2, MatrixLBFGS b2);
 
 	void showTree();
 };
