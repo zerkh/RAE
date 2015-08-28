@@ -530,7 +530,7 @@ void Domain::loadTestingData()
 
 	in.close();
 
-	logWeights();
+	loadWeights();
 }
 
 void Domain::logWeights()
