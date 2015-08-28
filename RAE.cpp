@@ -7,20 +7,15 @@ RAE::RAE(Parameter* para, WordVec* words)
 
 	RAETree = NULL;
 
-	delWeight1 = MatrixLBFGS(weights1.rows(), weights1.cols());
-	delWeight1_b = MatrixLBFGS(weights_b1.rows(), weights_b1.cols());
-	delWeight2 = MatrixLBFGS(weights2.rows(), weights2.cols());
-	delWeight2_b = MatrixLBFGS(weights_b2.rows(), weights_b2.cols());
+	delWeight1 = MatrixLBFGS(vecSize, 2*vecSize);
+	delWeight1_b = MatrixLBFGS(1, vecSize);
+	delWeight2 = MatrixLBFGS(2*vecSize, vecSize);
+	delWeight2_b = MatrixLBFGS(1, 2*vecSize);
 
 	delWeight1.setZero();
 	delWeight1_b.setZero();
 	delWeight2.setZero();
 	delWeight2_b.setZero();
-}
-
-void RAE::initWeights(lbfgsfloatval_t* x, int base)
-{
-
 }
 
 int RAE::getRAEWeightSize()

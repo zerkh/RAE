@@ -33,7 +33,6 @@ public:
 	lbfgsfloatval_t loss();
 	lbfgsfloatval_t decay();
 	int getRAEWeightSize();
-	void initWeights(lbfgsfloatval_t* x, int base);
 	RAE* copy();
 	RAE(int size);
 	~RAE();

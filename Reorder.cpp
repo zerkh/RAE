@@ -8,8 +8,8 @@ ReorderModel::ReorderModel(Parameter* para, WordVec* words)
 	rae1 = NULL;
 	rae2 = NULL;
 
-	delWeight = MatrixLBFGS(weights.rows(), weights.cols());
-	delWeight_b = MatrixLBFGS(weights_b.rows(), weights_b.cols());
+	delWeight = MatrixLBFGS(2, vecSize*2);
+	delWeight_b = MatrixLBFGS(1, 2);
 
 	delWeight.setZero();
 	delWeight_b.setZero();
