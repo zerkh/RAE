@@ -21,13 +21,15 @@ ReorderModel::ReorderModel(Parameter* para, WordVec* words)
 
 void ReorderModel::updateWeights(const lbfgsfloatval_t* x, int base)
 {
-	weights = Map<MatrixLBFGS>(x+base, 2, vecSize*2);
-	weights_b = Map<MatrixLBFGS>(x+base+2*2*vecSize, 1,2);
+	lbfgsfloatval_t* cX = const_cast<lbfgsfloatval_t*>(x);
 
-	rae->weights1 = Map<MatrixLBFGS>(x+base+getRMWeightSize(), vecSize, 2*vecSize);
-	rae->weights_b1 = Map<MatrixLBFGS>(x+base+getRMWeightSize()+2*vecSize*vecSize, 1, vecSize);
-	rae->weights2 = Map<MatrixLBFGS>(x+base+getRMWeightSize()+2*vecSize*vecSize+vecSize, 2*vecSize, vecSize);
-	rae->weights_b2 = Map<MatrixLBFGS>(x+base+getRMWeightSize()+2*vecSize*vecSize+vecSize+2*vecSize*vecSize, 1, 2*vecSize);
+	weights = Map<MatrixLBFGS>(cX+base, 2, vecSize*2);
+	weights_b = Map<MatrixLBFGS>(cX+base+2*2*vecSize, 1,2);
+
+	rae->weights1 = Map<MatrixLBFGS>(cX+base+getRMWeightSize(), vecSize, 2*vecSize);
+	rae->weights_b1 = Map<MatrixLBFGS>(cX+base+getRMWeightSize()+2*vecSize*vecSize, 1, vecSize);
+	rae->weights2 = Map<MatrixLBFGS>(cX+base+getRMWeightSize()+2*vecSize*vecSize+vecSize, 2*vecSize, vecSize);
+	rae->weights_b2 = Map<MatrixLBFGS>(cX+base+getRMWeightSize()+2*vecSize*vecSize+vecSize+2*vecSize*vecSize, 1, 2*vecSize);
 
 	rae1 = rae->copy();
 	rae2 = rae->copy();

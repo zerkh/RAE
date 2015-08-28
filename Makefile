@@ -3,7 +3,7 @@ EXE    = DomainsReorder
 	
 # Compiler, Linker Defines
 CC      = g++
-CFLAGS  = -Wall -O2 
+CFLAGS  = -Wall -O3 -Wno-deprecated -m64 -I. -Wno-unused -std=c++11 
 
 # Compile and Assemble C++ Source Files into Object Files
 %.o: %.cc

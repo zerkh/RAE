@@ -28,7 +28,7 @@ Domain::Domain(Parameter* para, string domainName, WordVec* srcWords, WordVec* t
 	tgtRM = new ReorderModel(para, tgtWords);
 
 	x = lbfgs_malloc(srcRM->getRMWeightSize() + tgtRM->getRMWeightSize() + srcRM->rae->getRAEWeightSize() + tgtRM->rae->getRAEWeightSize());
-	Map<MatrixLBFGS>(x).setRandom();
+	Map<MatrixLBFGS>(x, srcRM->getRMWeightSize() + tgtRM->getRMWeightSize() + srcRM->rae->getRAEWeightSize() + tgtRM->rae->getRAEWeightSize(), 1).setRandom();
 }
 
 int Domain::getWeightsSize()
@@ -275,8 +275,8 @@ lbfgsfloatval_t Domain::loss(int ind)
 
 void Domain::loadWeights()
 {
-	ifstream src("src"+domainName+"Weights.log", ios::in);
-	ifstream tgt("tgt"+domainName+"Weights.log", ios::in);
+	ifstream src(string("src"+domainName+"Weights.log").c_str(), ios::in);
+	ifstream tgt(string("tgt"+domainName+"Weights.log").c_str(), ios::in);
 
 	bool rae_w1 = false;
 	bool rae_b1 = false;
