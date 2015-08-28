@@ -5,11 +5,8 @@ ReorderModel::ReorderModel(Parameter* para, WordVec* words)
 	vecSize = atoi(para->getPara("WordVecSize").c_str());
 
 	rae = new RAE(para, words);
-	rae1 = rae->copy();
-	rae2 = rae->copy();
-
-	weights = MatrixLBFGS(2, vecSize*2);
-	weights_b = MatrixLBFGS(1, 2);
+	rae1 = NULL;
+	rae2 = NULL;
 
 	delWeight = MatrixLBFGS(weights.rows(), weights.cols());
 	delWeight_b = MatrixLBFGS(weights_b.rows(), weights_b.cols());
@@ -33,8 +30,18 @@ void ReorderModel::updateWeights(const lbfgsfloatval_t* x, int base)
 	rae->weights2 = Map<MatrixLBFGS>(cX+base+getRMWeightSize()+2*vecSize*vecSize+vecSize, 2*vecSize, vecSize);
 	rae->weights_b2 = Map<MatrixLBFGS>(cX+base+getRMWeightSize()+2*vecSize*vecSize+vecSize+2*vecSize*vecSize, 1, 2*vecSize);
 
-	delete rae1;
-	delete rae2;
+	if(rae1)
+	{
+		delete rae1;
+		rae1 = NULL;
+	}
+
+	if(rae2)
+	{
+		delete rae2;
+		rae2 = NULL;
+	}
+
 	rae1 = rae->copy();
 	rae2 = rae->copy();
 }
