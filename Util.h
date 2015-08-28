@@ -12,6 +12,7 @@
 #include <map>
 #include <vector>
 #include "Eigen/Core"
+#include "Eigen/Dense"
 #include "lbfgs.h"
 #include "Constdef.h"
 

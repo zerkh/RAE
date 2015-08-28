@@ -17,7 +17,7 @@ OBJ    = $(patsubst %.cpp, %.o, $(SRC))
 # Link all Object Files with external Libraries into Binaries
 $(EXE): $(OBJ)
 	echo linking...
-	$(CC) $(CFLAGS) $(OBJ) $(LDFLAGS) -o $(EXE) -lz
+	$(CC) $(CFLAGS) $(OBJ) $(LDFLAGS) liblbfgs.a -o $(EXE) -lz
 
 .PHONY: clean
 clean:
