@@ -589,7 +589,6 @@ void Domain::test()
 		srcRM->getData(trainingData[i].second["ct1"], trainingData[i].second["ct2"]);
 		tgtRM->getData(trainingData[i].second["et1"], trainingData[i].second["et2"]);
 
-		cout << "test" << endl;
 		if(srcRM->outputLayer(0, 0) > srcRM->outputLayer(0,1))
 		{
 			if(trainingData[i].first == 1)
