@@ -65,7 +65,8 @@ int main(int argc, char* argv[])
 
 	if(!isTrain && !isDev)
 	{
-
+		srcRAE->training();
+		tgtRAE->training();
 	}
 
 	//初始化

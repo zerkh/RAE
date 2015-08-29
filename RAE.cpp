@@ -541,5 +541,10 @@ int RAE::_progress(const lbfgsfloatval_t *x, const lbfgsfloatval_t *g, const lbf
 {
 	ofstream out("/log/RAE/RAE.log", ios::out);
 
+	out << "Iteration: " << k << endl;
+	out << "Loss Value: " << fx << endl;
+
 	out.close();
+
+	return 0;
 }

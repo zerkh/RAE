@@ -33,49 +33,23 @@ Domain::Domain(Parameter* para, string domainName, RAE* srcRAE, RAE* tgtRAE)
 
 int Domain::getWeightsSize()
 {
-	return (srcRM->getRMWeightSize()*2+srcRM->rae->getRAEWeightSize()*2);
+	return (srcRM->getRMWeightSize()*2);
 }
 
 void Domain::upData(lbfgsfloatval_t* g)
 {
 	Map<MatrixLBFGS> g_srcWeights(g, srcRM->weights.rows(), srcRM->weights.cols());
 	Map<MatrixLBFGS> g_srcWeights_b(g+srcRM->weights.rows()*srcRM->weights.cols(), srcRM->weights_b.rows(), srcRM->weights_b.cols());
-	Map<MatrixLBFGS> g_srcRAEWeights1(g+srcRM->getRMWeightSize(), srcRM->rae->weights1.rows(), srcRM->rae->weights1.cols());
-	Map<MatrixLBFGS> g_srcRAEWeights_b1(g+srcRM->getRMWeightSize()+srcRM->rae->weights1.rows()*srcRM->rae->weights1.cols(), srcRM->rae->weights_b1.rows(), srcRM->rae->weights_b1.cols());
-	Map<MatrixLBFGS> g_srcRAEWeights2(g+srcRM->getRMWeightSize()+srcRM->rae->weights1.rows()*srcRM->rae->weights1.cols()+
-									srcRM->rae->weights_b1.rows()*srcRM->rae->weights_b1.cols(),
-									srcRM->rae->weights2.rows(), srcRM->rae->weights2.cols());
-	Map<MatrixLBFGS> g_srcRAEWeights_b2(g+srcRM->getRMWeightSize()+srcRM->rae->weights1.rows()*srcRM->rae->weights1.cols()+
-									srcRM->rae->weights_b1.rows()*srcRM->rae->weights_b1.cols()+
-									srcRM->rae->weights2.rows()*srcRM->rae->weights2.cols(),
-									srcRM->rae->weights_b2.rows(), srcRM->rae->weights_b2.cols());
 
-	int base = srcRM->getRMWeightSize() + srcRM->rae->getRAEWeightSize();
+	int base = srcRM->getRMWeightSize();
 	Map<MatrixLBFGS> g_tgtWeights(g+base, srcRM->weights.rows(), srcRM->weights.cols());
 	Map<MatrixLBFGS> g_tgtWeights_b(g+base+srcRM->weights.rows()*srcRM->weights.cols(), srcRM->weights_b.rows(), srcRM->weights_b.cols());
-	Map<MatrixLBFGS> g_tgtRAEWeights1(g+base+srcRM->getRMWeightSize(), srcRM->rae->weights1.rows(), srcRM->rae->weights1.cols());
-	Map<MatrixLBFGS> g_tgtRAEWeights_b1(g+base+srcRM->getRMWeightSize()+srcRM->rae->weights1.rows()*srcRM->rae->weights1.cols(), srcRM->rae->weights_b1.rows(), srcRM->rae->weights_b1.cols());
-	Map<MatrixLBFGS> g_tgtRAEWeights2(g+base+srcRM->getRMWeightSize()+srcRM->rae->weights1.rows()*srcRM->rae->weights1.cols()+
-		srcRM->rae->weights_b1.rows()*srcRM->rae->weights_b1.cols(),
-		srcRM->rae->weights2.rows(), srcRM->rae->weights2.cols());
-	Map<MatrixLBFGS> g_tgtRAEWeights_b2(g+base+srcRM->getRMWeightSize()+srcRM->rae->weights1.rows()*srcRM->rae->weights1.cols()+
-		srcRM->rae->weights_b1.rows()*srcRM->rae->weights_b1.cols()+
-		srcRM->rae->weights2.rows()*srcRM->rae->weights2.cols(),
-		srcRM->rae->weights_b2.rows(), srcRM->rae->weights_b2.cols());
 
 	g_srcWeights += srcRM->delWeight;
 	g_srcWeights_b += srcRM->delWeight_b;
-	g_srcRAEWeights1 += srcRM->rae->delWeight1;
-	g_srcRAEWeights_b1 += srcRM->rae->delWeight1_b;
-	g_srcRAEWeights2 += srcRM->rae->delWeight2;
-	g_srcRAEWeights_b2 += srcRM->rae->delWeight2_b;
 
 	g_tgtWeights += tgtRM->delWeight;
 	g_tgtWeights_b += tgtRM->delWeight_b;
-	g_tgtRAEWeights1 += tgtRM->rae->delWeight1;
-	g_tgtRAEWeights_b1 += tgtRM->rae->delWeight1_b;
-	g_tgtRAEWeights2 += tgtRM->rae->delWeight2;
-	g_tgtRAEWeights_b2 += tgtRM->rae->delWeight2_b;
 
 	srcRM->delWeight.setZero();
 	srcRM->delWeight_b.setZero();
@@ -134,7 +108,7 @@ lbfgsfloatval_t Domain::_evaluate(const lbfgsfloatval_t* x,
 	lbfgsfloatval_t fx = 0;
 
 	srcRM->updateWeights(x, 0);
-	tgtRM->updateWeights(x, srcRM->getRMWeightSize()+srcRM->rae->getRAEWeightSize());
+	tgtRM->updateWeights(x, srcRM->getRMWeightSize());
 
 	fx += _training(g);
 
@@ -172,13 +146,7 @@ lbfgsfloatval_t Domain::_training(lbfgsfloatval_t* g)
 
 		//获取实例
 		srcRM->getData(trainingData[i].second["ct1"], trainingData[i].second["ct2"]);
-		tgtRM->getData(trainingData[i].second["et1"], trainingData[i].second["et2"]);		
-
-		//对rae求导
-		srcRM->rae1->trainRecError();
-		srcRM->rae2->trainRecError();
-		tgtRM->rae1->trainRecError();
-		tgtRM->rae2->trainRecError();
+		tgtRM->getData(trainingData[i].second["et1"], trainingData[i].second["et2"]);
 
 		//对调序模型求导(Edis)
 		srcRM->trainRM(tgtRM->outputLayer, true);
@@ -237,11 +205,6 @@ lbfgsfloatval_t Domain::loss(int ind)
 	srcRM->getData(trainingData[ind].second["ct1"], trainingData[ind].second["ct2"]);
 	tgtRM->getData(trainingData[ind].second["et1"], trainingData[ind].second["et2"]);
 
-	lossVal += ALPHA * srcRM->rae1->loss();
-	lossVal += ALPHA * srcRM->rae2->loss();
-	lossVal += ALPHA * tgtRM->rae1->loss();
-	lossVal += ALPHA * tgtRM->rae2->loss();
-
 	for(int i = 0; i < 2; i++)
 	{
 		lossVal += GAMMA * pow(srcRM->outputLayer(0, i) - tgtRM->outputLayer(0, i), 2) / 2;
@@ -265,7 +228,7 @@ lbfgsfloatval_t Domain::loss(int ind)
 
 	//cout << "After Ereo loss: " << lossVal << endl;	
 
-	lossVal += ZETA * (srcRM->decay() + tgtRM->decay() + srcRM->rae->decay() + tgtRM->rae->decay());
+	lossVal += ZETA * (srcRM->decay() + tgtRM->decay());
 
 	//cout << "After Decay loss: " << lossVal << endl;
 
