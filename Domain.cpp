@@ -1,6 +1,6 @@
 #include "Domain.h"
 
-Domain::Domain(Parameter* para, string domainName, WordVec* srcWords, WordVec* tgtWords)
+Domain::Domain(Parameter* para, string domainName, RAE* srcRAE, RAE* tgtRAE)
 {
 	bool isDev = atoi(para->getPara("IsDev").c_str());
 	bool isTrain = atoi(para->getPara("IsTrain").c_str());
@@ -24,8 +24,8 @@ Domain::Domain(Parameter* para, string domainName, WordVec* srcWords, WordVec* t
 	this->domainName = domainName;
 	out.open(string("./log/"+ domainName + "/" + domainName+".log").c_str(), ios::out);
 
-	srcRM = new ReorderModel(para, srcWords);
-	tgtRM = new ReorderModel(para, tgtWords);
+	srcRM = new ReorderModel(para, srcRAE);
+	tgtRM = new ReorderModel(para, tgtRAE);
 
 	x = lbfgs_malloc(srcRM->getRMWeightSize() + tgtRM->getRMWeightSize() + srcRM->rae->getRAEWeightSize() + tgtRM->rae->getRAEWeightSize());
 	Map<MatrixLBFGS>(x, srcRM->getRMWeightSize() + tgtRM->getRMWeightSize() + srcRM->rae->getRAEWeightSize() + tgtRM->rae->getRAEWeightSize(), 1).setRandom();
@@ -170,27 +170,20 @@ lbfgsfloatval_t Domain::_training(lbfgsfloatval_t* g)
 	{
 		error += loss(i);
 
-		//cout << "Domain getData" << endl;
 		//获取实例
 		srcRM->getData(trainingData[i].second["ct1"], trainingData[i].second["ct2"]);
-		tgtRM->getData(trainingData[i].second["et1"], trainingData[i].second["et2"]);
-		//cout << "Domain getData" << endl;			
+		tgtRM->getData(trainingData[i].second["et1"], trainingData[i].second["et2"]);		
 
-		//cout << "domain reconstruct error" << endl;
 		//对rae求导
 		srcRM->rae1->trainRecError();
 		srcRM->rae2->trainRecError();
 		tgtRM->rae1->trainRecError();
 		tgtRM->rae2->trainRecError();
-		//cout << "domain reconstruct error" << endl;
 
-		//cout << "Domain Edis" << endl;
 		//对调序模型求导(Edis)
 		srcRM->trainRM(tgtRM->outputLayer, true);
 		tgtRM->trainRM(srcRM->outputLayer, true);
-		//cout << "Domain Edis" << endl;
 
-		//cout << "Domain Rreo" << endl;
 		//Ereo
 		MatrixLBFGS mono = MatrixLBFGS(1,2);
 		MatrixLBFGS invert = MatrixLBFGS(1,2);
@@ -233,6 +226,7 @@ void Domain::training()
 
 	//记录权重
 	logWeights();
+	lbfgs_free(x);
 }
 
 //获取单领域的loss value

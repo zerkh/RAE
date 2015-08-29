@@ -14,6 +14,7 @@
 #include "Eigen/Dense"
 #include "lbfgs.h"
 #include "Constdef.h"
+#include <pthread.h>
 
 using namespace Eigen;
 using namespace std;

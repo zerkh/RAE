@@ -31,6 +31,20 @@ int main(int argc, char* argv[])
 	end = clock();
 	cout << "The time of reading tgtWordVec is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
 
+	start = clock();
+	RAE* srcRAE = new RAE(para, srcWords, SL);
+	end = clock();
+	cout << "The time of initial source language RAE is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
+
+	start = clock();
+	RAE* tgtRAE = new RAE(para, tgtWords, TL);
+	end = clock();
+	cout << "The time of initial target language RAE is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
+
+	bool isDev = atoi(para->getPara("IsDev").c_str());
+	bool isTrain = atoi(para->getPara("IsTrain").c_str());
+	bool isTest = atoi(para->getPara("IsTest").c_str());
+
 	// thread_num = 1
 	int thread_num = atoi( para->getPara("THREAD_NUM").c_str() );
 	vector<string> v_domains;
@@ -49,6 +63,11 @@ int main(int argc, char* argv[])
 		v_domains.push_back(domainName);
 	}
 
+	if(!isTrain && !isDev)
+	{
+
+	}
+
 	//初始化
 	worker_arg_t *wargs = new worker_arg_t[thread_num];
 
@@ -60,15 +79,11 @@ int main(int argc, char* argv[])
 		
 		wargs[wid].m_id = wid;
 		wargs[wid].domainName = v_domains[wid];
-		wargs[wid].domain = new Domain(para, v_domains[wid], srcWords, tgtWords);
+		wargs[wid].domain = new Domain(para, v_domains[wid], srcRAE, tgtRAE);
 
 		end = clock();
 		cout << "Finish initializing " << v_domains[wid] << " in " << (end-start)/CLOCKS_PER_SEC << "s" << endl << endl;
 	}
-
-	bool isDev = atoi(para->getPara("IsDev").c_str());
-	bool isTrain = atoi(para->getPara("IsTrain").c_str());
-	bool isTest = atoi(para->getPara("IsTest").c_str());
 
 	if(isTrain)
 	{
@@ -109,13 +124,6 @@ void train(worker_arg_t* arg)
 	d->training();
 	end = clock();
 	cout << "The time of training " + d->domainName + " is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
-
-/*
-	cout << "Starting testing " + d->domainName + "..." << endl << endl;
-	start = clock();
-	d->test();
-	end = clock();
-	cout << "The time of testing " + d->domainName + " is " << (end-start)/CLOCKS_PER_SEC << endl << endl;*/
 }
 
 void test(worker_arg_t* arg)

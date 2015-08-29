@@ -1,10 +1,10 @@
 #include "Reorder.h"
 
-ReorderModel::ReorderModel(Parameter* para, WordVec* words)
+ReorderModel::ReorderModel(Parameter* para, RAE* rae)
 {
 	vecSize = atoi(para->getPara("WordVecSize").c_str());
 
-	rae = new RAE(para, words);
+	rae = this->rae->copy();
 	rae1 = NULL;
 	rae2 = NULL;
 
@@ -191,7 +191,7 @@ void ReorderModel::trainRM(MatrixLBFGS y, bool isSoftmax)
 	}
 
 
-	//对W1和Wb1求导
+	/*//对W1和Wb1求导
 	Node* preNode1 = rae1->RAETree->getRoot();
 	Node* preNode2 = rae2->RAETree->getRoot();
 
@@ -278,5 +278,5 @@ void ReorderModel::trainRM(MatrixLBFGS y, bool isSoftmax)
 
 		theta2 = tmpTheta;
 		preNode2 = preNode2->getLeftChildNode();
-	}
+	}*/
 }

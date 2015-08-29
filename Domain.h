@@ -17,7 +17,7 @@ public:
 	lbfgsfloatval_t* x;
 
 public:
-	Domain(Parameter* para, string domainName, WordVec* srcWords, WordVec* tgtWords);
+	Domain(Parameter* para, string domainName, RAE* srcRAE, RAE* tgtRAE);
 	void loadTrainingData();
 	void training();
 	void upData(lbfgsfloatval_t* g);

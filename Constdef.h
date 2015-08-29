@@ -12,6 +12,9 @@ const int BASED_NODE = 0;
 const int COMBINED_NODE = 1;
 const int REC_NODE = 2;
 
+const int SL = 0;
+const int TL = 1;
+
 typedef pair<int, int> span;
 
 typedef Matrix<lbfgsfloatval_t, Eigen::Dynamic, Eigen::Dynamic> MatrixLBFGS;

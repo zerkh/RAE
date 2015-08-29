@@ -33,7 +33,7 @@ public:
 	void updateWeights(const lbfgsfloatval_t* x, int base);
 	void softmax();
 	void trainRM(MatrixLBFGS y, bool isSoftmax);
-	ReorderModel(Parameter* para, WordVec* words);
+	ReorderModel(Parameter* para, RAE* rae);
 	void getData(string bp1, string bp2);
 };
 
