@@ -5,7 +5,6 @@
 #include "Parameter.h"
 #include "RAETree.h"
 #include "Util.h"
-#include "ThreadPara.h"
 
 class RAE
 {
@@ -84,13 +83,6 @@ namespace RAELBFGS
 		return reinterpret_cast<RAE*>(instance)->_progress(x, g, fx, xnorm, gnorm, step, n, k, ls);
 	}
 
-	static void* deepThread(void* args)
-	{
-		RAEThreadPara* threadpara = (RAEThreadPara*)args;
-
-		threadpara->lossVal = threadpara->cRAE->_training(threadpara->g);
-
-		pthread_exit(NULL);
-	}
+	static void* deepThread(void* args);
 }
 #endif

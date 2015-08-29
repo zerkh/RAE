@@ -1,6 +1,15 @@
 #include "RAE.h"
 #include "ThreadPara.h"
 
+static void* RAELBFGS::deepThread(void* arg)
+{
+	RAEThreadPara* threadpara = (RAEThreadPara*)arg;
+
+	threadpara->lossVal = threadpara->cRAE->_training(threadpara->g);
+
+	pthread_exit(NULL);
+}
+
 RAE::RAE(Parameter* para, WordVec* words, int RAEType)
 {
 	vecSize = atoi(para->getPara("WordVecSize").c_str());
@@ -464,15 +473,17 @@ lbfgsfloatval_t RAE::_training(lbfgsfloatval_t* g)
 
 	for(int i = 0; i < trainingData.size(); i++)
 	{
-		error += loss(i);
-
 		//获取实例
 		buildTree(trainingData[i]);	
 
+		error += loss();
+		
 		//对rae求导
 		trainRecError();
 
 		update(g);
+
+		delete RAETree;
 	}
 
 	return error;
