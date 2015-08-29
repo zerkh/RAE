@@ -5,6 +5,7 @@
 #include "Parameter.h"
 #include "RAETree.h"
 #include "Util.h"
+#include "ThreadPara.h"
 
 class RAE
 {

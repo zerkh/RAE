@@ -1,5 +1,5 @@
 #ifndef THREADPARA
-#define  THREADPARA
+#define THREADPARA
 #include "Util.h"
 #include "RAE.h"
 
