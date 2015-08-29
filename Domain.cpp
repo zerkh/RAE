@@ -187,7 +187,7 @@ void Domain::training()
 
 	lbfgsfloatval_t fx = 0;
 	int ret = 0;
-	ret = lbfgs(getWeightsSize(), x, &fx, evaluate, progress, this, &param);
+	ret = lbfgs(getWeightsSize(), x, &fx, DomainLBFGS::evaluate, DomainLBFGS::progress, this, &param);
 
 	cout << "L-BFGS optimization terminated with status code = " << ret << endl;
 	cout << " fx = " << fx << endl;

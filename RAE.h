@@ -14,7 +14,7 @@ private:
 	int vecSize;
 	int iterTimes;
 	Parameter* para;
-	
+
 public:
 	Tree* RAETree;
 	lbfgsfloatval_t* x;
@@ -38,8 +38,8 @@ public:
 	lbfgsfloatval_t _training(lbfgsfloatval_t* g);
 	lbfgsfloatval_t _evaluate(const lbfgsfloatval_t* x, lbfgsfloatval_t* g, const int n, const lbfgsfloatval_t step);
 	int _progress(const lbfgsfloatval_t *x, const lbfgsfloatval_t *g, const lbfgsfloatval_t fx, 
-					const lbfgsfloatval_t xnorm, const lbfgsfloatval_t gnorm, const lbfgsfloatval_t step,
-					int n, int k, int ls);
+		const lbfgsfloatval_t xnorm, const lbfgsfloatval_t gnorm, const lbfgsfloatval_t step,
+		int n, int k, int ls);
 	void logWeights(Parameter* para);
 	int getVecSize();
 	void buildTree(string bp);
@@ -55,39 +55,42 @@ public:
 	void update(lbfgsfloatval_t* g);
 };
 
-static lbfgsfloatval_t evaluate(
-	void *instance,
-	const lbfgsfloatval_t *x,
-	lbfgsfloatval_t *g,
-	const int n,
-	const lbfgsfloatval_t step
-	)
+namespace RAELBFGS
 {
-	return reinterpret_cast<RAE*>(instance)->_evaluate(x, g, n, step);
-}
+	static lbfgsfloatval_t evaluate(
+		void *instance,
+		const lbfgsfloatval_t *x,
+		lbfgsfloatval_t *g,
+		const int n,
+		const lbfgsfloatval_t step
+		)
+	{
+		return reinterpret_cast<RAE*>(instance)->_evaluate(x, g, n, step);
+	}
 
-static int progress(
-	void *instance,
-	const lbfgsfloatval_t *x,
-	const lbfgsfloatval_t *g,
-	const lbfgsfloatval_t fx,
-	const lbfgsfloatval_t xnorm,
-	const lbfgsfloatval_t gnorm,
-	const lbfgsfloatval_t step,
-	int n,
-	int k,
-	int ls
-	)
-{
-	return reinterpret_cast<RAE*>(instance)->_progress(x, g, fx, xnorm, gnorm, step, n, k, ls);
-}
+	static int progress(
+		void *instance,
+		const lbfgsfloatval_t *x,
+		const lbfgsfloatval_t *g,
+		const lbfgsfloatval_t fx,
+		const lbfgsfloatval_t xnorm,
+		const lbfgsfloatval_t gnorm,
+		const lbfgsfloatval_t step,
+		int n,
+		int k,
+		int ls
+		)
+	{
+		return reinterpret_cast<RAE*>(instance)->_progress(x, g, fx, xnorm, gnorm, step, n, k, ls);
+	}
 
-static void* deepThread(void* args)
-{
-	RAEThreadPara* threadpara = (RAEThreadPara*)args;
-	
-	threadpara->lossVal = threadpara->cRAE->_training(threadpara->g);
+	static void* deepThread(void* args)
+	{
+		RAEThreadPara* threadpara = (RAEThreadPara*)args;
 
-	pthread_exit(NULL);
+		threadpara->lossVal = threadpara->cRAE->_training(threadpara->g);
+
+		pthread_exit(NULL);
+	}
 }
 #endif

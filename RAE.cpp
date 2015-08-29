@@ -434,7 +434,7 @@ void RAE::training()
 	lbfgsfloatval_t fx = 0;
 	int ret;
 
-	ret = lbfgs(getRAEWeightSize(), x, &fx, evaluate, progress, this, &param);
+	ret = lbfgs(getRAEWeightSize(), x, &fx, RAELBFGS::evaluate, RAELBFGS::progress, this, &param);
 
 	trainingData.clear();
 	lbfgs_free(x);
@@ -513,7 +513,7 @@ lbfgsfloatval_t RAE::_evaluate(const lbfgsfloatval_t* x, lbfgsfloatval_t* g, con
 		}
 	}
 	pthread_t* pt = new pthread_t[RAEThreadNum];
-	for (int a = 0; a < RAEThreadNum; a++) pthread_create(&pt[a], NULL, deepThread, (void *)(threadpara + a));
+	for (int a = 0; a < RAEThreadNum; a++) pthread_create(&pt[a], NULL, RAELBFGS::deepThread, (void *)(threadpara + a));
 	for (int a = 0; a < RAEThreadNum; a++) pthread_join(pt[a], NULL);
 
 	for(int i = 0; i < RAEThreadNum; i++)
