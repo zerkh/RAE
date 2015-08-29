@@ -118,7 +118,7 @@ inline vector<string> splitBySign(string line)
 	return subStr;
 }
 
-void operator delete(void* p)
+inline void operator delete(void* p)
 {
 	if(!p)
 	{
