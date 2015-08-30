@@ -130,8 +130,8 @@ int Domain::_progress(const lbfgsfloatval_t *x,
 					int k,
 					int ls)
 {
-	cout << "Iteration: " << k << endl;
-	cout << "Loss Value: " << fx << endl;
+	out << "Iteration: " << k << endl;
+	out << "Loss Value: " << fx << endl;
 
 	return 0;
 }

@@ -52,7 +52,7 @@ public:
 	~RAE();
 	void updateWeights(const lbfgsfloatval_t* x);
 	void update(lbfgsfloatval_t* g);
-	void loadWeights(Parameter* para)
+	void loadWeights(Parameter* para);
 };
 
 namespace RAELBFGS

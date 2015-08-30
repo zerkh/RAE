@@ -658,10 +658,10 @@ lbfgsfloatval_t RAE::_evaluate(const lbfgsfloatval_t* x, lbfgsfloatval_t* g, con
 
 int RAE::_progress(const lbfgsfloatval_t *x, const lbfgsfloatval_t *g, const lbfgsfloatval_t fx, const lbfgsfloatval_t xnorm, const lbfgsfloatval_t gnorm, const lbfgsfloatval_t step, int n, int k, int ls)
 {
-	ofstream out("/log/RAE/RAE.log", ios::out);
+	ofstream out("./log/RAE/RAE.log", ios::out);
 
-	cout << "Iteration of RAE: " << k << endl;
-	cout << "Loss Value: " << fx << endl;
+	out << "Iteration of RAE: " << k << endl;
+	out << "Loss Value: " << fx << endl;
 
 	out.close();
 
