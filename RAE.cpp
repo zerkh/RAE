@@ -542,8 +542,8 @@ lbfgsfloatval_t RAE::_evaluate(const lbfgsfloatval_t* x, lbfgsfloatval_t* g, con
 		g[elem] /= trainingData.size();
 	}
 
-	delete[] pt;
-	delete[] threadpara;
+	delete pt;
+	delete threadpara;
 
 	return fx;
 }

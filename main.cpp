@@ -63,11 +63,14 @@ int main(int argc, char* argv[])
 		v_domains.push_back(domainName);
 	}
 
-	if(!isTrain && !isDev)
+	start = clock();
+	if(isTrain || isDev)
 	{
 		srcRAE->training();
 		tgtRAE->training();
 	}
+	end = clock();
+	cout << "The time of training RAEs is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
 
 	//初始化
 	worker_arg_t *wargs = new worker_arg_t[thread_num];
