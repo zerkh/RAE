@@ -64,7 +64,7 @@ lbfgsfloatval_t RAE::loss()
 		tmpNode = tmpNode->getLeftChildNode();
 	}
 
-	return val;
+	return val + decay();
 }
 
 //显示参数
@@ -86,7 +86,16 @@ void RAE::showWeights()
 //保存参数到文件
 void RAE::logWeights(Parameter* para)
 {
-	string filename = para->getPara("RAEWeightsLogFile");
+	string filename;
+
+	if(RAEType == SL)
+	{
+		filename = para->getPara("srcRAEWeightsLogFile");
+	}
+	else
+	{
+		filename = para->getPara("tgtRAEWeightsLogFile");
+	}
 
 	ofstream out(filename.c_str(), ios::out);
 
@@ -101,6 +110,101 @@ void RAE::logWeights(Parameter* para)
 
 	out << "B2" << endl;
 	out << weights_b2 << endl;
+
+	out.close();
+}
+
+void RAE::loadWeights(Parameter* para)
+{
+	string filename;
+
+	if(RAEType == SL)
+	{
+		filename = para->getPara("srcRAEWeightsLogFile");
+	}
+	else
+	{
+		filename = para->getPara("tgtRAEWeightsLogFile");
+	}
+
+	ifstream in(filename.c_str(), ios::in);
+
+	bool rae_w1 = false;
+	bool rae_b1 = false;
+	bool rae_w2 = false;
+	bool rae_b2 = false;
+	int row = 0;
+
+	string line;
+	while(getline(in, line))
+	{
+		if(line.find("W1") == 0)
+		{
+			row = 0;
+			rae_w1 = true;
+			continue;
+		}
+		if(line.find("W2") == 0)
+		{
+			row = 0;
+			rae_b1 = false;
+			rae_w2 = true;
+			continue;
+		}
+		if(line.find("B1") == 0)
+		{
+			row = 0;
+			rae_w1 = false;
+			rae_b1 = true;
+			continue;
+		}
+		if(line.find("B2") == 0)
+		{
+			row = 0;
+			rae_w2 = false;
+			rae_b2 = true;
+			continue;
+		}
+
+		if(rae_w1)
+		{
+			stringstream ss(line);
+
+			for(int col = 0; col < weights1.cols(); col++)
+			{
+				ss >> weights1(row, col);
+			}
+		}
+		if(rae_w2)
+		{
+			stringstream ss(line);
+
+			for(int col = 0; col < weights2.cols(); col++)
+			{
+				ss >> weights2(row, col);
+			}
+		}
+		if(rae_b2)
+		{
+			stringstream ss(line);
+
+			for(int col = 0; col < weights_b2.cols(); col++)
+			{
+				ss >> weights_b2(row, col);
+			}
+		}
+		if(rae_b1)
+		{
+			stringstream ss(line);
+
+			for(int col = 0; col < weights_b1.cols(); col++)
+			{
+				ss >> weights_b1(row, col);
+			}
+		}
+
+		row++;
+	}
 }
 
 //构建RAE树
@@ -358,6 +462,9 @@ void RAE::trainRecError()
 
 		tmpNode = tmpNode->getLeftChildNode();
 	}
+
+	delWeight1 += ZETA*weights1;
+	delWeight2 += ZETA*weights2;
 }
 
 //读取训练数据
@@ -445,6 +552,7 @@ void RAE::training()
 
 	ret = lbfgs(getRAEWeightSize(), x, &fx, RAELBFGS::evaluate, RAELBFGS::progress, this, &param);
 
+	logWeights(para);
 	trainingData.clear();
 	lbfgs_free(x);
 }
@@ -552,8 +660,8 @@ int RAE::_progress(const lbfgsfloatval_t *x, const lbfgsfloatval_t *g, const lbf
 {
 	ofstream out("/log/RAE/RAE.log", ios::out);
 
-	out << "Iteration: " << k << endl;
-	out << "Loss Value: " << fx << endl;
+	cout << "Iteration of RAE: " << k << endl;
+	cout << "Loss Value: " << fx << endl;
 
 	out.close();
 

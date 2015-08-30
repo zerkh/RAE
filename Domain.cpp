@@ -205,10 +205,7 @@ lbfgsfloatval_t Domain::loss(int ind)
 	srcRM->getData(trainingData[ind].second["ct1"], trainingData[ind].second["ct2"]);
 	tgtRM->getData(trainingData[ind].second["et1"], trainingData[ind].second["et2"]);
 
-	for(int i = 0; i < 2; i++)
-	{
-		lossVal += GAMMA * pow(srcRM->outputLayer(0, i) - tgtRM->outputLayer(0, i), 2) / 2;
-	}
+	lossVal += GAMMA * (srcRM->outputLayer(0, 0)*tgtRM->outputLayer(0, 0) + srcRM->outputLayer(0, 1)*tgtRM->outputLayer(0, 1));
 
 	//cout << "Src softmax: [" << srcRM->softmaxLayer(0, 0) << " , " << srcRM->softmaxLayer(0, 1) << "]" << endl;	
 	//cout << "Tgt softmax: [" << tgtRM->softmaxLayer(0, 0) << " , " << tgtRM->softmaxLayer(0, 1) << "]" << endl; 	

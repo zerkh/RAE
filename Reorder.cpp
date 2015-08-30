@@ -4,9 +4,9 @@ ReorderModel::ReorderModel(Parameter* para, RAE* rae)
 {
 	vecSize = atoi(para->getPara("WordVecSize").c_str());
 
-	rae = this->rae->copy();
-	rae1 = NULL;
-	rae2 = NULL;
+	this->rae = rae->copy();
+	rae1 = rae->copy();
+	rae2 = rae->copy();
 
 	delWeight = MatrixLBFGS(2, vecSize*2);
 	delWeight_b = MatrixLBFGS(1, 2);
@@ -145,7 +145,7 @@ void ReorderModel::trainRM(MatrixLBFGS y, bool isSoftmax)
 		for(int row = 0; row < weights.rows(); row++)
 		{
 			lbfgsfloatval_t result;
-			result = (outputLayer(0, row) - y(0, row)) * (exp(outputLayer(0, 0)) * exp(outputLayer(0, 1)));
+			result = (2*y(0, row)-1) * (exp(outputLayer(0, 0)) * exp(outputLayer(0, 1)));
 
 			for(int col = 0; col < weights.cols(); col++)
 			{
