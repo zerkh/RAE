@@ -63,6 +63,7 @@ int main(int argc, char* argv[])
 		v_domains.push_back(domainName);
 	}
 
+	cout << "Start training RAES......" << endl << endl;
 	start = clock();
 	if(isTrain || isDev)
 	{

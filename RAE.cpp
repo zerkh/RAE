@@ -593,6 +593,7 @@ lbfgsfloatval_t RAE::_training(lbfgsfloatval_t* g)
 		update(g);
 
 		delete RAETree;
+		RAETree = NULL;
 	}
 
 	return error;
