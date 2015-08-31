@@ -251,7 +251,7 @@ void RAE::buildTree(string bp)
 		RAETree->merge(treeNodes[i+1], weights1, weights_b1, weights2, weights_b2);
 		v_recError.push_back(RAETree->getRoot()->getRecError());
 		delete RAETree->getRoot();
-		RAETree = NULL;
+		RAETree->root = NULL;
 	}
 
 	int minNode = 0;
@@ -323,6 +323,7 @@ void RAE::buildTree(string bp)
 			tmpTree->merge(treeNodes[pos1], weights1, weights_b1, weights2, weights_b2);
 			recError = tmpTree->getRoot()->getRecError();
 			delete tmpTree->getRoot();
+			tmpTree->root = NULL;
 
 			tmpTree = new Tree(RAETree->getRoot());
 			tmpTree->merge(treeNodes[pos2], weights1, weights_b1, weights2, weights_b2);
@@ -337,6 +338,7 @@ void RAE::buildTree(string bp)
 			}
 
 			delete tmpTree->getRoot();
+			tmpTree->root = NULL;
 		}
 
 		RAETree->merge(treeNodes[nodePos], weights1, weights_b1, weights2, weights_b2);
@@ -368,6 +370,7 @@ RAE* RAE::copy()
 RAE::~RAE()
 {
 	delete RAETree;
+	RAETree = NULL;
 	trainingData.clear();
 
 	weights1.resize(0, 0);
@@ -653,7 +656,10 @@ lbfgsfloatval_t RAE::_evaluate(const lbfgsfloatval_t* x, lbfgsfloatval_t* g, con
 	}
 
 	delete pt;
+	pt = NULL;
+
 	delete threadpara;
+	threadpara = NULL;
 
 	return fx;
 }

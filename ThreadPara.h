@@ -19,6 +19,7 @@ public:
 	~RAEThreadPara()
 	{
 		delete cRAE;
+		cRAE = NULL;
 		lbfgs_free(g);
 	}
 
