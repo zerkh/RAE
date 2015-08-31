@@ -372,15 +372,6 @@ RAE::~RAE()
 	delete RAETree;
 	RAETree = NULL;
 	trainingData.clear();
-
-	weights1.resize(0, 0);
-	weights2.resize(0, 0);
-	weights_b1.resize(0, 0);
-	weights_b2.resize(0, 0);
-	delWeight1.resize(0, 0);
-	delWeight1_b.resize(0, 0);
-	delWeight2.resize(0, 0);
-	delWeight2_b.resize(0, 0);
 }
 
 lbfgsfloatval_t RAE::decay()
@@ -616,7 +607,7 @@ lbfgsfloatval_t RAE::_evaluate(const lbfgsfloatval_t* x, lbfgsfloatval_t* g, con
 {
 	lbfgsfloatval_t fx = 0;
 
-	int RAEThreadNum = 20;
+	int RAEThreadNum = atoi(para->getPara("RAEThreadNum").c_str());
 	RAEThreadPara* threadpara = new RAEThreadPara[RAEThreadNum];
 	int batchsize = trainingData.size() / RAEThreadNum;
 	updateWeights(x);
@@ -658,7 +649,7 @@ lbfgsfloatval_t RAE::_evaluate(const lbfgsfloatval_t* x, lbfgsfloatval_t* g, con
 	delete pt;
 	pt = NULL;
 
-	delete threadpara;
+	delete[] threadpara;
 	threadpara = NULL;
 
 	return fx;
