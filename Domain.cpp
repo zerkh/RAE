@@ -1,10 +1,21 @@
 #include "Domain.h"
 
+static void* RAELBFGS::deepThread(void* arg)
+{
+	RAEThreadPara* threadpara = (RAEThreadPara*)arg;
+
+	threadpara->lossVal = threadpara->d->_training(threadpara->g);
+
+	pthread_exit(NULL);
+}
+
 Domain::Domain(Parameter* para, string domainName, RAE* srcRAE, RAE* tgtRAE)
 {
 	bool isDev = atoi(para->getPara("IsDev").c_str());
 	bool isTrain = atoi(para->getPara("IsTrain").c_str());
 	bool isTest = atoi(para->getPara("IsTest").c_str());
+
+	this->para = para;
 
 	if(isDev)
 	{
@@ -26,9 +37,6 @@ Domain::Domain(Parameter* para, string domainName, RAE* srcRAE, RAE* tgtRAE)
 
 	srcRM = new ReorderModel(para, srcRAE);
 	tgtRM = new ReorderModel(para, tgtRAE);
-
-	x = lbfgs_malloc(srcRM->getRMWeightSize() + tgtRM->getRMWeightSize());
-	Map<MatrixLBFGS>(x, srcRM->getRMWeightSize() + tgtRM->getRMWeightSize(), 1).setRandom();
 }
 
 int Domain::getWeightsSize()
@@ -100,6 +108,16 @@ void Domain::loadTrainingData()
 	in.close();
 }
 
+Domain* Domain::copy()
+{
+	Domain* d = new Domain(para, domainName, srcRM->rae, tgtRM->rae);
+
+	d->srcRM = srcRM->copy();
+	d->tgtRM = tgtRM->copy();
+
+	return d;
+}
+
 lbfgsfloatval_t Domain::_evaluate(const lbfgsfloatval_t* x,
 							lbfgsfloatval_t* g,
 							const int n,
@@ -110,12 +128,54 @@ lbfgsfloatval_t Domain::_evaluate(const lbfgsfloatval_t* x,
 	srcRM->updateWeights(x, 0);
 	tgtRM->updateWeights(x, srcRM->getRMWeightSize());
 
-	fx += _training(g);
+	int RMThreadNum = atoi(para->getPara("RMThreadNum").c_str());
+	RMThreadPara* threadpara = new RMThreadPara[RMThreadNum];
+	int batchsize = trainingData.size() / RMThreadNum;
 
-	for(int i = 0; i < getWeightsSize(); i++)
+	for(int i = 0; i < RMThreadNum; i++)
 	{
-		g[i] /= trainingData.size();
+		threadpara[i].d = this->copy();
+		threadpara[i].g = lbfgs_malloc(getWeightsSize());
+		if(i == RMThreadNum-1)
+		{
+			threadpara[i].d->trainingData.assign(trainingData.begin()+i*batchsize, trainingData.end());
+			threadpara[i].instance_num = trainingData.size()%batchsize;
+		}
+		else
+		{
+			threadpara[i].d->trainingData.assign(trainingData.begin()+i*batchsize, trainingData.begin()+(i+1)*batchsize);
+			threadpara[i].instance_num = batchsize;
+		}
 	}
+	pthread_t* pt = new pthread_t[RMThreadNum];
+	for (int a = 0; a < RMThreadNum; a++) pthread_create(&pt[a], NULL, RAELBFGS::deepThread, (void *)(threadpara + a));
+	for (int a = 0; a < RMThreadNum; a++) pthread_join(pt[a], NULL);
+
+	for(int i = 0; i < RMThreadNum; i++)
+	{
+		fx += threadpara[i].lossVal;
+		for(int elem = 0; elem < getWeightsSize(); elem++)
+		{
+			g[elem] += threadpara[i].g[elem];
+		}
+	}
+
+	fx /= trainingData.size();
+	for(int elem = 0; elem < getWeightsSize(); elem++)
+	{
+		g[elem] /= trainingData.size();
+	}
+
+	delete pt;
+	pt = NULL;
+
+	for(int i  = 0; i < RMThreadNum; i++)
+	{
+		lbfgs_free(threadpara[i].g);
+		delete threadpara[i].d;
+	}
+	delete[] threadpara;
+	threadpara = NULL;
 
 	return fx;
 }
@@ -184,6 +244,8 @@ void Domain::training()
 	lbfgs_parameter_t param;
 	lbfgs_parameter_init(&param);
 	param.max_iterations = iterTime;
+	x = lbfgs_malloc(srcRM->getRMWeightSize() + tgtRM->getRMWeightSize());
+	Map<MatrixLBFGS>(x, srcRM->getRMWeightSize() + tgtRM->getRMWeightSize(), 1).setRandom();
 
 	lbfgsfloatval_t fx = 0;
 	int ret = 0;

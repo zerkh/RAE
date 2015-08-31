@@ -3,6 +3,7 @@
 ReorderModel::ReorderModel(Parameter* para, RAE* rae)
 {
 	vecSize = atoi(para->getPara("WordVecSize").c_str());
+	this->para = para;
 
 	this->rae = rae->copy();
 	rae1 = rae->copy();
@@ -16,6 +17,16 @@ ReorderModel::ReorderModel(Parameter* para, RAE* rae)
 
 	outputLayer = MatrixLBFGS(1, 2);
 	softmaxLayer = MatrixLBFGS(1, 2);
+}
+
+ReorderModel* ReorderModel::copy()
+{
+	ReorderModel* rm = new ReorderModel(para, rae);
+
+	rm->weights = weights;
+	rm->weights_b = weights_b;
+
+	return rm;
 }
 
 void ReorderModel::updateWeights(const lbfgsfloatval_t* x, int base)

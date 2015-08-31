@@ -2,6 +2,7 @@
 #define THREADPARA
 #include "Util.h"
 #include "RAE.h"
+#include "Domain.h"
 
 class ThreadPara
 {
@@ -39,6 +40,42 @@ public:
 	RAEThreadPara& operator =(const RAEThreadPara& threadpara)
 	{
 		this->cRAE = threadpara.cRAE;
+		this->g = threadpara.g;
+		this->lossVal = threadpara.lossVal;
+		this->instance_num = threadpara.instance_num;
+
+		return *this;
+	}
+};
+
+class RMThreadPara:public ThreadPara
+{
+public:
+	Domain* d;
+
+	~RMThreadPara()
+	{
+		delete d;
+		d = NULL;
+		lbfgs_free(g);
+	}
+
+	RMThreadPara()
+	{
+		d = NULL;
+	}
+
+	RMThreadPara(const RMThreadPara& threadpara)
+	{
+		this->d = threadpara.d;
+		this->g = threadpara.g;
+		lossVal = threadpara.lossVal;
+		instance_num = threadpara.instance_num;
+	}
+
+	RMThreadPara& operator =(const RMThreadPara& threadpara)
+	{
+		this->d = threadpara.d;
 		this->g = threadpara.g;
 		this->lossVal = threadpara.lossVal;
 		this->instance_num = threadpara.instance_num;

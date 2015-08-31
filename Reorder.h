@@ -19,6 +19,8 @@ public:
 	RAE* rae2;
 	RAE* rae;
 
+	Parameter* para;
+
 	MatrixLBFGS weights;
 	MatrixLBFGS weights_b;
 	
@@ -35,6 +37,13 @@ public:
 	void trainRM(MatrixLBFGS y, bool isSoftmax);
 	ReorderModel(Parameter* para, RAE* rae);
 	void getData(string bp1, string bp2);
+	ReorderModel* copy();
+	~ReorderModel()
+	{
+		delete rae;
+		delete rae2;
+		delete rae1;
+	}
 };
 
 #endif

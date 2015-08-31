@@ -3,6 +3,7 @@
 
 #include "Reorder.h"
 #include "Util.h"
+#include "ThreadPara.h"
 
 class Domain
 {
@@ -15,6 +16,7 @@ public:
 	string domainName;
 	ofstream out, srcOut, tgtOut, srcWLog, tgtWLog;
 	lbfgsfloatval_t* x;
+	Parameter* para;
 
 public:
 	Domain(Parameter* para, string domainName, RAE* srcRAE, RAE* tgtRAE);
@@ -26,6 +28,7 @@ public:
 	void test();
 	void logWeights();
 	void loadTestingData();
+	Domain* copy();
 	void loadWeights();
 	lbfgsfloatval_t _training(lbfgsfloatval_t* g);
 	lbfgsfloatval_t _evaluate(const lbfgsfloatval_t* x,
@@ -71,6 +74,8 @@ namespace DomainLBFGS
 	{
 		return reinterpret_cast<Domain*>(instance)->_progress(x, g, fx, xnorm, gnorm, step, n, k, ls);
 	}
+
+	static void* deepThread(void* args);
 }
 
 #endif // !DOMAIN_H
