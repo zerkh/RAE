@@ -1,8 +1,9 @@
 #include "Domain.h"
+#include "ThreadPara.h"
 
-static void* RAELBFGS::deepThread(void* arg)
+static void* DomainLBFGS::deepThread(void* arg)
 {
-	RAEThreadPara* threadpara = (RAEThreadPara*)arg;
+	RMThreadPara* threadpara = (RMThreadPara*)arg;
 
 	threadpara->lossVal = threadpara->d->_training(threadpara->g);
 
@@ -148,7 +149,7 @@ lbfgsfloatval_t Domain::_evaluate(const lbfgsfloatval_t* x,
 		}
 	}
 	pthread_t* pt = new pthread_t[RMThreadNum];
-	for (int a = 0; a < RMThreadNum; a++) pthread_create(&pt[a], NULL, RAELBFGS::deepThread, (void *)(threadpara + a));
+	for (int a = 0; a < RMThreadNum; a++) pthread_create(&pt[a], NULL, DomainLBFGS::deepThread, (void *)(threadpara + a));
 	for (int a = 0; a < RMThreadNum; a++) pthread_join(pt[a], NULL);
 
 	for(int i = 0; i < RMThreadNum; i++)

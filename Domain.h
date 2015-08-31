@@ -3,7 +3,6 @@
 
 #include "Reorder.h"
 #include "Util.h"
-#include "ThreadPara.h"
 
 class Domain
 {
