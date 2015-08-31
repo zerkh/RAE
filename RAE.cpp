@@ -470,6 +470,7 @@ void RAE::trainRecError()
 //¶ÁÈ¡ÑµÁ·Êý¾Ý
 void RAE::loadTrainingData()
 {
+	trainingData.clear();
 	string dataFile;
 	string domainName;
 	string domainLine = para->getPara("DomainList");
@@ -611,7 +612,7 @@ lbfgsfloatval_t RAE::_evaluate(const lbfgsfloatval_t* x, lbfgsfloatval_t* g, con
 {
 	lbfgsfloatval_t fx = 0;
 
-	int RAEThreadNum = 10;
+	int RAEThreadNum = 20;
 	RAEThreadPara* threadpara = new RAEThreadPara[RAEThreadNum];
 	int batchsize = trainingData.size() / RAEThreadNum;
 	updateWeights(x);
@@ -658,7 +659,7 @@ lbfgsfloatval_t RAE::_evaluate(const lbfgsfloatval_t* x, lbfgsfloatval_t* g, con
 
 int RAE::_progress(const lbfgsfloatval_t *x, const lbfgsfloatval_t *g, const lbfgsfloatval_t fx, const lbfgsfloatval_t xnorm, const lbfgsfloatval_t gnorm, const lbfgsfloatval_t step, int n, int k, int ls)
 {
-	ofstream out("./log/RAE/RAE.log", ios::out);
+	ofstream out("./log/RAE/RAE.log", ios::app);
 
 	out << "Iteration of RAE: " << k << endl;
 	out << "Loss Value: " << fx << endl;

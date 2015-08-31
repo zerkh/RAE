@@ -121,7 +121,7 @@ inline vector<string> splitBySign(string line)
 
 inline void operator delete(void* p)
 {
-	if(!p)
+	if(p)
 	{
 		free(p);
 	}
