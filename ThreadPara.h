@@ -17,13 +17,6 @@ class RAEThreadPara:public ThreadPara
 public:
 	RAE* cRAE;
 
-	~RAEThreadPara()
-	{
-		delete cRAE;
-		cRAE = NULL;
-		lbfgs_free(g);
-	}
-
 	RAEThreadPara()
 	{
 		cRAE = NULL;
@@ -52,13 +45,6 @@ class RMThreadPara:public ThreadPara
 {
 public:
 	Domain* d;
-
-	~RMThreadPara()
-	{
-		delete d;
-		d = NULL;
-		lbfgs_free(g);
-	}
 
 	RMThreadPara()
 	{

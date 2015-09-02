@@ -648,13 +648,13 @@ lbfgsfloatval_t RAE::_evaluate(const lbfgsfloatval_t* x, lbfgsfloatval_t* g, con
 
 	delete pt;
 	pt = NULL;
-
+	
 	for(int i  = 0; i < RAEThreadNum; i++)
 	{
 		lbfgs_free(threadpara[i].g);
 		delete threadpara[i].cRAE;
 	}
-	delete[] threadpara;
+	delete threadpara;
 	threadpara = NULL;
 
 	return fx;

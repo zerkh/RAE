@@ -175,7 +175,7 @@ lbfgsfloatval_t Domain::_evaluate(const lbfgsfloatval_t* x,
 		lbfgs_free(threadpara[i].g);
 		delete threadpara[i].d;
 	}
-	delete[] threadpara;
+	delete threadpara;
 	threadpara = NULL;
 
 	return fx;
