@@ -16,6 +16,8 @@ void Tree::merge(Node* newNode, MatrixLBFGS w1, MatrixLBFGS b1, MatrixLBFGS w2, 
 
 	parent = tanh(parent);
 
+	parent /= parent.norm();
+
 	Node* pNode;
 	if(root->getSpan().second < newNode->getSpan().first)
 	{
@@ -33,6 +35,8 @@ void Tree::merge(Node* newNode, MatrixLBFGS w1, MatrixLBFGS b1, MatrixLBFGS w2, 
 	MatrixLBFGS rec = parent * w2.transpose() + b2;
 
 	rec = tanh(rec);
+
+	rec /= rec.norm();
 
 	pNode->leftReconst = MatrixLBFGS(rec.rows(), rec.cols()/2);
 
