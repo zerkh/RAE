@@ -243,14 +243,15 @@ void RAE::buildTree(string bp)
 		return;
 	}
 	
+	RAETree = new Tree();
 	//选取Erec最小的两个based节点
 	vector<lbfgsfloatval_t> v_recError;
 	for(int i = 0; i < treeNodes.size()-1; i++)
 	{
-		RAETree = new Tree(treeNodes[i]);
+		RAETree->root = treeNodes[i];
 		RAETree->merge(treeNodes[i+1], weights1, weights_b1, weights2, weights_b2);
 		v_recError.push_back(RAETree->getRoot()->getRecError());
-		delete RAETree->getRoot();
+		delete RAETree->root;
 		RAETree->root = NULL;
 	}
 
@@ -276,6 +277,7 @@ void RAE::buildTree(string bp)
 		return;
 	}
 
+	Tree* tmpTree = new Tree();
 	//添加新节点直到覆盖整个短语
 	while(treeNodes.size() != 1)
 	{
@@ -319,13 +321,13 @@ void RAE::buildTree(string bp)
 
 			lbfgsfloatval_t recError;
 
-			Tree* tmpTree = new Tree(RAETree->getRoot());
+			tmpTree->root = RAETree->getRoot();
 			tmpTree->merge(treeNodes[pos1], weights1, weights_b1, weights2, weights_b2);
 			recError = tmpTree->getRoot()->getRecError();
-			delete tmpTree->getRoot();
+			delete tmpTree->root;
 			tmpTree->root = NULL;
 
-			tmpTree = new Tree(RAETree->getRoot());
+			tmpTree->root = RAETree->getRoot();
 			tmpTree->merge(treeNodes[pos2], weights1, weights_b1, weights2, weights_b2);
 
 			if(tmpTree->getRoot()->getRecError() < recError)
@@ -344,7 +346,10 @@ void RAE::buildTree(string bp)
 		RAETree->merge(treeNodes[nodePos], weights1, weights_b1, weights2, weights_b2);
 		treeNodes.erase(treeNodes.begin()+nodePos);
 	}
+	delete tmpTree;
+	tmpTree = NULL;
 	RAETree->merge(treeNodes[0], weights1, weights_b1, weights2, weights_b2);
+	treeNodes.erase(treeNodes.begin());
 }
 
 int RAE::getVecSize()

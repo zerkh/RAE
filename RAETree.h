@@ -150,6 +150,11 @@ public:
 
 	Tree(Node* root);
 
+	Tree()
+	{
+		root = NULL;
+	};
+
 	~Tree()
 	{
 		Node* n1;
