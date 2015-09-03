@@ -71,12 +71,40 @@ public:
 
 	Node* getLeftChildNode()
 	{
-		return leftChild;
+		if(leftChild == NULL)
+		{
+			return leftChild;
+		}
+
+		if(leftChild->getNodeType() == COMBINED_NODE)
+		{
+			return leftChild;
+		}
+		else if(rightChild->getNodeType() == COMBINED_NODE)
+		{
+			return rightChild;
+		}
+		else
+		{
+			return leftChild;
+		}
 	}
 
 	Node* getRightChildNode()
 	{
-		return rightChild;
+		if(rightChild == NULL)
+		{
+			return rightChild;
+		}
+
+		if(rightChild->getNodeType() == BASED_NODE)
+		{
+			return rightChild;
+		}
+		else if(leftChild->getNodeType() == BASED_NODE)
+		{
+			return leftChild;
+		}
 	}
 
 	MatrixLBFGS getVector()

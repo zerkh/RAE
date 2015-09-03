@@ -12,22 +12,24 @@ Tree::Tree(Node* root)
 
 void Tree::merge(Node* newNode, MatrixLBFGS w1, MatrixLBFGS b1, MatrixLBFGS w2, MatrixLBFGS b2)
 {
-	MatrixLBFGS parent = concatMatrix(root->getVector(),newNode->getVector()) * w1.transpose() + b1;
+	MatrixLBFGS parent;
 
-	parent = tanh(parent);
-
-	parent /= parent.norm();
+	//parent /= parent.norm();
 
 	Node* pNode;
 	if(root->getSpan().second < newNode->getSpan().first)
 	{
+		parent = concatMatrix(root->getVector(),newNode->getVector()) * w1.transpose() + b1;
+		parent = tanh(parent);
 		pNode = new Node(COMBINED_NODE, root->getSpan().first, newNode->getSpan().second, root->getWord() + " " +newNode->getWord(), parent, NULL, root, newNode);
 		root->setParentNode(pNode);
 		newNode->setParentNode(pNode);
 	}
 	else
 	{
-		pNode = new Node(COMBINED_NODE, newNode->getSpan().first, root->getSpan().second, newNode->getWord() + " " +root->getWord(), parent, NULL, root, newNode);
+		parent = concatMatrix(newNode->getVector(), root->getVector()) * w1.transpose() + b1;
+		parent = tanh(parent);
+		pNode = new Node(COMBINED_NODE, newNode->getSpan().first, root->getSpan().second, newNode->getWord() + " " +root->getWord(), parent, NULL, newNode, root);
 		root->setParentNode(pNode);
 		newNode->setParentNode(pNode);
 	}
@@ -36,7 +38,7 @@ void Tree::merge(Node* newNode, MatrixLBFGS w1, MatrixLBFGS b1, MatrixLBFGS w2, 
 
 	rec = tanh(rec);
 
-	rec /= rec.norm();
+	//rec /= rec.norm();
 
 	pNode->leftReconst = MatrixLBFGS(rec.rows(), rec.cols()/2);
 
