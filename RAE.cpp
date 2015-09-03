@@ -254,6 +254,8 @@ void RAE::buildTree(string bp)
 		delete RAETree->root;
 		RAETree->root = NULL;
 	}
+	delete RAETree;
+	RAETree = NULL;
 
 	int minNode = 0;
 	lbfgsfloatval_t minRecError = v_recError[0];
