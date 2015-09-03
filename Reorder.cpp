@@ -161,10 +161,10 @@ void ReorderModel::trainRM(MatrixLBFGS y, bool isSoftmax)
 			for(int col = 0; col < weights.cols(); col++)
 			{
 				MatrixLBFGS tmpX = concatMatrix(rae1->RAETree->getRoot()->getVector(),rae2->RAETree->getRoot()->getVector());
-				delWeight(row, col) = delWeight(row, col) + p * result * tmpX(0, col);
+				delWeight(row, col) = delWeight(row, col) - p * result * tmpX(0, col);
 			}
 
-			delWeight_b(0, row) = delWeight_b(0, row) + p * result;
+			delWeight_b(0, row) = delWeight_b(0, row) - p * result;
 				
 					
 			theta(0, row) = result;
