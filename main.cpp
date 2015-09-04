@@ -73,14 +73,14 @@ int main(int argc, char* argv[])
 	end = clock();
 	cout << "The time of training RAEs is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
 
-	start = clock();
 	if(isTest)
 	{
+		start = clock();
 		srcRAE->loadWeights(para);
 		tgtRAE->loadWeights(para);
+		end = clock();
+		cout << "The time of RAEs' weights is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
 	}
-	end = clock();
-	cout << "The time of RAEs' weights is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
 
 	//初始化
 	worker_arg_t *wargs = new worker_arg_t[thread_num];

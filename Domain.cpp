@@ -352,6 +352,10 @@ void Domain::loadWeights()
 			rae_b2 = true;
 			continue;
 		}
+		if(line.find("RAE") == 0 || line.find("RM") == 0)
+		{
+			continue;
+		}
 
 		if(rm_w)
 		{
@@ -456,6 +460,10 @@ void Domain::loadWeights()
 			row = 0;
 			rae_w2 = false;
 			rae_b2 = true;
+			continue;
+		}
+		if(line.find("RAE") == 0 || line.find("RM") == 0)
+		{
 			continue;
 		}
 
