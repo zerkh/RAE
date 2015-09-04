@@ -21,6 +21,11 @@ RAE::RAE(Parameter* para, WordVec* words, int RAEType)
 	this->RAEType = RAEType;
 	this->para = para;
 
+	weights1 = MatrixLBFGS(vecSize, 2*vecSize);
+	weights_b1 = MatrixLBFGS(1, vecSize);
+	weights2 = MatrixLBFGS(2*vecSize, vecSize);
+	weights_b2 = MatrixLBFGS(1, 2*vecSize);
+
 	delWeight1 = MatrixLBFGS(vecSize, 2*vecSize);
 	delWeight1_b = MatrixLBFGS(1, vecSize);
 	delWeight2 = MatrixLBFGS(2*vecSize, vecSize);

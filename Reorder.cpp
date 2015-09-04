@@ -9,6 +9,9 @@ ReorderModel::ReorderModel(Parameter* para, RAE* rae)
 	rae1 = rae->copy();
 	rae2 = rae->copy();
 
+	weights = MatrixLBFGS(2, vecSize*2);
+	weights_b = MatrixLBFGS(1, 2);
+
 	delWeight = MatrixLBFGS(2, vecSize*2);
 	delWeight_b = MatrixLBFGS(1, 2);
 
