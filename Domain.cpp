@@ -297,8 +297,8 @@ lbfgsfloatval_t Domain::loss(int ind)
 
 void Domain::loadWeights()
 {
-	ifstream src(string("src"+domainName+"Weights.log").c_str(), ios::in);
-	ifstream tgt(string("tgt"+domainName+"Weights.log").c_str(), ios::in);
+	ifstream src(string("./log/"+ domainName + "/" + "src"+domainName+"Weights.log").c_str(), ios::in);
+	ifstream tgt(string("./log/"+ domainName + "/" + "tgt"+domainName+"Weights.log").c_str(), ios::in);
 
 	bool rae_w1 = false;
 	bool rae_b1 = false;
