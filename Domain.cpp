@@ -27,9 +27,6 @@ Domain::Domain(Parameter* para, string domainName, RAE* srcRAE, RAE* tgtRAE)
 
 	srcRM = new ReorderModel(para, srcRAE);
 	tgtRM = new ReorderModel(para, tgtRAE);
-
-	x = lbfgs_malloc(srcRM->getRMWeightSize() + tgtRM->getRMWeightSize() + srcRM->rae->getRAEWeightSize() + tgtRM->rae->getRAEWeightSize());
-	Map<MatrixLBFGS>(x, srcRM->getRMWeightSize() + tgtRM->getRMWeightSize() + srcRM->rae->getRAEWeightSize() + tgtRM->rae->getRAEWeightSize(), 1).setRandom();
 }
 
 Domain* Domain::copy()

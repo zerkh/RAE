@@ -37,7 +37,8 @@ public:
 	}
 };
 
-void copyDelweights(RAE* rae1, RAE* rae2)
+
+static void copyDelweights(RAE* rae1, RAE* rae2)
 {
 	rae1->delWeight1 += rae2->delWeight1;
 	rae1->delWeight1_b += rae2->delWeight1_b;
