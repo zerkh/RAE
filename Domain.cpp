@@ -9,6 +9,8 @@ Domain::Domain(Parameter* para, string domainName, RAE* srcRAE, RAE* tgtRAE)
 	this->srcRAE = srcRAE;
 	this->tgtRAE = tgtRAE;
 
+	this->para = para;
+
 	if(isDev)
 	{
 		dataFile = para->getPara(domainName + "DevTrainFile");

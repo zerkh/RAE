@@ -21,7 +21,7 @@ typedef Matrix<lbfgsfloatval_t, Eigen::Dynamic, Eigen::Dynamic> MatrixLBFGS;
 typedef Matrix<lbfgsfloatval_t, 1, Eigen::Dynamic> VectorLBFGS;
 
 //Erec
-static lbfgsfloatval_t ALPHA = 5 * pow(10, -2);
+static lbfgsfloatval_t ALPHA = 1 * pow(10, -2);
 //Ereo
 static lbfgsfloatval_t BETA = 8 * pow(10, -2);
 //Edis

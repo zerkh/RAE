@@ -166,9 +166,14 @@ void train(worker_arg_t* arg)
 			threadpara[i].instance_num = batchsize;
 		}
 	}
+
+	cout << "Start training......" << endl << endl;
+	start = clock();
 	pthread_t* pt = new pthread_t[RMThreadNum];
 	for (int a = 0; a < RMThreadNum; a++) pthread_create(&pt[a], NULL, deepThread, (void *)(threadpara + a));
 	for (int a = 0; a < RMThreadNum; a++) pthread_join(pt[a], NULL);
+	end = clock();
+	cout << "The time of training is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
 
 	lbfgsfloatval_t fx = 0;
 	for(int i = 0; i < RMThreadNum; i++)
