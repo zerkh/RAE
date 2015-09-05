@@ -90,8 +90,6 @@ int main(int argc, char* argv[])
 			mixedDomains.training();
 			ALPHA *= 2;
 			mixedDomains.testing();
-
-			
 		}
 	}
 	else if(isTest)
