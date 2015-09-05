@@ -15,6 +15,9 @@ public:
 	int m_id;
 	Domain* domain;
 	string domainName;
+	lbfgsfloatval_t* g_RAE;
+	lbfgsfloatval_t* g_RM;
+	lbfgsfloatval_t error;
 };
 
 typedef void(*worker_t)(worker_arg_t*);

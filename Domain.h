@@ -9,19 +9,20 @@ class Domain
 public:
 	ReorderModel* srcRM;
 	ReorderModel* tgtRM;
+	RAE* srcRAE;
+	RAE* tgtRAE;
 	vector<pair<int, map<string, string> > > trainingData;
 	string dataFile;
 	int iterTime;
 	string domainName;
 	ofstream out, srcOut, tgtOut, srcWLog, tgtWLog;
-	lbfgsfloatval_t* x;
 	Parameter* para;
 
 public:
 	Domain(Parameter* para, string domainName, RAE* srcRAE, RAE* tgtRAE);
 	void loadTrainingData();
-	void training();
-	void upData(lbfgsfloatval_t* g);
+	lbfgsfloatval_t training(lbfgsfloatval_t* g_RM, lbfgsfloatval_t* g_RAE);
+	void update(lbfgsfloatval_t* g_RM, lbfgsfloatval_t* g_RAE);
 	int getWeightsSize();
 	lbfgsfloatval_t loss(int ind);
 	void test();
@@ -29,52 +30,19 @@ public:
 	void loadTestingData();
 	Domain* copy();
 	void loadWeights();
-	lbfgsfloatval_t _training(lbfgsfloatval_t* g);
-	lbfgsfloatval_t _evaluate(const lbfgsfloatval_t* x,
-		lbfgsfloatval_t* g,
-		const int n,
-		const lbfgsfloatval_t step);
-	int _progress(const lbfgsfloatval_t *x,
-		const lbfgsfloatval_t *g,
-		const lbfgsfloatval_t fx,
-		const lbfgsfloatval_t xnorm,
-		const lbfgsfloatval_t gnorm,
-		const lbfgsfloatval_t step,
-		int n,
-		int k,
-		int ls);
+	~Domain()
+	{
+		delete srcRM;
+		delete tgtRM;
+	}
 };
 
-namespace DomainLBFGS
+void copyDelweights(RAE* rae1, RAE* rae2)
 {
-	static lbfgsfloatval_t evaluate(
-		void *instance,
-		const lbfgsfloatval_t *x,
-		lbfgsfloatval_t *g,
-		const int n,
-		const lbfgsfloatval_t step
-		)
-	{
-		return reinterpret_cast<Domain*>(instance)->_evaluate(x, g, n, step);
-	}
-
-	static int progress(
-		void *instance,
-		const lbfgsfloatval_t *x,
-		const lbfgsfloatval_t *g,
-		const lbfgsfloatval_t fx,
-		const lbfgsfloatval_t xnorm,
-		const lbfgsfloatval_t gnorm,
-		const lbfgsfloatval_t step,
-		int n,
-		int k,
-		int ls
-		)
-	{
-		return reinterpret_cast<Domain*>(instance)->_progress(x, g, fx, xnorm, gnorm, step, n, k, ls);
-	}
-
-	static void* deepThread(void* args);
+	rae1->delWeight1 += rae2->delWeight1;
+	rae1->delWeight1_b += rae2->delWeight1_b;
+	rae1->delWeight2 += rae2->delWeight2;
+	rae1->delWeight2_b += rae2->delWeight2_b;
 }
 
 #endif // !DOMAIN_H

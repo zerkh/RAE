@@ -1,14 +1,4 @@
 #include "Domain.h"
-#include "ThreadPara.h"
-
-static void* DomainLBFGS::deepThread(void* arg)
-{
-	RMThreadPara* threadpara = (RMThreadPara*)arg;
-
-	threadpara->lossVal = threadpara->d->_training(threadpara->g);
-
-	pthread_exit(NULL);
-}
 
 Domain::Domain(Parameter* para, string domainName, RAE* srcRAE, RAE* tgtRAE)
 {
@@ -16,11 +6,12 @@ Domain::Domain(Parameter* para, string domainName, RAE* srcRAE, RAE* tgtRAE)
 	bool isTrain = atoi(para->getPara("IsTrain").c_str());
 	bool isTest = atoi(para->getPara("IsTest").c_str());
 
-	this->para = para;
+	this->srcRAE = srcRAE;
+	this->tgtRAE = tgtRAE;
 
 	if(isDev)
 	{
-		dataFile = para->getPara(domainName + "DevDataFile");
+		dataFile = para->getPara(domainName + "DevTrainFile");
 	}
 	else if(isTrain)
 	{
@@ -31,13 +22,24 @@ Domain::Domain(Parameter* para, string domainName, RAE* srcRAE, RAE* tgtRAE)
 		dataFile = para->getPara(domainName + "TestDataFile");
 	}
 
-	iterTime = atoi(para->getPara("IterationTime").c_str());
-
 	this->domainName = domainName;
 	out.open(string("./log/"+ domainName + "/" + domainName+".log").c_str(), ios::out);
 
 	srcRM = new ReorderModel(para, srcRAE);
 	tgtRM = new ReorderModel(para, tgtRAE);
+
+	x = lbfgs_malloc(srcRM->getRMWeightSize() + tgtRM->getRMWeightSize() + srcRM->rae->getRAEWeightSize() + tgtRM->rae->getRAEWeightSize());
+	Map<MatrixLBFGS>(x, srcRM->getRMWeightSize() + tgtRM->getRMWeightSize() + srcRM->rae->getRAEWeightSize() + tgtRM->rae->getRAEWeightSize(), 1).setRandom();
+}
+
+Domain* Domain::copy()
+{
+	Domain* d = new Domain(para, domainName, srcRM->rae, tgtRM->rae);
+
+	d->srcRM = srcRM->copy();
+	d->tgtRM = tgtRM->copy();
+
+	return d;
 }
 
 int Domain::getWeightsSize()
@@ -45,20 +47,47 @@ int Domain::getWeightsSize()
 	return (srcRM->getRMWeightSize()*2);
 }
 
-void Domain::upData(lbfgsfloatval_t* g)
+void Domain::update(lbfgsfloatval_t* g_RM, lbfgsfloatval_t* g_RAE)
 {
-	Map<MatrixLBFGS> g_srcWeights(g, srcRM->weights.rows(), srcRM->weights.cols());
-	Map<MatrixLBFGS> g_srcWeights_b(g+srcRM->weights.rows()*srcRM->weights.cols(), srcRM->weights_b.rows(), srcRM->weights_b.cols());
+	Map<MatrixLBFGS> g_srcWeights(g_RM, srcRM->weights.rows(), srcRM->weights.cols());
+	Map<MatrixLBFGS> g_srcWeights_b(g_RM + srcRM->weights.rows()*srcRM->weights.cols(), srcRM->weights_b.rows(), srcRM->weights_b.cols());
+	Map<MatrixLBFGS> g_srcRAEWeights1(g_RAE, srcRM->rae->weights1.rows(), srcRM->rae->weights1.cols());
+	Map<MatrixLBFGS> g_srcRAEWeights_b1(g_RAE + srcRAE->weights1.rows()*srcRAE->weights1.cols(), srcRAE->weights_b1.rows(), srcRAE->weights_b1.cols());
+	Map<MatrixLBFGS> g_srcRAEWeights2(g_RAE + srcRAE->weights1.rows()*srcRAE->weights1.cols()+
+		srcRAE->weights_b1.rows()*srcRAE->weights_b1.cols(),
+		srcRAE->weights2.rows(), srcRAE->weights2.cols());
+	Map<MatrixLBFGS> g_srcRAEWeights_b2(g_RAE + srcRAE->weights1.rows()*srcRAE->weights1.cols()+
+		srcRAE->weights_b1.rows()*srcRAE->weights_b1.cols()+
+		srcRAE->weights2.rows()*srcRAE->weights2.cols(),
+		srcRAE->weights_b2.rows(), srcRAE->weights_b2.cols());
 
-	int base = srcRM->getRMWeightSize();
-	Map<MatrixLBFGS> g_tgtWeights(g+base, srcRM->weights.rows(), srcRM->weights.cols());
-	Map<MatrixLBFGS> g_tgtWeights_b(g+base+srcRM->weights.rows()*srcRM->weights.cols(), srcRM->weights_b.rows(), srcRM->weights_b.cols());
+	int base_RM = srcRM->getRMWeightSize();
+	int base_RAE = srcRAE->getRAEWeightSize();
+	Map<MatrixLBFGS> g_tgtWeights(g_RM + base_RM, srcRM->weights.rows(), srcRM->weights.cols());
+	Map<MatrixLBFGS> g_tgtWeights_b(g_RM + base_RM + srcRM->weights.rows()*srcRM->weights.cols(), srcRM->weights_b.rows(), srcRM->weights_b.cols());
+	Map<MatrixLBFGS> g_tgtRAEWeights1(g_RAE + base_RAE, srcRAE->weights1.rows(), srcRAE->weights1.cols());
+	Map<MatrixLBFGS> g_tgtRAEWeights_b1(g_RAE + base_RAE + srcRAE->weights1.rows()*srcRAE->weights1.cols(), srcRAE->weights_b1.rows(), srcRAE->weights_b1.cols());
+	Map<MatrixLBFGS> g_tgtRAEWeights2(g_RAE + base_RM + srcRAE->weights1.rows()*srcRAE->weights1.cols()+
+		srcRAE->weights_b1.rows()*srcRAE->weights_b1.cols(),
+		srcRAE->weights2.rows(), srcRAE->weights2.cols());
+	Map<MatrixLBFGS> g_tgtRAEWeights_b2(g_RAE + base_RAE + srcRAE->weights1.rows()*srcRAE->weights1.cols()+
+		srcRAE->weights_b1.rows()*srcRAE->weights_b1.cols()+
+		srcRAE->weights2.rows()*srcRAE->weights2.cols(),
+		srcRAE->weights_b2.rows(), srcRAE->weights_b2.cols());
 
 	g_srcWeights += srcRM->delWeight;
 	g_srcWeights_b += srcRM->delWeight_b;
+	g_srcRAEWeights1 += srcRAE->delWeight1;
+	g_srcRAEWeights_b1 += srcRAE->delWeight1_b;
+	g_srcRAEWeights2 += srcRAE->delWeight2;
+	g_srcRAEWeights_b2 += srcRAE->delWeight2_b;
 
 	g_tgtWeights += tgtRM->delWeight;
 	g_tgtWeights_b += tgtRM->delWeight_b;
+	g_tgtRAEWeights1 += tgtRAE->delWeight1;
+	g_tgtRAEWeights_b1 += tgtRAE->delWeight1_b;
+	g_tgtRAEWeights2 += tgtRAE->delWeight2;
+	g_tgtRAEWeights_b2 += tgtRAE->delWeight2_b;
 
 	srcRM->delWeight.setZero();
 	srcRM->delWeight_b.setZero();
@@ -81,6 +110,7 @@ void Domain::upData(lbfgsfloatval_t* g)
 void Domain::loadTrainingData()
 {
 	ifstream in(dataFile.c_str(), ios::in);
+	trainingData.clear();
 
 	string line;
 	while(getline(in, line))
@@ -109,95 +139,7 @@ void Domain::loadTrainingData()
 	in.close();
 }
 
-Domain* Domain::copy()
-{
-	Domain* d = new Domain(para, domainName, srcRM->rae, tgtRM->rae);
-
-	d->srcRM = srcRM->copy();
-	d->tgtRM = tgtRM->copy();
-
-	return d;
-}
-
-lbfgsfloatval_t Domain::_evaluate(const lbfgsfloatval_t* x,
-							lbfgsfloatval_t* g,
-							const int n,
-							const lbfgsfloatval_t step)
-{
-	lbfgsfloatval_t fx = 0;
-
-	srcRM->updateWeights(x, 0);
-	tgtRM->updateWeights(x, srcRM->getRMWeightSize());
-
-	int RMThreadNum = atoi(para->getPara("RMThreadNum").c_str());
-	RMThreadPara* threadpara = new RMThreadPara[RMThreadNum];
-	int batchsize = trainingData.size() / RMThreadNum;
-
-	for(int i = 0; i < RMThreadNum; i++)
-	{
-		threadpara[i].d = this->copy();
-		threadpara[i].g = lbfgs_malloc(getWeightsSize());
-		if(i == RMThreadNum-1)
-		{
-			threadpara[i].d->trainingData.assign(trainingData.begin()+i*batchsize, trainingData.end());
-			threadpara[i].instance_num = trainingData.size()%batchsize;
-		}
-		else
-		{
-			threadpara[i].d->trainingData.assign(trainingData.begin()+i*batchsize, trainingData.begin()+(i+1)*batchsize);
-			threadpara[i].instance_num = batchsize;
-		}
-	}
-	pthread_t* pt = new pthread_t[RMThreadNum];
-	for (int a = 0; a < RMThreadNum; a++) pthread_create(&pt[a], NULL, DomainLBFGS::deepThread, (void *)(threadpara + a));
-	for (int a = 0; a < RMThreadNum; a++) pthread_join(pt[a], NULL);
-
-	for(int i = 0; i < RMThreadNum; i++)
-	{
-		fx += threadpara[i].lossVal;
-		for(int elem = 0; elem < getWeightsSize(); elem++)
-		{
-			g[elem] += threadpara[i].g[elem];
-		}
-	}
-
-	fx /= trainingData.size();
-	for(int elem = 0; elem < getWeightsSize(); elem++)
-	{
-		g[elem] /= trainingData.size();
-	}
-
-	delete pt;
-	pt = NULL;
-
-	for(int i  = 0; i < RMThreadNum; i++)
-	{
-		lbfgs_free(threadpara[i].g);
-		delete threadpara[i].d;
-	}
-	delete threadpara;
-	threadpara = NULL;
-
-	return fx;
-}
-
-int Domain::_progress(const lbfgsfloatval_t *x,
-					const lbfgsfloatval_t *g,
-					const lbfgsfloatval_t fx,
-					const lbfgsfloatval_t xnorm,
-					const lbfgsfloatval_t gnorm,
-					const lbfgsfloatval_t step,
-					int n,
-					int k,
-					int ls)
-{
-	out << "Iteration: " << k << endl;
-	out << "Loss Value: " << fx << endl;
-
-	return 0;
-}
-
-lbfgsfloatval_t Domain::_training(lbfgsfloatval_t* g)
+lbfgsfloatval_t Domain::training(lbfgsfloatval_t* g_RM, lbfgsfloatval_t* g_RAE)
 {
 	lbfgsfloatval_t error = 0;
 
@@ -208,6 +150,12 @@ lbfgsfloatval_t Domain::_training(lbfgsfloatval_t* g)
 		//获取实例
 		srcRM->getData(trainingData[i].second["ct1"], trainingData[i].second["ct2"]);
 		tgtRM->getData(trainingData[i].second["et1"], trainingData[i].second["et2"]);
+
+		//对rae求导
+		srcRM->rae1->trainRecError();
+		srcRM->rae2->trainRecError();
+		tgtRM->rae1->trainRecError();
+		tgtRM->rae2->trainRecError();
 
 		//对调序模型求导(Edis)
 		srcRM->trainRM(tgtRM->outputLayer, true);
@@ -234,30 +182,14 @@ lbfgsfloatval_t Domain::_training(lbfgsfloatval_t* g)
 			tgtRM->trainRM(invert, false);
 		}
 
-		upData(g);
+		copyDelweights(srcRAE, srcRM->rae1);
+		copyDelweights(srcRAE, srcRM->rae2);
+		copyDelweights(tgtRAE, tgtRM->rae1);
+		copyDelweights(tgtRAE, tgtRM->rae2);
+		update(g_RM, g_RAE);
 	}
 
 	return error/trainingData.size();
-}
-
-void Domain::training()
-{
-	lbfgs_parameter_t param;
-	lbfgs_parameter_init(&param);
-	param.max_iterations = iterTime;
-	x = lbfgs_malloc(srcRM->getRMWeightSize() + tgtRM->getRMWeightSize());
-	Map<MatrixLBFGS>(x, srcRM->getRMWeightSize() + tgtRM->getRMWeightSize(), 1).setRandom();
-
-	lbfgsfloatval_t fx = 0;
-	int ret = 0;
-	ret = lbfgs(getWeightsSize(), x, &fx, DomainLBFGS::evaluate, DomainLBFGS::progress, this, &param);
-
-	cout << "L-BFGS optimization terminated with status code = " << ret << endl;
-	cout << " fx = " << fx << endl;
-
-	//记录权重
-	logWeights();
-	lbfgs_free(x);
 }
 
 //获取单领域的loss value
@@ -267,6 +199,11 @@ lbfgsfloatval_t Domain::loss(int ind)
 
 	srcRM->getData(trainingData[ind].second["ct1"], trainingData[ind].second["ct2"]);
 	tgtRM->getData(trainingData[ind].second["et1"], trainingData[ind].second["et2"]);
+
+	lossVal += ALPHA * srcRM->rae1->loss();
+	lossVal += ALPHA * srcRM->rae2->loss();
+	lossVal += ALPHA * tgtRM->rae1->loss();
+	lossVal += ALPHA * tgtRM->rae2->loss();
 
 	lossVal += GAMMA * (srcRM->outputLayer(0, 0)*tgtRM->outputLayer(0, 0) + srcRM->outputLayer(0, 1)*tgtRM->outputLayer(0, 1));
 
@@ -531,6 +468,12 @@ void Domain::loadWeights()
 
 void Domain::loadTestingData()
 {
+	bool isDev = atoi(para->getPara("IsDev").c_str());
+	if(isDev)
+	{
+		dataFile = para->getPara(domainName + "DevTestFile");
+	}
+
 	ifstream in(dataFile.c_str(), ios::in);
 
 	trainingData.clear();

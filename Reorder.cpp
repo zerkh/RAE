@@ -32,12 +32,12 @@ ReorderModel* ReorderModel::copy()
 	return rm;
 }
 
-void ReorderModel::updateWeights(const lbfgsfloatval_t* x, int base)
+void ReorderModel::updateWeights(const lbfgsfloatval_t* x)
 {
 	lbfgsfloatval_t* cX = const_cast<lbfgsfloatval_t*>(x);
 
-	weights = Map<MatrixLBFGS>(cX+base, 2, vecSize*2);
-	weights_b = Map<MatrixLBFGS>(cX+base+2*2*vecSize, 1,2);
+	weights = Map<MatrixLBFGS>(cX, 2, vecSize*2);
+	weights_b = Map<MatrixLBFGS>(cX + 2*2*vecSize, 1,2);
 
 	if(rae1)
 	{
@@ -200,7 +200,7 @@ void ReorderModel::trainRM(MatrixLBFGS y, bool isSoftmax)
 	}
 
 
-	/*//对W1和Wb1求导
+	//对W1和Wb1求导
 	Node* preNode1 = rae1->RAETree->getRoot();
 	Node* preNode2 = rae2->RAETree->getRoot();
 
@@ -287,5 +287,5 @@ void ReorderModel::trainRM(MatrixLBFGS y, bool isSoftmax)
 
 		theta2 = tmpTheta;
 		preNode2 = preNode2->getLeftChildNode();
-	}*/
+	}
 }

@@ -1,15 +1,6 @@
 #include "RAE.h"
 #include "ThreadPara.h"
 
-static void* RAELBFGS::deepThread(void* arg)
-{
-	RAEThreadPara* threadpara = (RAEThreadPara*)arg;
-
-	threadpara->lossVal = threadpara->cRAE->_training(threadpara->g);
-
-	pthread_exit(NULL);
-}
-
 RAE::RAE(Parameter* para, WordVec* words, int RAEType)
 {
 	vecSize = atoi(para->getPara("WordVecSize").c_str());
@@ -543,27 +534,6 @@ void RAE::loadTrainingData()
 	}
 }
 
-void RAE::training()
-{
-	x = lbfgs_malloc(getRAEWeightSize());
-	Map<MatrixLBFGS>(x, getRAEWeightSize(), 1).setRandom();
-	lbfgs_parameter_t param;
-	iterTimes = atoi(para->getPara("IterationTime").c_str());
-
-	loadTrainingData();
-	lbfgs_parameter_init(&param);
-	param.max_iterations = iterTimes;
-
-	lbfgsfloatval_t fx = 0;
-	int ret;
-
-	ret = lbfgs(getRAEWeightSize(), x, &fx, RAELBFGS::evaluate, RAELBFGS::progress, this, &param);
-
-	logWeights(para);
-	trainingData.clear();
-	lbfgs_free(x);
-}
-
 void RAE::update(lbfgsfloatval_t* g)
 {
 	Map<MatrixLBFGS> g_Weights1(g, weights1.rows(), weights1.cols());
@@ -582,29 +552,6 @@ void RAE::update(lbfgsfloatval_t* g)
 	g_Weights_b2 += delWeight2_b;
 }
 
-lbfgsfloatval_t RAE::_training(lbfgsfloatval_t* g)
-{
-	lbfgsfloatval_t error = 0;
-
-	for(int i = 0; i < trainingData.size(); i++)
-	{
-		//获取实例
-		buildTree(trainingData[i]);	
-
-		error += loss();
-		
-		//对rae求导
-		trainRecError();
-
-		update(g);
-
-		delete RAETree;
-		RAETree = NULL;
-	}
-
-	return error;
-}
-
 void RAE::updateWeights(const lbfgsfloatval_t* x)
 {
 	lbfgsfloatval_t* cX = const_cast<lbfgsfloatval_t*>(x);
@@ -613,73 +560,9 @@ void RAE::updateWeights(const lbfgsfloatval_t* x)
 	weights_b1 = Map<MatrixLBFGS>(cX + 2*vecSize*vecSize, 1, vecSize);
 	weights2 = Map<MatrixLBFGS>(cX + 2*vecSize*vecSize+vecSize, 2*vecSize, vecSize);
 	weights_b2 = Map<MatrixLBFGS>(cX + 2*vecSize*vecSize+vecSize+2*vecSize*vecSize, 1, 2*vecSize);
-}
 
-lbfgsfloatval_t RAE::_evaluate(const lbfgsfloatval_t* x, lbfgsfloatval_t* g, const int n, const lbfgsfloatval_t step)
-{
-	lbfgsfloatval_t fx = 0;
-
-	int RAEThreadNum = atoi(para->getPara("RAEThreadNum").c_str());
-	RAEThreadPara* threadpara = new RAEThreadPara[RAEThreadNum];
-	int batchsize = trainingData.size() / RAEThreadNum;
-	updateWeights(x);
-
-	for(int i = 0; i < RAEThreadNum; i++)
-	{
-		threadpara[i].cRAE = this->copy();
-		threadpara[i].g = lbfgs_malloc(getRAEWeightSize());
-		if(i == RAEThreadNum-1)
-		{
-			threadpara[i].cRAE->trainingData.assign(trainingData.begin()+i*batchsize, trainingData.end());
-			threadpara[i].instance_num = trainingData.size()%batchsize;
-		}
-		else
-		{
-			threadpara[i].cRAE->trainingData.assign(trainingData.begin()+i*batchsize, trainingData.begin()+(i+1)*batchsize);
-			threadpara[i].instance_num = batchsize;
-		}
-	}
-	pthread_t* pt = new pthread_t[RAEThreadNum];
-	for (int a = 0; a < RAEThreadNum; a++) pthread_create(&pt[a], NULL, RAELBFGS::deepThread, (void *)(threadpara + a));
-	for (int a = 0; a < RAEThreadNum; a++) pthread_join(pt[a], NULL);
-
-	for(int i = 0; i < RAEThreadNum; i++)
-	{
-		fx += threadpara[i].lossVal;
-		for(int elem = 0; elem < getRAEWeightSize(); elem++)
-		{
-			g[elem] += threadpara[i].g[elem];
-		}
-	}
-
-	fx /= trainingData.size();
-	for(int elem = 0; elem < getRAEWeightSize(); elem++)
-	{
-		g[elem] /= trainingData.size();
-	}
-
-	delete pt;
-	pt = NULL;
-	
-	for(int i  = 0; i < RAEThreadNum; i++)
-	{
-		lbfgs_free(threadpara[i].g);
-		delete threadpara[i].cRAE;
-	}
-	delete threadpara;
-	threadpara = NULL;
-
-	return fx;
-}
-
-int RAE::_progress(const lbfgsfloatval_t *x, const lbfgsfloatval_t *g, const lbfgsfloatval_t fx, const lbfgsfloatval_t xnorm, const lbfgsfloatval_t gnorm, const lbfgsfloatval_t step, int n, int k, int ls)
-{
-	ofstream out("./log/RAE/RAE.log", ios::app);
-
-	out << "Iteration of RAE: " << k << endl;
-	out << "Loss Value: " << fx << endl;
-
-	out.close();
-
-	return 0;
+	delWeight1.setZero();
+	delWeight1_b.setZero();
+	delWeight2.setZero();
+	delWeight2_b.setZero();
 }

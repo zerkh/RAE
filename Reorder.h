@@ -32,7 +32,7 @@ public:
 
 	lbfgsfloatval_t decay();
 	int getRMWeightSize();
-	void updateWeights(const lbfgsfloatval_t* x, int base);
+	void updateWeights(const lbfgsfloatval_t* x);
 	void softmax();
 	void trainRM(MatrixLBFGS y, bool isSoftmax);
 	ReorderModel(Parameter* para, RAE* rae);
