@@ -35,4 +35,7 @@ static lbfgsfloatval_t ZETA = 1 * pow(10, -3);
 //Cons
 static lbfgsfloatval_t DELTA = 5 * pow(10, -3);
 
+static bool isUpdateRAE = true;
+static bool isUpdateRM = true;
+
 #endif

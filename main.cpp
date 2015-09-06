@@ -42,6 +42,16 @@ int main(int argc, char* argv[])
 	bool isTrain = atoi(para->getPara("IsTrain").c_str());
 	bool isTest = atoi(para->getPara("IsTest").c_str());
 
+	cout << "Start training RAES......" << endl << endl;
+	start = clock();
+	if(isTrain || isDev)
+	{
+		srcRAE->training();
+		tgtRAE->training();
+	}
+	end = clock();
+	cout << "The time of training RAEs is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
+
 	if(isTest)
 	{
 		start = clock();

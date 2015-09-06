@@ -43,4 +43,33 @@ public:
 	}
 };
 
+class RAEThreadPara:public ThreadPara
+{
+public:
+	RAE* cRAE;
+
+	RAEThreadPara()
+	{
+		cRAE = NULL;
+	}
+
+	RAEThreadPara(const RAEThreadPara& threadpara)
+	{
+		this->cRAE = threadpara.cRAE;
+		this->g = threadpara.g;
+		lossVal = threadpara.lossVal;
+		instance_num = threadpara.instance_num;
+	}
+
+	RAEThreadPara& operator =(const RAEThreadPara& threadpara)
+	{
+		this->cRAE = threadpara.cRAE;
+		this->g = threadpara.g;
+		this->lossVal = threadpara.lossVal;
+		this->instance_num = threadpara.instance_num;
+
+		return *this;
+	}
+};
+
 #endif

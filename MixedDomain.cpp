@@ -80,6 +80,17 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 {
 	lbfgsfloatval_t fx = 0;
 
+	if(isUpdateRAE && isUpdateRM)
+	{
+		isUpdateRAE = true;
+		isUpdateRM = false;
+	}
+	else
+	{
+		isUpdateRAE = !isUpdateRAE;
+		isUpdateRM = !isUpdateRM;
+	}
+
 	srcRAE->updateWeights(x);
 	tgtRAE->updateWeights(x + srcRAE->getRAEWeightSize());
 

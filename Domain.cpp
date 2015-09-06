@@ -74,19 +74,27 @@ void Domain::update(lbfgsfloatval_t* g_RM, lbfgsfloatval_t* g_RAE)
 		srcRAE->weights2.rows()*srcRAE->weights2.cols(),
 		srcRAE->weights_b2.rows(), srcRAE->weights_b2.cols());
 
-	g_srcWeights += srcRM->delWeight;
-	g_srcWeights_b += srcRM->delWeight_b;
-	g_srcRAEWeights1 += srcRAE->delWeight1;
-	g_srcRAEWeights_b1 += srcRAE->delWeight1_b;
-	g_srcRAEWeights2 += srcRAE->delWeight2;
-	g_srcRAEWeights_b2 += srcRAE->delWeight2_b;
+	if(isUpdateRM)
+	{
+		g_srcWeights += srcRM->delWeight;
+		g_srcWeights_b += srcRM->delWeight_b;
 
-	g_tgtWeights += tgtRM->delWeight;
-	g_tgtWeights_b += tgtRM->delWeight_b;
-	g_tgtRAEWeights1 += tgtRAE->delWeight1;
-	g_tgtRAEWeights_b1 += tgtRAE->delWeight1_b;
-	g_tgtRAEWeights2 += tgtRAE->delWeight2;
-	g_tgtRAEWeights_b2 += tgtRAE->delWeight2_b;
+		g_tgtWeights += tgtRM->delWeight;
+		g_tgtWeights_b += tgtRM->delWeight_b;
+	}
+
+	if(isUpdateRAE)
+	{
+		g_srcRAEWeights1 += srcRAE->delWeight1;
+		g_srcRAEWeights_b1 += srcRAE->delWeight1_b;
+		g_srcRAEWeights2 += srcRAE->delWeight2;
+		g_srcRAEWeights_b2 += srcRAE->delWeight2_b;
+
+		g_tgtRAEWeights1 += tgtRAE->delWeight1;
+		g_tgtRAEWeights_b1 += tgtRAE->delWeight1_b;
+		g_tgtRAEWeights2 += tgtRAE->delWeight2;
+		g_tgtRAEWeights_b2 += tgtRAE->delWeight2_b;
+	}
 
 	srcRM->delWeight.setZero();
 	srcRM->delWeight_b.setZero();
@@ -551,7 +559,7 @@ void Domain::test()
 
 	ofstream mixOut;
 	bool isDev = atoi(para->getPara("IsDev").c_str());
-	
+
 	if(isDev && domainName == "Education")
 	{
 		mixOut.open("./log/dev.log", ios::app);
