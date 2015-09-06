@@ -130,7 +130,7 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 
 		for(int i = 0; i< amountOfDomains; i++)
 		{
-			src_ave += domains[i]->srcRM->outputLayer[0];
+			src_ave += domains[i]->srcRM->outputLayer(0, 0);
 		}
 
 		src_ave /= amountOfDomains;
@@ -167,7 +167,7 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 
 		for(int i = 0; i< amountOfDomains; i++)
 		{
-			tgt_ave += domains[i]->tgtRM->outputLayer[0];
+			tgt_ave += domains[i]->tgtRM->outputLayer(0, 0);
 		}
 
 		tgt_ave /= amountOfDomains;
@@ -198,7 +198,7 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 		tgtRAE->delToZero();
 	}
 
-	fx += (src_f+tgt_f);
+	fx -= (src_f+tgt_f);
 
 	return fx;
 }

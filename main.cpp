@@ -88,7 +88,7 @@ int main(int argc, char* argv[])
 		for(int i = 0; i <= 10; i++)
 		{
 			mixedDomains.training();
-			ALPHA *= 2;
+			BETA *= 2;
 			mixedDomains.testing();
 		}
 	}
