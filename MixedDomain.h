@@ -8,6 +8,7 @@
 
 void train( worker_arg_t *arg );
 void test( worker_arg_t *arg );
+void buildArct(worker_arg_t* arg);
 
 class MixedDomain
 {
@@ -19,6 +20,7 @@ public:
 	lbfgsfloatval_t* x;
 	Parameter* para;
 	worker_arg_t *wargs;
+	vector<pair<string, string> > unlabelData;
 
 	MixedDomain()
 	{
@@ -31,6 +33,7 @@ public:
 	MixedDomain(Parameter* para, vector<Domain*>& domains, RAE* srcRAE, RAE* tgtRAE);
 
 	lbfgsfloatval_t _training(lbfgsfloatval_t* g);
+	void getUnlabelData(string filename);
 	lbfgsfloatval_t _evaluate(const lbfgsfloatval_t* x,
 		lbfgsfloatval_t* g,
 		const int n,

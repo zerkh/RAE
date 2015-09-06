@@ -41,6 +41,7 @@ public:
 	lbfgsfloatval_t loss();
 	lbfgsfloatval_t decay();
 	int getRAEWeightSize();
+	void delToZero();
 	RAE* copy();
 	RAE(int size);
 	~RAE();

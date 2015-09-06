@@ -133,20 +133,20 @@ void ReorderModel::softmax()
 void ReorderModel::getData(string bp1, string bp2)
 {
 	rae1->buildTree(bp1);
-	
+
 	rae2->buildTree(bp2);
-	
+
 	softmax();
 }
 
-void ReorderModel::trainRM(MatrixLBFGS y, bool isSoftmax)
+void ReorderModel::trainRM(MatrixLBFGS y, int Type)
 {
 	lbfgsfloatval_t p;
-	if(isSoftmax)
+	if(EDIS)
 	{
 		p = GAMMA;
 	}
-	else
+	else if(EREO)
 	{
 		p = BETA;
 	}
@@ -154,7 +154,7 @@ void ReorderModel::trainRM(MatrixLBFGS y, bool isSoftmax)
 	MatrixLBFGS theta = MatrixLBFGS(delWeight_b.rows(), delWeight_b.cols());
 
 	//对W和Wb求导
-	if(isSoftmax)
+	if(EDIS)
 	{
 		for(int row = 0; row < weights.rows(); row++)
 		{
@@ -168,13 +168,13 @@ void ReorderModel::trainRM(MatrixLBFGS y, bool isSoftmax)
 			}
 
 			delWeight_b(0, row) = delWeight_b(0, row) - p * result;
-				
-					
+
+
 			theta(0, row) = result;
 		}
 
 	}
-	else
+	else if(EREO)
 	{
 		for(int row = 0; row < weights.rows(); row++)
 		{
@@ -197,6 +197,120 @@ void ReorderModel::trainRM(MatrixLBFGS y, bool isSoftmax)
 			delWeight_b(0, row) = delWeight_b(0, row) - p * result;
 			theta(0, row) = result;
 		}
+	}
+
+
+	//对W1和Wb1求导
+	Node* preNode1 = rae1->RAETree->getRoot();
+	Node* preNode2 = rae2->RAETree->getRoot();
+
+	theta = theta * weights;
+
+	MatrixLBFGS theta1 = MatrixLBFGS(theta.rows(), theta.cols()/2);
+	MatrixLBFGS theta2 = MatrixLBFGS(theta.rows(), theta.cols()/2);
+
+	for(int i = 0; i < theta1.cols(); i++)
+	{
+		theta1(0, i) = theta(0, i);
+		theta2(0, i) = theta(0, i+theta1.cols());
+	}
+
+	while(preNode1->getNodeType() != BASED_NODE)
+	{
+		for(int col = 0; col < theta1.cols(); col++)
+		{
+			theta1(0, col) *= (1-pow(preNode1->getVector()(0,col), 2));
+		}
+
+		for(int row = 0; row < vecSize; row++)
+		{
+			for(int col = 0; col < vecSize*2; col++)
+			{
+				if(col < vecSize)
+				{
+					rae1->delWeight1(row, col) = rae1->delWeight1(row, col) + p * theta1(0, row) * (preNode1->getLeftChildNode()->getVector())(0, col);
+				}
+				else
+				{
+					rae1->delWeight1(row, col) = rae1->delWeight1(row, col) + p * theta1(0, row) * (preNode1->getRightChildNode()->getVector())(0, col-vecSize);
+				}
+			}
+
+			rae1->delWeight1_b(0, row) = rae1->delWeight1_b(0, row) + p * theta1(0, row);
+		}
+
+		theta1 = theta1 * rae1->weights1;
+
+		MatrixLBFGS tmpTheta = MatrixLBFGS(theta.rows(), theta.cols()/2);
+
+		for(int i = 0; i < theta.cols()/2; i++)
+		{
+			tmpTheta(0, i) = theta1(0, i);
+		}
+
+		theta1 = tmpTheta;
+		preNode1 = preNode1->getLeftChildNode();
+	}
+
+	while(preNode2->getNodeType() != BASED_NODE)
+	{
+		for(int col = 0; col < theta2.cols(); col++)
+		{
+			theta2(0, col) *= (1-pow(preNode2->getVector()(0,col), 2));
+		}
+
+		for(int row = 0; row < vecSize; row++)
+		{
+			for(int col = 0; col < vecSize*2; col++)
+			{
+				if(col < vecSize)
+				{
+					rae2->delWeight1(row, col) = rae2->delWeight1(row, col) + p * theta2(0, row) * (preNode2->getLeftChildNode()->getVector())(0, col);
+				}
+				else
+				{
+					rae2->delWeight1(row, col) = rae2->delWeight1(row, col) + p * theta2(0, row) * (preNode2->getRightChildNode()->getVector())(0, col-vecSize);
+				}
+			}
+
+			rae2->delWeight2_b(0, row) = rae2->delWeight2_b(0, row) + p * theta2(0, row);
+		}
+
+		theta2 = theta2 * rae2->weights1;
+
+		MatrixLBFGS tmpTheta = MatrixLBFGS(theta.rows(), theta.cols()/2);
+
+		for(int i = 0; i < theta.cols()/2; i++)
+		{
+			tmpTheta(0, i) = theta2(0, i);
+		}
+
+		theta2 = tmpTheta;
+		preNode2 = preNode2->getLeftChildNode();
+	}
+}
+
+void ReorderModel::trainOnUnlabel(lbfgsfloatval_t ave_p, lbfgsfloatval_t amountOfDomain)
+{
+	MatrixLBFGS theta = MatrixLBFGS(delWeight_b.rows(), delWeight_b.cols());
+
+	//对W和Wb求导
+
+	for(int row = 0; row < weights.rows(); row++)
+	{
+		lbfgsfloatval_t result;
+		result = (2*ave_p-1) * (exp(outputLayer(0, 0)) * exp(outputLayer(0, 1))) * 4 / amountOfDomain;
+
+		for(int col = 0; col < weights.cols(); col++)
+		{
+			MatrixLBFGS tmpX = concatMatrix(rae1->RAETree->getRoot()->getVector(),rae2->RAETree->getRoot()->getVector());
+			delWeight(row, col) = delWeight(row, col) - DELTA * result * tmpX(0, col);
+		}
+
+		delWeight_b(0, row) = delWeight_b(0, row) - DELTA * result;
+
+
+		theta(0, row) = result;
 	}
 
 

@@ -30,11 +30,13 @@ public:
 	MatrixLBFGS delWeight;
 	MatrixLBFGS delWeight_b;
 
+
 	lbfgsfloatval_t decay();
 	int getRMWeightSize();
 	void updateWeights(const lbfgsfloatval_t* x);
 	void softmax();
-	void trainRM(MatrixLBFGS y, bool isSoftmax);
+	void trainRM(MatrixLBFGS y, int Type);
+	void trainOnUnlabel(lbfgsfloatval_t ave_p, lbfgsfloatval_t amountOfDomain);
 	ReorderModel(Parameter* para, RAE* rae);
 	void getData(string bp1, string bp2);
 	ReorderModel* copy();

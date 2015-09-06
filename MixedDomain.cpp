@@ -74,15 +74,15 @@ void MixedDomain::training()
 }
 
 lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
-								  lbfgsfloatval_t* g,
-								  const int n,
-								  const lbfgsfloatval_t step)
+									   lbfgsfloatval_t* g,
+									   const int n,
+									   const lbfgsfloatval_t step)
 {
 	lbfgsfloatval_t fx = 0;
 
 	srcRAE->updateWeights(x);
 	tgtRAE->updateWeights(x + srcRAE->getRAEWeightSize());
-	
+
 	for(int i = 0; i < amountOfDomains; i++)
 	{
 		domains[i]->srcRM->rae = srcRAE->copy();
@@ -109,18 +109,133 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 		g[i] /= count;
 	}
 
+	//Unlabel ÑµÁ·
+	lbfgsfloatval_t src_f = 0, tgt_f = 0;
+	srcRAE->delToZero();
+	tgtRAE->delToZero();
+
+	vector<pair<string, string> > unlabelData;
+	getUnlabelData(para->getPara("SourceUnlabelTraininggData"));
+
+	for(int a = 0; a < unlabelData.size(); a++)
+	{
+		for(int i = 0; i < amountOfDomains; i++)
+		{
+			domains[i]->srcRM->rae1->buildTree(unlabelData[a].first);
+			domains[i]->srcRM->rae2->buildTree(unlabelData[a].second);
+			domains[i]->srcRM->softmax();
+		}
+
+		lbfgsfloatval_t src_ave = 0;
+
+		for(int i = 0; i< amountOfDomains; i++)
+		{
+			src_ave += domains[i]->srcRM->outputLayer[0];
+		}
+
+		src_ave /= amountOfDomains;
+
+		src_f += (src_ave*2 - 1) * (src_ave*2 - 1);
+
+		for(int i = 0; i < amountOfDomains; i++)
+		{
+			domains[i]->srcRM->trainOnUnlabel(src_ave, amountOfDomains);
+		}
+	}
+	src_f /= unlabelData.size();
+	for(int i = 0; i < amountOfDomains; i++)
+	{
+		domains[i]->srcRM->delWeight /= unlabelData.size();
+		domains[i]->srcRM->delWeight_b /= unlabelData.size();
+		copyDelweights(srcRAE, domains[i]->srcRM->rae1);
+		copyDelweights(srcRAE, domains[i]->srcRM->rae2);
+	}
+	srcRAE->delWeight1 = srcRAE->delWeight1/(unlabelData.size() * amountOfDomains);
+	srcRAE->delWeight1_b = srcRAE->delWeight1_b/(unlabelData.size() * amountOfDomains);
+
+	getUnlabelData(para->getPara("TargetUnlabelTraininggData"));
+	for(int a = 0; a < unlabelData.size(); a++)
+	{
+		for(int i = 0; i < amountOfDomains; i++)
+		{
+			domains[i]->tgtRM->rae1->buildTree(unlabelData[a].first);
+			domains[i]->tgtRM->rae2->buildTree(unlabelData[a].second);
+			domains[i]->tgtRM->softmax();
+		}
+
+		lbfgsfloatval_t tgt_ave = 0;
+
+		for(int i = 0; i< amountOfDomains; i++)
+		{
+			tgt_ave += domains[i]->tgtRM->outputLayer[0];
+		}
+
+		tgt_ave /= amountOfDomains;
+
+		tgt_f += (tgt_ave*2 - 1) * (tgt_ave*2 - 1);
+
+		for(int i = 0; i < amountOfDomains; i++)
+		{
+			domains[i]->tgtRM->trainOnUnlabel(tgt_ave, amountOfDomains);
+		}
+	}
+	tgt_f /= unlabelData.size();
+	for(int i = 0; i < amountOfDomains; i++)
+	{
+		domains[i]->tgtRM->delWeight /= unlabelData.size();
+		domains[i]->tgtRM->delWeight_b /= unlabelData.size();
+		copyDelweights(tgtRAE, domains[i]->tgtRM->rae1);
+		copyDelweights(tgtRAE, domains[i]->tgtRM->rae2);
+	}
+	tgtRAE->delWeight1 = tgtRAE->delWeight1/(unlabelData.size() * amountOfDomains);
+	tgtRAE->delWeight1_b = tgtRAE->delWeight1_b/(unlabelData.size() * amountOfDomains);
+
+	for(int d = 0; d < amountOfDomains; d++)
+	{
+		int base = srcRAE->getRAEWeightSize()*2+d*domains[d]->getWeightsSize();
+		domains[d]->update(g+base, g);
+		srcRAE->delToZero();
+		tgtRAE->delToZero();
+	}
+
+	fx += (src_f+tgt_f);
+
 	return fx;
 }
 
+void MixedDomain::getUnlabelData(string filename)
+{
+	unlabelData.clear();
+	ifstream in(filename.c_str(), ios::in);
+
+	string line;
+	while(getline(in, line))
+	{
+		int pos;
+		pair<string, string> pss;
+
+		if (line == "" || (pos = line.find("\t")) == string::npos)
+		{
+			continue;
+		}
+
+		pss.first = strip_str(line.substr(0, pos));
+		pos++;
+		pss.second = strip_str(line.substr(pos));
+
+		unlabelData.push_back(pss);
+	}
+}
+
 int MixedDomain::_progress(const lbfgsfloatval_t *x,
-					  const lbfgsfloatval_t *g,
-					  const lbfgsfloatval_t fx,
-					  const lbfgsfloatval_t xnorm,
-					  const lbfgsfloatval_t gnorm,
-					  const lbfgsfloatval_t step,
-					  int n,
-					  int k,
-					  int ls)
+						   const lbfgsfloatval_t *g,
+						   const lbfgsfloatval_t fx,
+						   const lbfgsfloatval_t xnorm,
+						   const lbfgsfloatval_t gnorm,
+						   const lbfgsfloatval_t step,
+						   int n,
+						   int k,
+						   int ls)
 {
 	cout << "Iteration: " << k << endl;
 	cout << "Loss Value: " << fx << endl;
@@ -198,6 +313,11 @@ void train(worker_arg_t* arg)
 	threadpara = NULL;
 
 	arg->error = fx;
+}
+
+void buildArct(worker_arg_t* arg)
+{
+
 }
 
 void test(worker_arg_t* arg)

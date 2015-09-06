@@ -561,6 +561,11 @@ void RAE::updateWeights(const lbfgsfloatval_t* x)
 	weights2 = Map<MatrixLBFGS>(cX + 2*vecSize*vecSize+vecSize, 2*vecSize, vecSize);
 	weights_b2 = Map<MatrixLBFGS>(cX + 2*vecSize*vecSize+vecSize+2*vecSize*vecSize, 1, 2*vecSize);
 
+	delToZero();
+}
+
+void RAE::delToZero()
+{
 	delWeight1.setZero();
 	delWeight1_b.setZero();
 	delWeight2.setZero();

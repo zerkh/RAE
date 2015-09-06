@@ -157,8 +157,8 @@ lbfgsfloatval_t Domain::training(lbfgsfloatval_t* g_RM, lbfgsfloatval_t* g_RAE)
 		tgtRM->rae2->trainRecError();
 
 		//对调序模型求导(Edis)
-		srcRM->trainRM(tgtRM->outputLayer, true);
-		tgtRM->trainRM(srcRM->outputLayer, true);
+		srcRM->trainRM(tgtRM->outputLayer, EDIS);
+		tgtRM->trainRM(srcRM->outputLayer, EDIS);
 
 		//Ereo
 		MatrixLBFGS mono = MatrixLBFGS(1,2);
@@ -172,13 +172,13 @@ lbfgsfloatval_t Domain::training(lbfgsfloatval_t* g_RM, lbfgsfloatval_t* g_RAE)
 
 		if(trainingData[i].first == 1)
 		{
-			srcRM->trainRM(mono, false);
-			tgtRM->trainRM(mono, false);
+			srcRM->trainRM(mono, EREO);
+			tgtRM->trainRM(mono, EREO);
 		}
 		else
 		{
-			srcRM->trainRM(invert, false);
-			tgtRM->trainRM(invert, false);
+			srcRM->trainRM(invert, EREO);
+			tgtRM->trainRM(invert, EREO);
 		}
 
 		copyDelweights(srcRAE, srcRM->rae1);
