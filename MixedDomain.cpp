@@ -229,8 +229,8 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 	}
 
 	pthread_t* pt = new pthread_t[UnlabelThreadNum];
-	for (int a = 0; a < RAEThreadNum; a++) pthread_create(&pt[a], NULL, srcUnlabelThread, (void *)(threadpara + a));
-	for (int a = 0; a < RAEThreadNum; a++) pthread_join(pt[a], NULL);
+	for (int a = 0; a < UnlabelThreadNum; a++) pthread_create(&pt[a], NULL, srcUnlabelThread, (void *)(threadpara + a));
+	for (int a = 0; a < UnlabelThreadNum; a++) pthread_join(pt[a], NULL);
 	
 	for(int i = 0; i < UnlabelThreadNum; i++)
 	{
@@ -285,8 +285,8 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 	delete pt;
 	pt = NULL;
 	pt = new pthread_t[UnlabelThreadNum];
-	for (int a = 0; a < RAEThreadNum; a++) pthread_create(&pt[a], NULL, tgtUnlabelThread, (void *)(threadpara + a));
-	for (int a = 0; a < RAEThreadNum; a++) pthread_join(pt[a], NULL);
+	for (int a = 0; a < UnlabelThreadNum; a++) pthread_create(&pt[a], NULL, tgtUnlabelThread, (void *)(threadpara + a));
+	for (int a = 0; a < UnlabelThreadNum; a++) pthread_join(pt[a], NULL);
 
 	for(int i = 0; i < UnlabelThreadNum; i++)
 	{
