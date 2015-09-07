@@ -115,6 +115,10 @@ MixedDomain::MixedDomain(Parameter* para, vector<Domain*>& domains, RAE* srcRAE,
 
 void MixedDomain::training()
 {
+	double start, end;
+	cout << "Start training......" << endl << endl;
+	start = clock();
+
 	lbfgs_parameter_t param;
 	lbfgs_parameter_init(&param);
 	param.max_iterations = atoi(para->getPara("IterationTime").c_str());
@@ -137,6 +141,9 @@ void MixedDomain::training()
 	}
 
 	lbfgs_free(x);
+
+	end = clock();
+	cout << "The time of training is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
 }
 
 lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
@@ -426,9 +433,16 @@ int MixedDomain::_progress(const lbfgsfloatval_t *x,
 
 void MixedDomain::testing()
 {
+	double start, end;
+	cout << "Starting testing " + d->domainName + "..." << endl << endl;
+	start = clock();
+
 	Start_Workers(test, wargs, amountOfDomains);
 
 	mixedTesting();
+
+	end = clock();
+	cout << "The time of testing " + d->domainName + " is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
 }
 
 void MixedDomain::mixedTesting()
@@ -542,11 +556,7 @@ void train(worker_arg_t* arg)
 	Domain* d = arg->domain;
 	cout << "Processing " << d->domainName << "......" << endl << endl;
 
-	cout << "Loading " + d->domainName + " training data..." << endl << endl;
-	start = clock();
 	d->loadTrainingData();
-	end = clock();
-	cout << "The time of loading " + d->domainName + " training data is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
 
 	int RMThreadNum = atoi(d->para->getPara("RMThreadNum").c_str());
 	ThreadPara* threadpara = new ThreadPara[RMThreadNum];
@@ -569,13 +579,9 @@ void train(worker_arg_t* arg)
 		}
 	}
 
-	cout << "Start training......" << endl << endl;
-	start = clock();
 	pthread_t* pt = new pthread_t[RMThreadNum];
 	for (int a = 0; a < RMThreadNum; a++) pthread_create(&pt[a], NULL, deepThread, (void *)(threadpara + a));
 	for (int a = 0; a < RMThreadNum; a++) pthread_join(pt[a], NULL);
-	end = clock();
-	cout << "The time of training is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
 
 	lbfgsfloatval_t fx = 0;
 	for(int i = 0; i < RMThreadNum; i++)
@@ -602,11 +608,6 @@ void train(worker_arg_t* arg)
 	arg->error = fx;
 }
 
-void buildArct(worker_arg_t* arg)
-{
-
-}
-
 void test(worker_arg_t* arg)
 {
 	lbfgsfloatval_t start, end;
@@ -614,15 +615,9 @@ void test(worker_arg_t* arg)
 	Domain* d = arg->domain;
 	cout << "Processing " << d->domainName << "......" << endl << endl;
 
-	cout << "Loading " + d->domainName + " testing data..." << endl << endl;
 	start = clock();
 	d->loadTestingData();
 	end = clock();
-	cout << "The time of loading " + d->domainName + " testing data is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
 
-	cout << "Starting testing " + d->domainName + "..." << endl << endl;
-	start = clock();
 	d->test();
-	end = clock();
-	cout << "The time of testing " + d->domainName + " is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
 }
