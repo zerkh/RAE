@@ -95,12 +95,8 @@ int main(int argc, char* argv[])
 	}
 	else if(isDev)
 	{
-		for(int i = 0; i <= 10; i++)
-		{
-			mixedDomains.training();
-			BETA *= 2;
-			mixedDomains.testing();
-		}
+		mixedDomains.training();
+		mixedDomains.testing();
 	}
 	else if(isTest)
 	{
