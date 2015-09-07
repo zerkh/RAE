@@ -542,9 +542,10 @@ void RAE::loadTrainingData()
 		count++;
 	}
 
+
 	if(isDev)
 	{
-		if(SL)
+		if(RAEType == SL)
 		{
 			dataFile = para->getPara("SourceUnlabelDevData");
 		}
@@ -555,7 +556,7 @@ void RAE::loadTrainingData()
 	}
 	else if(isTrain)
 	{
-		if(SL)
+		if(RAEType == SL)
 		{
 			dataFile = para->getPara("SourceUnlabelTrainingData");
 		}
