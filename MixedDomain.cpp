@@ -201,7 +201,6 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 	srcRAE->delToZero();
 	tgtRAE->delToZero();
 
-	vector<pair<string, string> > unlabelData;
 	if(isTrain)
 	{
 		getUnlabelData(para->getPara("SourceUnlabelTrainingData"));
@@ -215,12 +214,17 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 	UnlabelThreadPara* threadpara = new UnlabelThreadPara[UnlabelThreadNum];
 	int batchsize = unlabelData.size() / UnlabelThreadNum;
 
+	if(batchsize == 0)
+	{
+		UnlabelThreadNum = 1;
+	}
+
 	for(int i = 0; i < UnlabelThreadNum; i++)
 	{
 		threadpara[i].fx = 0;
 		for(int d = 0; d < amountOfDomains; d++)
 		{
-			threadpara[i].v_domains[d] = domains[d]->copy();
+			threadpara[i].v_domains.push_back(domains[d]->copy());
 		}
 
 		if(i == UnlabelThreadNum-1)
@@ -238,7 +242,7 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 	pthread_t* pt = new pthread_t[UnlabelThreadNum];
 	for (int a = 0; a < UnlabelThreadNum; a++) pthread_create(&pt[a], NULL, srcUnlabelThread, (void *)(threadpara + a));
 	for (int a = 0; a < UnlabelThreadNum; a++) pthread_join(pt[a], NULL);
-	
+
 	for(int i = 0; i < UnlabelThreadNum; i++)
 	{
 		src_f += threadpara[i].fx;
@@ -273,6 +277,11 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 	}
 
 	batchsize = unlabelData.size() / UnlabelThreadNum;
+	if(batchsize == 0)
+	{
+		UnlabelThreadNum = 1;
+	}
+
 	for(int i = 0; i < UnlabelThreadNum; i++)
 	{
 		threadpara[i].fx = 0;
@@ -434,7 +443,7 @@ int MixedDomain::_progress(const lbfgsfloatval_t *x,
 void MixedDomain::testing()
 {
 	double start, end;
-	cout << "Starting testing " + d->domainName + "..." << endl << endl;
+	cout << "Starting testing..." << endl << endl;
 	start = clock();
 
 	Start_Workers(test, wargs, amountOfDomains);
@@ -442,7 +451,7 @@ void MixedDomain::testing()
 	mixedTesting();
 
 	end = clock();
-	cout << "The time of testing " + d->domainName + " is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
+	cout << "The time of testing is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
 }
 
 void MixedDomain::mixedTesting()
