@@ -51,6 +51,10 @@ public:
 	void training();
 
 	void testing();
+
+	void mixedTesting();
+
+	vector<pair<int, map<string, string> > > getTestData();
 };
 
 

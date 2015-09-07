@@ -80,6 +80,9 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 {
 	lbfgsfloatval_t fx = 0;
 
+	bool isDev = atoi(para->getPara("IsDev").c_str());
+	bool isTrain = atoi(para->getPara("IsTrain").c_str());
+
 	if(isUpdateRAE && isUpdateRM)
 	{
 		isUpdateRAE = true;
@@ -126,7 +129,14 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 	tgtRAE->delToZero();
 
 	vector<pair<string, string> > unlabelData;
-	getUnlabelData(para->getPara("SourceUnlabelTraininggData"));
+	if(isTrain)
+	{
+		getUnlabelData(para->getPara("SourceUnlabelTrainingData"));
+	}
+	else if(isDev)
+	{
+		getUnlabelData(para->getPara("SourceUnlabelDevData"));
+	}
 
 	for(int a = 0; a < unlabelData.size(); a++)
 	{
@@ -164,7 +174,14 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 	srcRAE->delWeight1 = srcRAE->delWeight1/(unlabelData.size() * amountOfDomains);
 	srcRAE->delWeight1_b = srcRAE->delWeight1_b/(unlabelData.size() * amountOfDomains);
 
-	getUnlabelData(para->getPara("TargetUnlabelTraininggData"));
+	if(isTrain)
+	{
+		getUnlabelData(para->getPara("TargetUnlabelTrainingData"));
+	}
+	else if(isDev)
+	{
+		getUnlabelData(para->getPara("TargetUnlabelDevData"));
+	}
 	for(int a = 0; a < unlabelData.size(); a++)
 	{
 		for(int i = 0; i < amountOfDomains; i++)
@@ -214,6 +231,39 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 	return fx;
 }
 
+vector<pair<int, map<string, string> > > MixedDomain::getTestData()
+{
+	ifstream in(para->getPara("NewsTestFile").c_str(), ios::in);
+	vector<pair<int, map<string, string> > > trainingData;
+
+	string line;
+	while(getline(in, line))
+	{
+		int order;
+		map<string, string> m_tmp;
+		vector<string> subOfLine = splitBySign(line);
+
+		if(subOfLine[0] == "mono")
+		{
+			order = 1;
+		}
+		else if(subOfLine[0] == "invert")
+		{
+			order = 0;
+		}
+
+		for(int i = 1; i < subOfLine.size(); i++)
+		{
+			m_tmp.insert(make_pair(subOfLine[i].substr(0, 3), subOfLine[i].substr(4, subOfLine[i].size()-4)));
+		}
+
+		trainingData.push_back(make_pair(order, m_tmp));
+	}
+
+	in.close();
+	return trainingData;
+}
+
 void MixedDomain::getUnlabelData(string filename)
 {
 	unlabelData.clear();
@@ -257,6 +307,110 @@ int MixedDomain::_progress(const lbfgsfloatval_t *x,
 void MixedDomain::testing()
 {
 	Start_Workers(test, wargs, amountOfDomains);
+}
+
+void MixedDomain::mixedTesting()
+{
+	ofstream srcOut, tgtOut;
+	vector<pair<int, map<string, string> > > trainingData;
+
+	srcOut.open(string("./log/MixedDomain/srcNews.log").c_str(), ios::out);
+	tgtOut.open(string("./log/MixedDomain/tgtNews.log").c_str(), ios::out);
+
+	trainingData = getTestData();
+
+	bool isDev = atoi(para->getPara("IsDev").c_str());
+
+	srcOut << "True value\t\tPredict value" << endl;
+	tgtOut << "True value\t\tPredict value" << endl;
+
+	int srcCount = 0;
+	int tgtCount = 0;
+
+	//for(int i = trainingData.size()-100; i < trainingData.size(); i++)
+	for(int i = 0; i < trainingData.size(); i++)
+	{
+		int srcMonoCount = 0, tgtMonoCount = 0;
+		bool isSrcMono, isTgtMono;
+		for(int d = 0; d < amountOfDomains; d++)
+		{
+			domains[d]->srcRM->getData(trainingData[i].second["ct1"], trainingData[i].second["ct2"]);
+			domains[d]->tgtRM->getData(trainingData[i].second["et1"], trainingData[i].second["et2"]);
+
+			if(domains[d]->srcRM->outputLayer(0, 0) > domains[d]->srcRM->outputLayer(0, 1))
+			{
+				srcMonoCount++;
+			}
+
+			if(domains[d]->tgtRM->outputLayer(0, 0) > domains[d]->tgtRM->outputLayer(0, 1))
+			{
+				tgtMonoCount++;
+			}
+		}
+		if(srcMonoCount > amountOfDomains /2)
+		{
+			isSrcMono = true;
+		}
+		else
+		{
+			isSrcMono = false;
+		}
+		
+		if(tgtMonoCount > amountOfDomains /2)
+		{
+			isTgtMono = true;
+		}
+		else
+		{
+			isTgtMono = false;
+		}
+
+		if(isSrcMono)
+		{
+			if(trainingData[i].first == 1)
+			{
+				srcCount++;
+			}
+		}
+		else
+		{
+			if(trainingData[i].first == 0)
+			{
+				srcCount++;
+			}
+		}
+
+		if(isTgtMono)
+		{
+			if(trainingData[i].first == 1)
+			{
+				tgtCount++;
+			}
+		}
+		else
+		{
+			if(trainingData[i].first == 0)
+			{
+				tgtCount++;
+			}
+		}
+
+		srcOut << trainingData[i].first << "\t\t";
+		tgtOut << trainingData[i].first << "\t\t";
+		for(int d = 0; d < amountOfDomains; d++)
+		{
+			srcOut << "[" << domains[d]->srcRM->outputLayer(0,0) << " , " << domains[d]->srcRM->outputLayer(0,1) << "] ";
+			tgtOut << "[" << domains[d]->tgtRM->outputLayer(0,0) << " , " << domains[d]->tgtRM->outputLayer(0,1) << "] ";
+		}
+		srcOut << endl;
+		tgtOut << endl;
+	}
+
+	srcOut << "Precision: " << (lbfgsfloatval_t)srcCount/trainingData.size() << endl;
+	tgtOut << "Precision: " << (lbfgsfloatval_t)tgtCount/trainingData.size() << endl;
+
+	srcOut.close();
+	tgtOut.close();
 }
 
 void train(worker_arg_t* arg)

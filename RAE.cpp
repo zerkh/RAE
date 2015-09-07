@@ -541,6 +541,51 @@ void RAE::loadTrainingData()
 
 		count++;
 	}
+
+	if(isDev)
+	{
+		if(SL)
+		{
+			dataFile = para->getPara("SourceUnlabelDevData");
+		}
+		else
+		{
+			dataFile = para->getPara("TargetUnlabelDevData");
+		}
+	}
+	else if(isTrain)
+	{
+		if(SL)
+		{
+			dataFile = para->getPara("SourceUnlabelTrainingData");
+		}
+		else
+		{
+			dataFile = para->getPara("TargetUnlabelTrainingData");
+		}
+	}
+
+	string line;
+	ifstream in(dataFile.c_str(), ios::in);
+	while(getline(in, line))
+	{
+		int pos;
+		pair<string, string> pss;
+
+		if (line == "" || (pos = line.find("\t")) == string::npos)
+		{
+			continue;
+		}
+
+		pss.first = strip_str(line.substr(0, pos));
+		pos++;
+		pss.second = strip_str(line.substr(pos));
+
+		trainingData.push_back(pss.first);
+		trainingData.push_back(pss.second);
+	}
+
+	in.close();
 }
 
 void RAE::update(lbfgsfloatval_t* g)
