@@ -233,7 +233,19 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 
 vector<pair<int, map<string, string> > > MixedDomain::getTestData()
 {
-	ifstream in(para->getPara("NewsTestFile").c_str(), ios::in);
+	string dataFile;
+	bool isDev = atoi(para->getPara("IsDev").c_str());
+
+	if(isDev)
+	{
+		dataFile = para->getPara("NewsDevFile");
+	}
+	else
+	{
+		dataFile = para->getPara("NewsTestFile");
+	}
+
+	ifstream in(dataFile.c_str(), ios::in);
 	vector<pair<int, map<string, string> > > trainingData;
 
 	string line;
