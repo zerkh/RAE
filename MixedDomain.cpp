@@ -9,6 +9,72 @@ static void* deepThread(void* arg)
 	pthread_exit(NULL);
 }
 
+static void* srcUnlabelThread(void* arg)
+{
+	UnlabelThreadPara* threadpara = (UnlabelThreadPara*)arg;
+
+	for(int a = 0; a < threadpara->unlabelData.size(); a++)
+	{
+		for(int i = 0; i < threadpara->v_domains.size(); i++)
+		{
+			threadpara->v_domains[i]->srcRM->rae1->buildTree(threadpara->unlabelData[a].first);
+			threadpara->v_domains[i]->srcRM->rae2->buildTree(threadpara->unlabelData[a].second);
+			threadpara->v_domains[i]->srcRM->softmax();
+		}
+
+		lbfgsfloatval_t src_ave = 0;
+
+		for(int i = 0; i< threadpara->v_domains.size(); i++)
+		{
+			src_ave += threadpara->v_domains[i]->srcRM->outputLayer(0, 0);
+		}
+
+		src_ave /= threadpara->v_domains.size();
+
+		threadpara->fx += (src_ave*2 - 1) * (src_ave*2 - 1);
+
+		for(int i = 0; i < threadpara->v_domains.size(); i++)
+		{
+			threadpara->v_domains[i]->srcRM->trainOnUnlabel(src_ave, threadpara->v_domains.size());
+		}
+	}
+
+	pthread_exit(NULL);
+}
+
+static void* tgtUnlabelThread(void* arg)
+{
+	UnlabelThreadPara* threadpara = (UnlabelThreadPara*)arg;
+
+	for(int a = 0; a < threadpara->unlabelData.size(); a++)
+	{
+		for(int i = 0; i < threadpara->v_domains.size(); i++)
+		{
+			threadpara->v_domains[i]->tgtRM->rae1->buildTree(threadpara->unlabelData[a].first);
+			threadpara->v_domains[i]->tgtRM->rae2->buildTree(threadpara->unlabelData[a].second);
+			threadpara->v_domains[i]->tgtRM->softmax();
+		}
+
+		lbfgsfloatval_t tgt_ave = 0;
+
+		for(int i = 0; i< threadpara->v_domains.size(); i++)
+		{
+			tgt_ave += threadpara->v_domains[i]->tgtRM->outputLayer(0, 0);
+		}
+
+		tgt_ave /= threadpara->v_domains.size();
+
+		threadpara->fx += (tgt_ave*2 - 1) * (tgt_ave*2 - 1);
+
+		for(int i = 0; i < threadpara->v_domains.size(); i++)
+		{
+			threadpara->v_domains[i]->tgtRM->trainOnUnlabel(tgt_ave, threadpara->v_domains.size());
+		}
+	}
+
+	pthread_exit(NULL);
+}
+
 MixedDomain::MixedDomain(Parameter* para, vector<Domain*>& domains, RAE* srcRAE, RAE* tgtRAE)
 {
 	this->domains = domains;
@@ -138,31 +204,47 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 		getUnlabelData(para->getPara("SourceUnlabelDevData"));
 	}
 
-	for(int a = 0; a < unlabelData.size(); a++)
+	int UnlabelThreadNum = atoi(para->getPara("UnlabelThreadNum").c_str());
+	UnlabelThreadPara* threadpara = new UnlabelThreadPara[UnlabelThreadNum];
+	int batchsize = unlabelData.size() / UnlabelThreadNum;
+
+	for(int i = 0; i < UnlabelThreadNum; i++)
 	{
-		for(int i = 0; i < amountOfDomains; i++)
+		threadpara[i].fx = 0;
+		for(int d = 0; d < amountOfDomains; d++)
 		{
-			domains[i]->srcRM->rae1->buildTree(unlabelData[a].first);
-			domains[i]->srcRM->rae2->buildTree(unlabelData[a].second);
-			domains[i]->srcRM->softmax();
+			threadpara[i].v_domains[d] = domains[d]->copy();
 		}
 
-		lbfgsfloatval_t src_ave = 0;
-
-		for(int i = 0; i< amountOfDomains; i++)
+		if(i == UnlabelThreadNum-1)
 		{
-			src_ave += domains[i]->srcRM->outputLayer(0, 0);
+			threadpara[i].unlabelData.assign(unlabelData.begin()+i*batchsize, unlabelData.end());
+			threadpara[i].instance_num = unlabelData.size()%batchsize;
 		}
-
-		src_ave /= amountOfDomains;
-
-		src_f += (src_ave*2 - 1) * (src_ave*2 - 1);
-
-		for(int i = 0; i < amountOfDomains; i++)
+		else
 		{
-			domains[i]->srcRM->trainOnUnlabel(src_ave, amountOfDomains);
+			threadpara[i].unlabelData.assign(unlabelData.begin()+i*batchsize, unlabelData.begin()+(i+1)*batchsize);
+			threadpara[i].instance_num = batchsize;
 		}
 	}
+
+	pthread_t* pt = new pthread_t[UnlabelThreadNum];
+	for (int a = 0; a < RAEThreadNum; a++) pthread_create(&pt[a], NULL, srcUnlabelThread, (void *)(threadpara + a));
+	for (int a = 0; a < RAEThreadNum; a++) pthread_join(pt[a], NULL);
+	
+	for(int i = 0; i < UnlabelThreadNum; i++)
+	{
+		src_f += threadpara[i].fx;
+
+		for(int d = 0; d < amountOfDomains; d++)
+		{
+			domains[d]->srcRM->delWeight += threadpara[i].v_domains[d]->srcRM->delWeight;
+			domains[d]->srcRM->delWeight_b += threadpara[i].v_domains[d]->srcRM->delWeight_b;
+			copyDelweights(domains[d]->srcRM->rae1, threadpara[i].v_domains[d]->srcRM->rae1);
+			copyDelweights(domains[d]->srcRM->rae2, threadpara[i].v_domains[d]->srcRM->rae2);
+		}
+	}
+
 	src_f /= unlabelData.size();
 	for(int i = 0; i < amountOfDomains; i++)
 	{
@@ -182,31 +264,43 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 	{
 		getUnlabelData(para->getPara("TargetUnlabelDevData"));
 	}
-	for(int a = 0; a < unlabelData.size(); a++)
+
+	batchsize = unlabelData.size() / UnlabelThreadNum;
+	for(int i = 0; i < UnlabelThreadNum; i++)
 	{
-		for(int i = 0; i < amountOfDomains; i++)
+		threadpara[i].fx = 0;
+		threadpara[i].unlabelData.clear();
+		if(i == UnlabelThreadNum-1)
 		{
-			domains[i]->tgtRM->rae1->buildTree(unlabelData[a].first);
-			domains[i]->tgtRM->rae2->buildTree(unlabelData[a].second);
-			domains[i]->tgtRM->softmax();
+			threadpara[i].unlabelData.assign(unlabelData.begin()+i*batchsize, unlabelData.end());
+			threadpara[i].instance_num = unlabelData.size()%batchsize;
 		}
-
-		lbfgsfloatval_t tgt_ave = 0;
-
-		for(int i = 0; i< amountOfDomains; i++)
+		else
 		{
-			tgt_ave += domains[i]->tgtRM->outputLayer(0, 0);
-		}
-
-		tgt_ave /= amountOfDomains;
-
-		tgt_f += (tgt_ave*2 - 1) * (tgt_ave*2 - 1);
-
-		for(int i = 0; i < amountOfDomains; i++)
-		{
-			domains[i]->tgtRM->trainOnUnlabel(tgt_ave, amountOfDomains);
+			threadpara[i].unlabelData.assign(unlabelData.begin()+i*batchsize, unlabelData.begin()+(i+1)*batchsize);
+			threadpara[i].instance_num = batchsize;
 		}
 	}
+
+	delete pt;
+	pt = NULL;
+	pt = new pthread_t[UnlabelThreadNum];
+	for (int a = 0; a < RAEThreadNum; a++) pthread_create(&pt[a], NULL, tgtUnlabelThread, (void *)(threadpara + a));
+	for (int a = 0; a < RAEThreadNum; a++) pthread_join(pt[a], NULL);
+
+	for(int i = 0; i < UnlabelThreadNum; i++)
+	{
+		tgt_f += threadpara[i].fx;
+
+		for(int d = 0; d < amountOfDomains; d++)
+		{
+			domains[d]->tgtRM->delWeight += threadpara[i].v_domains[d]->tgtRM->delWeight;
+			domains[d]->tgtRM->delWeight_b += threadpara[i].v_domains[d]->tgtRM->delWeight_b;
+			copyDelweights(domains[d]->tgtRM->rae1, threadpara[i].v_domains[d]->tgtRM->rae1);
+			copyDelweights(domains[d]->tgtRM->rae2, threadpara[i].v_domains[d]->tgtRM->rae2);
+		}
+	}
+
 	tgt_f /= unlabelData.size();
 	for(int i = 0; i < amountOfDomains; i++)
 	{
@@ -227,6 +321,20 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 	}
 
 	fx -= (src_f+tgt_f);
+
+	delete pt;
+	pt = NULL;
+
+	for(int i  = 0; i < UnlabelThreadNum; i++)
+	{
+		for(int d = 0; d < amountOfDomains; d++)
+		{
+			delete threadpara[i].v_domains[d];
+			threadpara[i].v_domains[d] = NULL;
+		}
+	}
+	delete threadpara;
+	threadpara = NULL;
 
 	return fx;
 }

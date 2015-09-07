@@ -73,4 +73,13 @@ public:
 	}
 };
 
+
+class UnlabelThreadPara
+{
+public:
+	vector<Domain*> v_domains;
+	int instance_num;
+	vector<pair<string, string> > unlabelData;
+	lbfgsfloatval_t fx;
+};
 #endif
