@@ -478,7 +478,8 @@ void Domain::loadTestingData()
 	bool isDev = atoi(para->getPara("IsDev").c_str());
 	if(isDev)
 	{
-		dataFile = para->getPara(domainName + "DevTestFile");
+		//dataFile = para->getPara(domainName + "DevTestFile");
+		dataFile = para->getPara("NewsDevFile");
 	}
 
 	ifstream in(dataFile.c_str(), ios::in);

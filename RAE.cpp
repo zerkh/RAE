@@ -495,7 +495,7 @@ void RAE::loadTrainingData()
 
 		if(isDev)
 		{
-			dataFile = para->getPara(domainName + "DevTrainDataFile");
+			dataFile = para->getPara(domainName + "DevTrainFile");
 		}
 		else if(isTrain)
 		{

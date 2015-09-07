@@ -307,6 +307,8 @@ int MixedDomain::_progress(const lbfgsfloatval_t *x,
 void MixedDomain::testing()
 {
 	Start_Workers(test, wargs, amountOfDomains);
+
+	mixedTesting();
 }
 
 void MixedDomain::mixedTesting()
