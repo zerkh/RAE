@@ -47,6 +47,7 @@ class RAEThreadPara:public ThreadPara
 {
 public:
 	RAE* cRAE;
+	lbfgsfloatval_t* g;
 
 	RAEThreadPara()
 	{

@@ -625,16 +625,6 @@ lbfgsfloatval_t RAE::_training(lbfgsfloatval_t* g)
 	return error;
 }
 
-void RAE::updateWeights(const lbfgsfloatval_t* x)
-{
-	lbfgsfloatval_t* cX = const_cast<lbfgsfloatval_t*>(x);
-
-	weights1 = Map<MatrixLBFGS>(cX, vecSize, 2*vecSize);
-	weights_b1 = Map<MatrixLBFGS>(cX + 2*vecSize*vecSize, 1, vecSize);
-	weights2 = Map<MatrixLBFGS>(cX + 2*vecSize*vecSize+vecSize, 2*vecSize, vecSize);
-	weights_b2 = Map<MatrixLBFGS>(cX + 2*vecSize*vecSize+vecSize+2*vecSize*vecSize, 1, 2*vecSize);
-}
-
 lbfgsfloatval_t RAE::_evaluate(const lbfgsfloatval_t* x, lbfgsfloatval_t* g, const int n, const lbfgsfloatval_t step)
 {
 	lbfgsfloatval_t fx = 0;
