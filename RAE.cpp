@@ -578,9 +578,9 @@ void RAE::loadTrainingData()
 			continue;
 		}
 
-		pss.first = strip_str(line.substr(0, pos));
+		pss.first = line.substr(0, pos);
 		pos++;
-		pss.second = strip_str(line.substr(pos));
+		pss.second = line.substr(pos);
 
 		trainingData.push_back(pss.first);
 		trainingData.push_back(pss.second);
