@@ -11,11 +11,11 @@ Domain::Domain(Parameter* para, string domainName, RAE* srcRAE, RAE* tgtRAE)
 
 	this->para = para;
 
-	if(isDev)
+	if(isDev && domainName != "MixedDomain")
 	{
 		dataFile = para->getPara(domainName + "DevTrainFile");
 	}
-	else if(isTrain)
+	else if(isTrain && domainName != "MixedDomain")
 	{
 		dataFile = para->getPara(domainName + "DataFile");
 	}
