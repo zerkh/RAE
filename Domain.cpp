@@ -549,13 +549,7 @@ void Domain::test()
 	srcOut.open(string("./log/"+ domainName + "/" + "src"+domainName+".log").c_str(), ios::out);
 	tgtOut.open(string("./log/"+ domainName + "/" + "tgt"+domainName+".log").c_str(), ios::out);
 
-	ofstream mixOut;
 	bool isDev = atoi(para->getPara("IsDev").c_str());
-	
-	if(isDev && domainName == "Education")
-	{
-		mixOut.open("./log/dev.log", ios::app);
-	}
 
 	srcOut << "True value\t\tPredict value" << endl;
 	tgtOut << "True value\t\tPredict value" << endl;
@@ -605,11 +599,6 @@ void Domain::test()
 
 	srcOut << "Precision: " << (lbfgsfloatval_t)srcCount/trainingData.size() << endl;
 	tgtOut << "Precision: " << (lbfgsfloatval_t)tgtCount/trainingData.size() << endl;
-
-	if(mixOut)
-	{
-		mixOut << "Erec:" << ALPHA << " Ereo:" << BETA << " Edis: " << GAMMA << " Decay:" << ZETA << "Precision: " << (lbfgsfloatval_t)srcCount/trainingData.size() << endl;
-	}
 
 	srcOut.close();
 	tgtOut.close();

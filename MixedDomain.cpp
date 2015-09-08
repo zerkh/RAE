@@ -17,6 +17,8 @@ MixedDomain::MixedDomain(Parameter* para, vector<Domain*>& domains, RAE* srcRAE,
 	this->para = para;
 	this->amountOfDomains = domains.size();
 
+	mixedDomain = new Domain(para, "MixedDomain", srcRAE, tgtRAE);
+
 	// thread_num = 1
 	int thread_num = atoi( para->getPara("THREAD_NUM").c_str() );
 	vector<string> v_domains;
@@ -49,17 +51,21 @@ MixedDomain::MixedDomain(Parameter* para, vector<Domain*>& domains, RAE* srcRAE,
 
 void MixedDomain::training()
 {
+	double start, end;
+	cout << "Start training......" << endl << endl;
+	start = clock();
+
 	lbfgs_parameter_t param;
 	lbfgs_parameter_init(&param);
 	param.max_iterations = atoi(para->getPara("IterationTime").c_str());
 	int vecSize = atoi(para->getPara("WordVecSize").c_str());
 
-	x = lbfgs_malloc((vecSize*2*2 + 2)*2*domains.size() + srcRAE->getRAEWeightSize()*2);
-	Map<MatrixLBFGS>(x, (vecSize*2*2 + 2)*2*domains.size() + srcRAE->getRAEWeightSize()*2, 1).setRandom();
+	x = lbfgs_malloc((vecSize*2*2 + 2)*2 + srcRAE->getRAEWeightSize()*2);
+	Map<MatrixLBFGS>(x, (vecSize*2*2 + 2)*2 + srcRAE->getRAEWeightSize()*2, 1).setRandom();
 
 	lbfgsfloatval_t fx = 0;
 	int ret = 0;
-	ret = lbfgs( (vecSize*2*2 + 2)*2*domains.size() + srcRAE->getRAEWeightSize()*2, x, &fx, evaluate, progress, this, &param);
+	ret = lbfgs( (vecSize*2*2 + 2)*2 + srcRAE->getRAEWeightSize()*2, x, &fx, evaluate, progress, this, &param);
 
 	cout << "L-BFGS optimization terminated with status code = " << ret << endl;
 	cout << " fx = " << fx << endl;
@@ -70,6 +76,8 @@ void MixedDomain::training()
 		domains[i]->logWeights();
 	}
 
+	end = clock();
+	cout << "The time of training is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
 	lbfgs_free(x);
 }
 
@@ -82,15 +90,17 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 
 	srcRAE->updateWeights(x);
 	tgtRAE->updateWeights(x + srcRAE->getRAEWeightSize());
+	mixedDomain->srcRM->updateWeights(x + srcRAE->getRAEWeightSize()*2);
+	mixedDomain->tgtRM->updateWeights(x + srcRAE->getRAEWeightSize()*2 + mixedDomain->srcRM->getRMWeightSize());
 	
 	for(int i = 0; i < amountOfDomains; i++)
 	{
 		domains[i]->srcRM->rae = srcRAE->copy();
 		domains[i]->tgtRM->rae = tgtRAE->copy();
-		domains[i]->srcRM->updateWeights(x + srcRAE->getRAEWeightSize()*2 + i*2*domains[i]->srcRM->getRMWeightSize());
-		domains[i]->tgtRM->updateWeights(x + srcRAE->getRAEWeightSize()*2 + (i*2+1)*domains[i]->srcRM->getRMWeightSize());
+		domains[i]->srcRM->updateWeights(x + srcRAE->getRAEWeightSize()*2);
+		domains[i]->tgtRM->updateWeights(x + srcRAE->getRAEWeightSize()*2 + domains[i]->srcRM->getRMWeightSize());
 		wargs[i].g_RAE = g;
-		wargs[i].g_RM = g + srcRAE->getRAEWeightSize()*2 + i*2*domains[i]->srcRM->getRMWeightSize();
+		wargs[i].g_RM = g + srcRAE->getRAEWeightSize()*2;
 	}
 
 	Start_Workers(train, wargs, amountOfDomains);
@@ -103,6 +113,11 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 	}
 
 	fx /= amountOfDomains;
+
+	for(int i = 0; i < mixedDomain->srcRM->getRMWeightSize(); i++)
+	{
+		g[i + srcRAE->getRAEWeightSize()*2] /= count;
+	}
 
 	for(int i = 0; i < srcRAE->getRAEWeightSize()*2; i++)
 	{
@@ -130,7 +145,15 @@ int MixedDomain::_progress(const lbfgsfloatval_t *x,
 
 void MixedDomain::testing()
 {
+	double start, end;
+
+	cout << "Starting testing..." << endl << endl;
+	start = clock();
+	
 	Start_Workers(test, wargs, amountOfDomains);
+
+	end = clock();
+	cout << "The time of testing is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
 }
 
 void train(worker_arg_t* arg)
@@ -138,13 +161,8 @@ void train(worker_arg_t* arg)
 	lbfgsfloatval_t start, end;
 
 	Domain* d = arg->domain;
-	cout << "Processing " << d->domainName << "......" << endl << endl;
 
-	cout << "Loading " + d->domainName + " training data..." << endl << endl;
-	start = clock();
 	d->loadTrainingData();
-	end = clock();
-	cout << "The time of loading " + d->domainName + " training data is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
 
 	int RMThreadNum = atoi(d->para->getPara("RMThreadNum").c_str());
 	ThreadPara* threadpara = new ThreadPara[RMThreadNum];
@@ -167,13 +185,9 @@ void train(worker_arg_t* arg)
 		}
 	}
 
-	cout << "Start training......" << endl << endl;
-	start = clock();
 	pthread_t* pt = new pthread_t[RMThreadNum];
 	for (int a = 0; a < RMThreadNum; a++) pthread_create(&pt[a], NULL, deepThread, (void *)(threadpara + a));
 	for (int a = 0; a < RMThreadNum; a++) pthread_join(pt[a], NULL);
-	end = clock();
-	cout << "The time of training is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
 
 	lbfgsfloatval_t fx = 0;
 	for(int i = 0; i < RMThreadNum; i++)
@@ -182,10 +196,6 @@ void train(worker_arg_t* arg)
 	}
 
 	fx /= d->trainingData.size();
-	for(int elem = 0; elem < d->getWeightsSize(); elem++)
-	{
-		arg->g_RM[elem] /= d->trainingData.size();
-	}
 
 	delete pt;
 	pt = NULL;
@@ -205,17 +215,8 @@ void test(worker_arg_t* arg)
 	lbfgsfloatval_t start, end;
 
 	Domain* d = arg->domain;
-	cout << "Processing " << d->domainName << "......" << endl << endl;
 
-	cout << "Loading " + d->domainName + " testing data..." << endl << endl;
-	start = clock();
 	d->loadTestingData();
-	end = clock();
-	cout << "The time of loading " + d->domainName + " testing data is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
 
-	cout << "Starting testing " + d->domainName + "..." << endl << endl;
-	start = clock();
 	d->test();
-	end = clock();
-	cout << "The time of testing " + d->domainName + " is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
 }

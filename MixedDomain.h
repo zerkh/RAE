@@ -14,6 +14,7 @@ class MixedDomain
 public:
 	int amountOfDomains;
 	vector<Domain*> domains;
+	Domain* mixedDomain;
 	RAE* srcRAE;
 	RAE* tgtRAE;
 	lbfgsfloatval_t* x;
