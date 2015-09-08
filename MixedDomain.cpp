@@ -230,7 +230,14 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 		if(i == UnlabelThreadNum-1)
 		{
 			threadpara[i].unlabelData.assign(unlabelData.begin()+i*batchsize, unlabelData.end());
-			threadpara[i].instance_num = unlabelData.size()%batchsize;
+			if(batchsize == 0)
+			{
+				threadpara[i].instance_num = unlabelData.size();
+			}
+			else
+			{
+				threadpara[i].instance_num = unlabelData.size()%batchsize;
+			}
 		}
 		else
 		{
@@ -276,6 +283,8 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 		getUnlabelData(para->getPara("TargetUnlabelDevData"));
 	}
 
+
+	UnlabelThreadNum = atoi(para->getPara("UnlabelThreadNum").c_str());
 	batchsize = unlabelData.size() / UnlabelThreadNum;
 	if(batchsize == 0)
 	{
@@ -289,7 +298,14 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 		if(i == UnlabelThreadNum-1)
 		{
 			threadpara[i].unlabelData.assign(unlabelData.begin()+i*batchsize, unlabelData.end());
-			threadpara[i].instance_num = unlabelData.size()%batchsize;
+			if(batchsize == 0)
+			{
+				threadpara[i].instance_num = unlabelData.size();
+			}
+			else
+			{
+				threadpara[i].instance_num = unlabelData.size()%batchsize;
+			}
 		}
 		else
 		{
@@ -346,10 +362,10 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 		for(int d = 0; d < amountOfDomains; d++)
 		{
 			delete threadpara[i].v_domains[d];
-			threadpara[i].v_domains[d] = NULL;
 		}
 	}
-	delete threadpara;
+
+	delete[] threadpara;
 	threadpara = NULL;
 
 	return fx;
@@ -563,7 +579,6 @@ void train(worker_arg_t* arg)
 	lbfgsfloatval_t start, end;
 
 	Domain* d = arg->domain;
-	cout << "Processing " << d->domainName << "......" << endl << endl;
 
 	d->loadTrainingData();
 
@@ -622,7 +637,6 @@ void test(worker_arg_t* arg)
 	lbfgsfloatval_t start, end;
 
 	Domain* d = arg->domain;
-	cout << "Processing " << d->domainName << "......" << endl << endl;
 
 	start = clock();
 	d->loadTestingData();
