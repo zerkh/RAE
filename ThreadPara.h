@@ -81,5 +81,11 @@ public:
 	int instance_num;
 	vector<pair<string, string> > unlabelData;
 	lbfgsfloatval_t fx;
+
+	~UnlabelThreadPara()
+	{
+		v_domains.clear();
+		unlabelData.clear();
+	}
 };
 #endif

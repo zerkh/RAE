@@ -654,7 +654,6 @@ lbfgsfloatval_t RAE::_training(lbfgsfloatval_t* g)
 
 	for(int i = 0; i < trainingData.size(); i++)
 	{
-		cout << trainingData[i] << endl;
 		//»ñÈ¡ÊµÀý
 		buildTree(trainingData[i]);	
 
