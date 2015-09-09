@@ -18,6 +18,7 @@ public:
 	lbfgsfloatval_t* g_RAE;
 	lbfgsfloatval_t* g_RM;
 	lbfgsfloatval_t error;
+	RAE* rae;
 };
 
 typedef void(*worker_t)(worker_arg_t*);
