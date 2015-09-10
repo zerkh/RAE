@@ -586,6 +586,11 @@ void RAE::loadTrainingData()
 		trainingData.push_back(pss.second);
 	}
 
+	vector<string>::iterator it;
+	sort(trainingData.begin(), trainingData.end());
+	it = unique(trainingData.begin(), trainingData.end());
+	trainingData.erase(it, trainingData.end());
+
 	in.close();
 }
 
