@@ -188,7 +188,7 @@ lbfgsfloatval_t Domain::training(lbfgsfloatval_t* g_RM, lbfgsfloatval_t* g_RAE)
 		update(g_RM, g_RAE);
 	}
 
-	return error/trainingData.size();
+	return error;
 }
 
 //获取单领域的loss value

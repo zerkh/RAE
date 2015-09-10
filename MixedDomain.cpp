@@ -112,7 +112,7 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 		fx += wargs[i].error;
 	}
 
-	fx /= amountOfDomains;
+	fx /= count;
 
 	for(int i = 0; i < mixedDomain->srcRM->getRMWeightSize(); i++)
 	{
@@ -195,7 +195,7 @@ void train(worker_arg_t* arg)
 		fx += threadpara[i].lossVal;
 	}
 
-	fx /= d->trainingData.size();
+	//fx /= d->trainingData.size();
 
 	delete pt;
 	pt = NULL;
