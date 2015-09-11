@@ -48,7 +48,6 @@ static void* tgtUnlabelThread(void* arg)
 
 	for(int a = 0; a < threadpara->unlabelData.size(); a++)
 	{
-		cout << threadpara->unlabelData[a].first << " " << threadpara->unlabelData[a].second << endl;
 		for(int i = 0; i < threadpara->v_domains.size(); i++)
 		{
 			threadpara->v_domains[i]->tgtRM->rae1->buildTree(threadpara->unlabelData[a].first);
@@ -73,7 +72,6 @@ static void* tgtUnlabelThread(void* arg)
 		}
 	}
 
-	cout << "77" << endl;
 	pthread_exit(NULL);
 }
 
