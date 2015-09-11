@@ -48,12 +48,15 @@ static void* tgtUnlabelThread(void* arg)
 
 	for(int a = 0; a < threadpara->unlabelData.size(); a++)
 	{
+		cout << "51" << endl;
+		cout << threadpara->unlabelData[a].first << " " << threadpara->unlabelData[a].second << endl;
 		for(int i = 0; i < threadpara->v_domains.size(); i++)
 		{
 			threadpara->v_domains[i]->tgtRM->rae1->buildTree(threadpara->unlabelData[a].first);
 			threadpara->v_domains[i]->tgtRM->rae2->buildTree(threadpara->unlabelData[a].second);
 			threadpara->v_domains[i]->tgtRM->softmax();
 		}
+		cout << "58" << endl;
 
 		lbfgsfloatval_t tgt_ave = 0;
 
@@ -72,6 +75,7 @@ static void* tgtUnlabelThread(void* arg)
 		}
 	}
 
+	cout << "77" << endl;
 	pthread_exit(NULL);
 }
 
@@ -314,6 +318,7 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 		}
 	}
 
+	
 	delete pt;
 	pt = NULL;
 	pt = new pthread_t[UnlabelThreadNum];

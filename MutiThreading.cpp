@@ -25,7 +25,7 @@ void Start_Workers(worker_t worker, worker_arg_t *args, int worker_num)
 	for (int i = 1; i < worker_num; i++)
 	{
 		if (!fork())
-		{  
+		{ 
 			worker(&args[i]);
 			//cout << "Worker " << args[i].wid << " finishes\n";
 			exit(0);
