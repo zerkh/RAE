@@ -85,6 +85,8 @@ MixedDomain::MixedDomain(Parameter* para, vector<Domain*>& domains, RAE* srcRAE,
 	this->para = para;
 	this->amountOfDomains = domains.size();
 
+	mixedDomain = new Domain(para, "MixedDomain", srcRAE, tgtRAE);
+
 	// thread_num = 1
 	int thread_num = atoi( para->getPara("THREAD_NUM").c_str() );
 	vector<string> v_domains;
@@ -126,12 +128,12 @@ void MixedDomain::training()
 	param.max_iterations = atoi(para->getPara("IterationTime").c_str());
 	int vecSize = atoi(para->getPara("WordVecSize").c_str());
 
-	x = lbfgs_malloc((vecSize*2*2 + 2)*2*domains.size() + srcRAE->getRAEWeightSize()*2);
-	Map<MatrixLBFGS>(x, (vecSize*2*2 + 2)*2*domains.size() + srcRAE->getRAEWeightSize()*2, 1).setRandom();
+	x = lbfgs_malloc((vecSize*2*2 + 2)*2 + srcRAE->getRAEWeightSize()*2);
+	Map<MatrixLBFGS>(x, (vecSize*2*2 + 2)*2 + srcRAE->getRAEWeightSize()*2, 1).setRandom();
 
 	lbfgsfloatval_t fx = 0;
 	int ret = 0;
-	ret = lbfgs( (vecSize*2*2 + 2)*2*domains.size() + srcRAE->getRAEWeightSize()*2, x, &fx, evaluate, progress, this, &param);
+	ret = lbfgs( (vecSize*2*2 + 2)*2 + srcRAE->getRAEWeightSize()*2, x, &fx, evaluate, progress, this, &param);
 
 	cout << "L-BFGS optimization terminated with status code = " << ret << endl;
 	cout << " fx = " << fx << endl;
@@ -142,6 +144,8 @@ void MixedDomain::training()
 		domains[i]->logWeights();
 	}
 
+	end = clock();
+	cout << "The time of training is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
 	lbfgs_free(x);
 
 	end = clock();
@@ -171,15 +175,21 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 
 	srcRAE->updateWeights(x);
 	tgtRAE->updateWeights(x + srcRAE->getRAEWeightSize());
+<<<<<<< HEAD
 
+=======
+	mixedDomain->srcRM->updateWeights(x + srcRAE->getRAEWeightSize()*2);
+	mixedDomain->tgtRM->updateWeights(x + srcRAE->getRAEWeightSize()*2 + mixedDomain->srcRM->getRMWeightSize());
+	
+>>>>>>> d0ff71b253650b2ccc29996bf999193de079c7e8
 	for(int i = 0; i < amountOfDomains; i++)
 	{
 		domains[i]->srcRM->rae = srcRAE->copy();
 		domains[i]->tgtRM->rae = tgtRAE->copy();
-		domains[i]->srcRM->updateWeights(x + srcRAE->getRAEWeightSize()*2 + i*2*domains[i]->srcRM->getRMWeightSize());
-		domains[i]->tgtRM->updateWeights(x + srcRAE->getRAEWeightSize()*2 + (i*2+1)*domains[i]->srcRM->getRMWeightSize());
+		domains[i]->srcRM->updateWeights(x + srcRAE->getRAEWeightSize()*2);
+		domains[i]->tgtRM->updateWeights(x + srcRAE->getRAEWeightSize()*2 + domains[i]->srcRM->getRMWeightSize());
 		wargs[i].g_RAE = g;
-		wargs[i].g_RM = g + srcRAE->getRAEWeightSize()*2 + i*2*domains[i]->srcRM->getRMWeightSize();
+		wargs[i].g_RM = g + srcRAE->getRAEWeightSize()*2;
 	}
 
 	Start_Workers(train, wargs, amountOfDomains);
@@ -191,7 +201,12 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 		fx += wargs[i].error;
 	}
 
-	fx /= amountOfDomains;
+	fx /= count;
+
+	for(int i = 0; i < mixedDomain->srcRM->getRMWeightSize(); i++)
+	{
+		g[i + srcRAE->getRAEWeightSize()*2] /= count;
+	}
 
 	for(int i = 0; i < srcRAE->getRAEWeightSize()*2; i++)
 	{
@@ -462,6 +477,7 @@ int MixedDomain::_progress(const lbfgsfloatval_t *x,
 void MixedDomain::testing()
 {
 	double start, end;
+<<<<<<< HEAD
 	cout << "Starting testing..." << endl << endl;
 	start = clock();
 
@@ -575,6 +591,16 @@ void MixedDomain::mixedTesting()
 
 	srcOut.close();
 	tgtOut.close();
+=======
+
+	cout << "Starting testing..." << endl << endl;
+	start = clock();
+	
+	Start_Workers(test, wargs, amountOfDomains);
+
+	end = clock();
+	cout << "The time of testing is " << (end-start)/CLOCKS_PER_SEC << endl << endl;
+>>>>>>> d0ff71b253650b2ccc29996bf999193de079c7e8
 }
 
 void train(worker_arg_t* arg)
@@ -616,11 +642,7 @@ void train(worker_arg_t* arg)
 		fx += threadpara[i].lossVal;
 	}
 
-	fx /= d->trainingData.size();
-	for(int elem = 0; elem < d->getWeightsSize(); elem++)
-	{
-		arg->g_RM[elem] /= d->trainingData.size();
-	}
+	//fx /= d->trainingData.size();
 
 	delete pt;
 	pt = NULL;
@@ -641,9 +663,13 @@ void test(worker_arg_t* arg)
 
 	Domain* d = arg->domain;
 
+<<<<<<< HEAD
 	start = clock();
 	d->loadTestingData();
 	end = clock();
+=======
+	d->loadTestingData();
+>>>>>>> d0ff71b253650b2ccc29996bf999193de079c7e8
 
 	d->test();
 }

@@ -11,11 +11,11 @@ Domain::Domain(Parameter* para, string domainName, RAE* srcRAE, RAE* tgtRAE)
 
 	this->para = para;
 
-	if(isDev)
+	if(isDev && domainName != "MixedDomain")
 	{
 		dataFile = para->getPara(domainName + "DevTrainFile");
 	}
-	else if(isTrain)
+	else if(isTrain && domainName != "MixedDomain")
 	{
 		dataFile = para->getPara(domainName + "DataFile");
 	}
@@ -196,7 +196,7 @@ lbfgsfloatval_t Domain::training(lbfgsfloatval_t* g_RM, lbfgsfloatval_t* g_RAE)
 		update(g_RM, g_RAE);
 	}
 
-	return error/trainingData.size();
+	return error;
 }
 
 //获取单领域的loss value
@@ -561,7 +561,6 @@ void Domain::test()
 	srcOut.open(string("./log/"+ domainName + "/" + "src"+domainName+".log").c_str(), ios::out);
 	tgtOut.open(string("./log/"+ domainName + "/" + "tgt"+domainName+".log").c_str(), ios::out);
 
-	ofstream mixOut;
 	bool isDev = atoi(para->getPara("IsDev").c_str());
 
 	srcOut << "True value\t\tPredict value" << endl;

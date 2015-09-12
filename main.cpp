@@ -102,8 +102,13 @@ int main(int argc, char* argv[])
 	}
 	else if(isDev)
 	{
+<<<<<<< HEAD
 		mixedDomains.training();
 		mixedDomains.testing();
+=======
+			mixedDomains.training();
+			mixedDomains.testing();
+>>>>>>> d0ff71b253650b2ccc29996bf999193de079c7e8
 	}
 	else if(isTest)
 	{
