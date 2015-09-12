@@ -8,9 +8,9 @@ class Domain
 {
 public:
 	ReorderModel* srcRM;
-	ReorderModel* tgtRM;
+	//ReorderModel* tgtRM;
 	RAE* srcRAE;
-	RAE* tgtRAE;
+	//RAE* tgtRAE;
 	vector<pair<int, map<string, string> > > trainingData;
 	string dataFile;
 	int iterTime;
@@ -19,7 +19,8 @@ public:
 	Parameter* para;
 
 public:
-	Domain(Parameter* para, string domainName, RAE* srcRAE, RAE* tgtRAE);
+	//Domain(Parameter* para, string domainName, RAE* srcRAE, RAE* tgtRAE);
+	Domain(Parameter* para, string domainName, RAE* srcRAE);
 	void loadTrainingData();
 	lbfgsfloatval_t training(lbfgsfloatval_t* g_RM, lbfgsfloatval_t* g_RAE);
 	void update(lbfgsfloatval_t* g_RM, lbfgsfloatval_t* g_RAE);
@@ -33,7 +34,7 @@ public:
 	~Domain()
 	{
 		delete srcRM;
-		delete tgtRM;
+		//delete tgtRM;
 	}
 };
 

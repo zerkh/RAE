@@ -16,7 +16,7 @@ public:
 	int amountOfDomains;
 	vector<Domain*> domains;
 	RAE* srcRAE;
-	RAE* tgtRAE;
+	//RAE* tgtRAE;
 	lbfgsfloatval_t* x;
 	Parameter* para;
 	worker_arg_t *wargs;
@@ -26,11 +26,12 @@ public:
 	{
 		amountOfDomains = 0;
 		srcRAE = NULL;
-		tgtRAE = NULL;
+		//tgtRAE = NULL;
 		wargs = NULL;
 	};
 
-	MixedDomain(Parameter* para, vector<Domain*>& domains, RAE* srcRAE, RAE* tgtRAE);
+	//MixedDomain(Parameter* para, vector<Domain*>& domains, RAE* srcRAE, RAE* tgtRAE);
+	MixedDomain(Parameter* para, vector<Domain*>& domains, RAE* srcRAE);
 
 	lbfgsfloatval_t _training(lbfgsfloatval_t* g);
 	void getUnlabelData(string filename);
