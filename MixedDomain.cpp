@@ -615,6 +615,7 @@ void train(worker_arg_t* arg)
 	}
 
 	fx /= d->trainingData.size();
+
 	for(int elem = 0; elem < d->getWeightsSize(); elem++)
 	{
 		arg->g_RM[elem] /= d->trainingData.size();
