@@ -45,7 +45,8 @@ Domain* Domain::copy()
 
 int Domain::getWeightsSize()
 {
-	return (srcRM->getRMWeightSize()*2);
+	//return (srcRM->getRMWeightSize()*2);
+	return (srcRM->getRMWeightSize());
 }
 
 void Domain::update(lbfgsfloatval_t* g_RM, lbfgsfloatval_t* g_RAE)

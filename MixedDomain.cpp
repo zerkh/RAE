@@ -203,7 +203,8 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 
 	fx /= amountOfDomains;
 
-	for(int i = 0; i < srcRAE->getRAEWeightSize()*2; i++)
+	//for(int i = 0; i < srcRAE->getRAEWeightSize()*2; i++)
+	for(int i = 0; i < srcRAE->getRAEWeightSize(); i++)
 	{
 		g[i] /= count;
 	}
