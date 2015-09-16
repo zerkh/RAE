@@ -201,7 +201,7 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 		fx += wargs[i].error;
 	}
 
-	fx /= amountOfDomains;
+	fx /= count;
 
 	//for(int i = 0; i < srcRAE->getRAEWeightSize()*2; i++)
 	for(int i = 0; i < srcRAE->getRAEWeightSize(); i++)
@@ -213,6 +213,13 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 	lbfgsfloatval_t src_f = 0, tgt_f = 0;
 	srcRAE->delToZero();
 	//tgtRAE->delToZero();
+	
+	for(int i = 0; i < amountOfDomains; i++)
+	{
+		domains[i]->srcRM->delWeight.setZero();
+		domains[i]->srcRM->delWeight_b.setZero();
+	}
+	
 
 	if(isTrain)
 	{
@@ -492,14 +499,14 @@ void MixedDomain::mixedTesting()
 	vector<pair<int, map<string, string> > > trainingData;
 
 	srcOut.open(string("./log/MixedDomain/srcNews.log").c_str(), ios::out);
-	tgtOut.open(string("./log/MixedDomain/tgtNews.log").c_str(), ios::out);
+	//tgtOut.open(string("./log/MixedDomain/tgtNews.log").c_str(), ios::out);
 
 	trainingData = getTestData();
 
 	bool isDev = atoi(para->getPara("IsDev").c_str());
 
 	srcOut << "True value\t\tPredict value" << endl;
-	tgtOut << "True value\t\tPredict value" << endl;
+	//tgtOut << "True value\t\tPredict value" << endl;
 
 	int srcCount = 0;
 	int tgtCount = 0;
@@ -632,7 +639,7 @@ void train(worker_arg_t* arg)
 		fx += threadpara[i].lossVal;
 	}
 
-	fx /= d->trainingData.size();
+	//fx /= d->trainingData.size();
 
 	for(int elem = 0; elem < d->getWeightsSize(); elem++)
 	{

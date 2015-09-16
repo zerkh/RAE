@@ -53,6 +53,9 @@ void ReorderModel::updateWeights(const lbfgsfloatval_t* x)
 
 	rae1 = rae->copy();
 	rae2 = rae->copy();
+
+	delWeight.setZero();
+	delWeight_b.setZero();
 }
 
 lbfgsfloatval_t ReorderModel::decay()

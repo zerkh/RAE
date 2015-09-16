@@ -591,6 +591,7 @@ void RAE::loadTrainingData()
 	it = unique(trainingData.begin(), trainingData.end());
 	trainingData.erase(it, trainingData.end());
 
+	cout << trainingData.size() << endl;
 	in.close();
 }
 
