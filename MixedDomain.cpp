@@ -39,7 +39,7 @@ static void* srcUnlabelThread(void* arg)
 		}
 	}
 	
-	threadpara->fx /= threadpara->unlabelData.size();
+	//threadpara->fx /= threadpara->unlabelData.size();
 
 	pthread_exit(NULL);
 }
@@ -190,7 +190,11 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 
 		domains[i]->srcRM->rae = srcRAE->copy();
 		domains[i]->srcRM->updateWeights(x + srcRAE->getRAEWeightSize() + i*domains[i]->srcRM->getRMWeightSize());
-		wargs[i].g_RAE = g;
+		wargs[i].g_RAE = lbfgs_malloc(srcRAE->getRAEWeightSize());
+		for(int i = 0; i < srcRAE->getRAEWeightSize(); i++)
+		{
+			wargs[i].g_RAE[i] = 0;
+		}
 		wargs[i].g_RM = g + srcRAE->getRAEWeightSize() + i*domains[i]->srcRM->getRMWeightSize();
 	}
 
@@ -203,12 +207,19 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 		fx += wargs[i].error;
 	}
 
-	fx /= count;
-
 	//for(int i = 0; i < srcRAE->getRAEWeightSize()*2; i++)
 	for(int i = 0; i < srcRAE->getRAEWeightSize(); i++)
 	{
-		g[i] /= count;
+		for(int d = 0; d < amountOfDomains; d++)
+		{
+			g[i] += wargs[d].g_RAE[i];
+		}
+	}
+
+	for(int i = 0; i < amountOfDomains; i++)
+	{
+		lbfgs_free(wargs[i].g_RAE);
+		wargs[i].g_RAE = NULL;
 	}
 
 	//Unlabel ÑµÁ·
@@ -285,7 +296,7 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 		}
 	}
 
-	src_f /= UnlabelThreadNum;
+	src_f /= unlabelData.size();
 
 	for(int i = 0; i < amountOfDomains; i++)
 	{
@@ -294,8 +305,8 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 		copyDelweights(srcRAE, domains[i]->srcRM->rae1);
 		copyDelweights(srcRAE, domains[i]->srcRM->rae2);
 	}
-	srcRAE->delWeight1 = srcRAE->delWeight1/(unlabelData.size() * amountOfDomains);
-	srcRAE->delWeight1_b = srcRAE->delWeight1_b/(unlabelData.size() * amountOfDomains);
+	srcRAE->delWeight1 = srcRAE->delWeight1/unlabelData.size();
+	srcRAE->delWeight1_b = srcRAE->delWeight1_b/unlabelData.size();
 
 	/*if(isTrain)
 	{
@@ -368,15 +379,18 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 	tgtRAE->delWeight1 = tgtRAE->delWeight1/(unlabelData.size() * amountOfDomains);
 	tgtRAE->delWeight1_b = tgtRAE->delWeight1_b/(unlabelData.size() * amountOfDomains);
 
+	fx -= (src_f+tgt_f);*/
+
 	for(int d = 0; d < amountOfDomains; d++)
 	{
-		int base = srcRAE->getRAEWeightSize()*2+d*domains[d]->getWeightsSize();
+		//int base = srcRAE->getRAEWeightSize()*2+d*domains[d]->getWeightsSize();
+		int base = srcRAE->getRAEWeightSize()+d*domains[d]->getWeightsSize();
 		domains[d]->update(g+base, g);
 		srcRAE->delToZero();
-		tgtRAE->delToZero();
+		//tgtRAE->delToZero();
 	}
 
-	fx -= (src_f+tgt_f);*/
+
 
 	fx -= src_f;
 
@@ -643,11 +657,16 @@ void train(worker_arg_t* arg)
 		fx += threadpara[i].lossVal;
 	}
 
-	//fx /= d->trainingData.size();
+	fx /= d->trainingData.size();
 
 	for(int elem = 0; elem < d->getWeightsSize(); elem++)
 	{
 		arg->g_RM[elem] /= d->trainingData.size();
+	}
+
+	for(int elem = 0; elem < d->srcRAE->getRAEWeightSize(); elem++)
+	{
+		arg->g_RAE[elem] /= d->trainingData.size();
 	}
 
 	delete pt;
