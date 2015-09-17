@@ -38,6 +38,8 @@ static void* srcUnlabelThread(void* arg)
 			threadpara->v_domains[i]->srcRM->trainOnUnlabel(src_ave, threadpara->v_domains.size());
 		}
 	}
+	
+	threadpara->fx /= threadpara->unlabelData.size();
 
 	pthread_exit(NULL);
 }
@@ -283,7 +285,8 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 		}
 	}
 
-	src_f /= unlabelData.size();
+	src_f /= UnlabelThreadNum;
+
 	for(int i = 0; i < amountOfDomains; i++)
 	{
 		domains[i]->srcRM->delWeight /= unlabelData.size();
@@ -391,6 +394,7 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 	delete[] threadpara;
 	threadpara = NULL;
 
+	cout << "fx:" << fx << endl;
 	return fx;
 }
 
