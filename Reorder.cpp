@@ -200,7 +200,7 @@ void ReorderModel::trainRM(MatrixLBFGS y, int Type)
 			}
 
 			delWeight_b(0, row) = delWeight_b(0, row) - p * result;
-			theta(0, row) = result;
+			theta(0, row) = p * result;
 		}
 	}
 
@@ -220,6 +220,10 @@ void ReorderModel::trainRM(MatrixLBFGS y, int Type)
 		theta2(0, i) = theta(0, i+theta1.cols());
 	}
 
+	rae1->recurDel(preNode1, theta1);
+	rae2->recurDel(preNode2, theta2);
+
+/*
 	while(preNode1->getNodeType() != BASED_NODE)
 	{
 		for(int col = 0; col < theta1.cols(); col++)
@@ -233,15 +237,15 @@ void ReorderModel::trainRM(MatrixLBFGS y, int Type)
 			{
 				if(col < vecSize)
 				{
-					rae1->delWeight1(row, col) = rae1->delWeight1(row, col) + p * theta1(0, row) * (preNode1->getLeftChildNode()->getVector())(0, col);
+					rae1->delWeight1(row, col) = rae1->delWeight1(row, col) + theta1(0, row) * (preNode1->getLeftChildNode()->getVector())(0, col);
 				}
 				else
 				{
-					rae1->delWeight1(row, col) = rae1->delWeight1(row, col) + p * theta1(0, row) * (preNode1->getRightChildNode()->getVector())(0, col-vecSize);
+					rae1->delWeight1(row, col) = rae1->delWeight1(row, col) + theta1(0, row) * (preNode1->getRightChildNode()->getVector())(0, col-vecSize);
 				}
 			}
 
-			rae1->delWeight1_b(0, row) = rae1->delWeight1_b(0, row) + p * theta1(0, row);
+			rae1->delWeight1_b(0, row) = rae1->delWeight1_b(0, row) + theta1(0, row);
 		}
 
 		theta1 = theta1 * rae1->weights1;
@@ -270,15 +274,15 @@ void ReorderModel::trainRM(MatrixLBFGS y, int Type)
 			{
 				if(col < vecSize)
 				{
-					rae2->delWeight1(row, col) = rae2->delWeight1(row, col) + p * theta2(0, row) * (preNode2->getLeftChildNode()->getVector())(0, col);
+					rae2->delWeight1(row, col) = rae2->delWeight1(row, col) + theta2(0, row) * (preNode2->getLeftChildNode()->getVector())(0, col);
 				}
 				else
 				{
-					rae2->delWeight1(row, col) = rae2->delWeight1(row, col) + p * theta2(0, row) * (preNode2->getRightChildNode()->getVector())(0, col-vecSize);
+					rae2->delWeight1(row, col) = rae2->delWeight1(row, col) + theta2(0, row) * (preNode2->getRightChildNode()->getVector())(0, col-vecSize);
 				}
 			}
 
-			rae2->delWeight2_b(0, row) = rae2->delWeight2_b(0, row) + p * theta2(0, row);
+			rae2->delWeight2_b(0, row) = rae2->delWeight2_b(0, row) + theta2(0, row);
 		}
 
 		theta2 = theta2 * rae2->weights1;
@@ -292,7 +296,7 @@ void ReorderModel::trainRM(MatrixLBFGS y, int Type)
 
 		theta2 = tmpTheta;
 		preNode2 = preNode2->getLeftChildNode();
-	}
+	}*/
 }
 
 void ReorderModel::trainOnUnlabel(lbfgsfloatval_t ave_p, lbfgsfloatval_t amountOfDomain)
@@ -314,7 +318,7 @@ void ReorderModel::trainOnUnlabel(lbfgsfloatval_t ave_p, lbfgsfloatval_t amountO
 
 		delWeight_b(0, row) = delWeight_b(0, row) - DELTA * result;
 
-		theta(0, row) = result;
+		theta(0, row) = DELTA * result;
 	}
 
 
@@ -333,7 +337,10 @@ void ReorderModel::trainOnUnlabel(lbfgsfloatval_t ave_p, lbfgsfloatval_t amountO
 		theta2(0, i) = theta(0, i+theta1.cols());
 	}
 
-	while(preNode1->getNodeType() != BASED_NODE)
+	rae1->recurDel(preNode1, theta1);
+	rae2->recurDel(preNode2, theta2);
+
+	/*while(preNode1->getNodeType() != BASED_NODE)
 	{
 		for(int col = 0; col < theta1.cols(); col++)
 		{
@@ -346,15 +353,15 @@ void ReorderModel::trainOnUnlabel(lbfgsfloatval_t ave_p, lbfgsfloatval_t amountO
 			{
 				if(col < vecSize)
 				{
-					rae1->delWeight1(row, col) = rae1->delWeight1(row, col) + DELTA * theta1(0, row) * (preNode1->getLeftChildNode()->getVector())(0, col);
+					rae1->delWeight1(row, col) = rae1->delWeight1(row, col) + theta1(0, row) * (preNode1->getLeftChildNode()->getVector())(0, col);
 				}
 				else
 				{
-					rae1->delWeight1(row, col) = rae1->delWeight1(row, col) + DELTA * theta1(0, row) * (preNode1->getRightChildNode()->getVector())(0, col-vecSize);
+					rae1->delWeight1(row, col) = rae1->delWeight1(row, col) + theta1(0, row) * (preNode1->getRightChildNode()->getVector())(0, col-vecSize);
 				}
 			}
 
-			rae1->delWeight1_b(0, row) = rae1->delWeight1_b(0, row) + DELTA * theta1(0, row);
+			rae1->delWeight1_b(0, row) = rae1->delWeight1_b(0, row) + theta1(0, row);
 		}
 
 		theta1 = theta1 * rae1->weights1;
@@ -383,15 +390,15 @@ void ReorderModel::trainOnUnlabel(lbfgsfloatval_t ave_p, lbfgsfloatval_t amountO
 			{
 				if(col < vecSize)
 				{
-					rae2->delWeight1(row, col) = rae2->delWeight1(row, col) + DELTA * theta2(0, row) * (preNode2->getLeftChildNode()->getVector())(0, col);
+					rae2->delWeight1(row, col) = rae2->delWeight1(row, col) + theta2(0, row) * (preNode2->getLeftChildNode()->getVector())(0, col);
 				}
 				else
 				{
-					rae2->delWeight1(row, col) = rae2->delWeight1(row, col) + DELTA * theta2(0, row) * (preNode2->getRightChildNode()->getVector())(0, col-vecSize);
+					rae2->delWeight1(row, col) = rae2->delWeight1(row, col) + theta2(0, row) * (preNode2->getRightChildNode()->getVector())(0, col-vecSize);
 				}
 			}
 
-			rae2->delWeight2_b(0, row) = rae2->delWeight2_b(0, row) + DELTA * theta2(0, row);
+			rae2->delWeight2_b(0, row) = rae2->delWeight2_b(0, row) + theta2(0, row);
 		}
 
 		theta2 = theta2 * rae2->weights1;
@@ -405,5 +412,5 @@ void ReorderModel::trainOnUnlabel(lbfgsfloatval_t ave_p, lbfgsfloatval_t amountO
 
 		theta2 = tmpTheta;
 		preNode2 = preNode2->getLeftChildNode();
-	}
+	}*/
 }

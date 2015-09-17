@@ -9,7 +9,7 @@ using namespace Eigen;
 
 class Node
 {
-private:
+public:
 	Node* parent;					//父节点
 	Node* leftChild;				//左子节点(通常为combined节点)
 	Node* rightChild;				//右子节点(通常为based节点)
