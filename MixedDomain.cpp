@@ -191,9 +191,9 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 		domains[i]->srcRM->rae = srcRAE->copy();
 		domains[i]->srcRM->updateWeights(x + srcRAE->getRAEWeightSize() + i*domains[i]->srcRM->getRMWeightSize());
 		wargs[i].g_RAE = lbfgs_malloc(srcRAE->getRAEWeightSize());
-		for(int i = 0; i < srcRAE->getRAEWeightSize(); i++)
+		for(int r = 0; r < srcRAE->getRAEWeightSize(); r++)
 		{
-			wargs[i].g_RAE[i] = 0;
+			wargs[i].g_RAE[r] = 0;
 		}
 		wargs[i].g_RM = g + srcRAE->getRAEWeightSize() + i*domains[i]->srcRM->getRMWeightSize();
 	}
