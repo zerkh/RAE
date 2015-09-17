@@ -447,11 +447,13 @@ void RAE::trainRecError()
 		for(int row = 0; row < weights2.rows(); row++)
 		{
 			lbfgsfloatval_t result = (cRec(0, row)-c(0, row)) * (1-pow(cRec(0, row), 2));
-			tmpDelWb(0, row) = result;
+			tmpDelWb(0, row) = ALPHA * result;
 		}
 
 		tmpDelWb = tmpDelWb*weights2;
 
+		recurDel(tmpNode, tmpDelWb);
+/*
 		for(int col = 0; col < tmpDelWb.cols(); col++)
 		{
 			tmpDelWb(0, col) *= (1-pow(tmpNode->getVector()(0, col), 2));
@@ -464,7 +466,7 @@ void RAE::trainRecError()
 			{
 				delWeight1(row, col) = delWeight1(row, col) + ALPHA * tmpDelWb(0, row) * c(0, col);
 			}
-		}
+		}*/
 
 		tmpNode = tmpNode->getLeftChildNode();
 	}
