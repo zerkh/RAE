@@ -99,6 +99,7 @@ void ReorderModel::softmax()
 
 	o1 = exp(outputLayer(0,0));
 	o2 = exp(outputLayer(0,1));
+/*
 	if(exp(outputLayer(0,1)) == 0 && exp(outputLayer(0,0)) == 0)
 	{
 		o1 = 1;
@@ -114,7 +115,7 @@ void ReorderModel::softmax()
 		{
 			o1 = numeric_limits<lbfgsfloatval_t>::max() * 0.1;
 		}
-	}
+	}*/
 	result = o1/(o1+o2);	
 
 	outputLayer(0, 0) = result;
@@ -122,6 +123,7 @@ void ReorderModel::softmax()
 	softmaxLayer(0, 0) = log(result);
 	softmaxLayer(0, 1) = log(1 - result);
 
+/*
 	if(!finite(softmaxLayer(0, 0)))
 	{
 		softmaxLayer(0, 0) = -1 * numeric_limits<lbfgsfloatval_t>::max();
@@ -130,7 +132,7 @@ void ReorderModel::softmax()
 	if(!finite(softmaxLayer(0, 1)))
 	{       
 		softmaxLayer(0, 1) = -1 * numeric_limits<lbfgsfloatval_t>::max();
-	}
+	}*/
 }
 
 void ReorderModel::getData(string bp1, string bp2)
@@ -311,7 +313,6 @@ void ReorderModel::trainOnUnlabel(lbfgsfloatval_t ave_p, lbfgsfloatval_t amountO
 		}
 
 		delWeight_b(0, row) = delWeight_b(0, row) - DELTA * result;
-
 
 		theta(0, row) = result;
 	}
