@@ -38,56 +38,17 @@ static void* srcUnlabelThread(void* arg)
 			threadpara->v_domains[i]->srcRM->trainOnUnlabel(src_ave, threadpara->v_domains.size());
 		}
 	}
-	
-	//threadpara->fx /= threadpara->unlabelData.size();
 
 	pthread_exit(NULL);
 }
 
-/*
-static void* tgtUnlabelThread(void* arg)
-{
-	UnlabelThreadPara* threadpara = (UnlabelThreadPara*)arg;
-
-	for(int a = 0; a < threadpara->unlabelData.size(); a++)
-	{
-		for(int i = 0; i < threadpara->v_domains.size(); i++)
-		{
-			threadpara->v_domains[i]->tgtRM->rae1->buildTree(threadpara->unlabelData[a].first);
-			threadpara->v_domains[i]->tgtRM->rae2->buildTree(threadpara->unlabelData[a].second);
-			threadpara->v_domains[i]->tgtRM->softmax();
-		}
-
-		lbfgsfloatval_t tgt_ave = 0;
-
-		for(int i = 0; i< threadpara->v_domains.size(); i++)
-		{
-			tgt_ave += threadpara->v_domains[i]->tgtRM->outputLayer(0, 0);
-		}
-
-		tgt_ave /= threadpara->v_domains.size();
-
-		threadpara->fx += (tgt_ave*2 - 1) * (tgt_ave*2 - 1);
-
-		for(int i = 0; i < threadpara->v_domains.size(); i++)
-		{
-			threadpara->v_domains[i]->tgtRM->trainOnUnlabel(tgt_ave, threadpara->v_domains.size());
-		}
-	}
-
-	pthread_exit(NULL);
-}*/
-
-//MixedDomain::MixedDomain(Parameter* para, vector<Domain*>& domains, RAE* srcRAE, RAE* tgtRAE)
 MixedDomain::MixedDomain(Parameter* para, vector<Domain*>& domains, RAE* srcRAE)
 {
 	this->domains = domains;
 	this->srcRAE = srcRAE;
-	//this->tgtRAE = tgtRAE;
 	this->para = para;
 	this->amountOfDomains = domains.size();
 
-	// thread_num = 1
 	int thread_num = atoi( para->getPara("THREAD_NUM").c_str() );
 	vector<string> v_domains;
 
@@ -128,15 +89,11 @@ void MixedDomain::training()
 	param.max_iterations = atoi(para->getPara("IterationTime").c_str());
 	int vecSize = atoi(para->getPara("WordVecSize").c_str());
 
-	/*x = lbfgs_malloc((vecSize*2*2 + 2)*2*domains.size() + srcRAE->getRAEWeightSize()*2);
-	Map<MatrixLBFGS>(x, (vecSize*2*2 + 2)*2*domains.size() + srcRAE->getRAEWeightSize()*2, 1).setRandom();*/
-
 	x = lbfgs_malloc((vecSize*2*2 + 2)*domains.size() + srcRAE->getRAEWeightSize());
 	Map<MatrixLBFGS>(x, (vecSize*2*2 + 2)*domains.size() + srcRAE->getRAEWeightSize(), 1).setRandom();
 
 	lbfgsfloatval_t fx = 0;
 	int ret = 0;
-	//ret = lbfgs( (vecSize*2*2 + 2)*2*domains.size() + srcRAE->getRAEWeightSize()*2, x, &fx, evaluate, progress, this, &param);
 	ret = lbfgs( (vecSize*2*2 + 2)*domains.size() + srcRAE->getRAEWeightSize(), x, &fx, evaluate, progress, this, &param);
 
 	cout << "L-BFGS optimization terminated with status code = " << ret << endl;
@@ -176,18 +133,9 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 	}
 
 	srcRAE->updateWeights(x);
-	//tgtRAE->updateWeights(x + srcRAE->getRAEWeightSize());
 
 	for(int i = 0; i < amountOfDomains; i++)
 	{
-/*
-		domains[i]->srcRM->rae = srcRAE->copy();
-		domains[i]->tgtRM->rae = tgtRAE->copy();
-		domains[i]->srcRM->updateWeights(x + srcRAE->getRAEWeightSize()*2 + i*2*domains[i]->srcRM->getRMWeightSize());
-		domains[i]->tgtRM->updateWeights(x + srcRAE->getRAEWeightSize()*2 + (i*2+1)*domains[i]->srcRM->getRMWeightSize());
-		wargs[i].g_RAE = g;
-		wargs[i].g_RM = g + srcRAE->getRAEWeightSize()*2 + i*2*domains[i]->srcRM->getRMWeightSize();*/
-
 		domains[i]->srcRM->rae = srcRAE->copy();
 		domains[i]->srcRM->updateWeights(x + srcRAE->getRAEWeightSize() + i*domains[i]->srcRM->getRMWeightSize());
 		wargs[i].g_RAE = lbfgs_malloc(srcRAE->getRAEWeightSize());
@@ -207,7 +155,6 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 		fx += wargs[i].error;
 	}
 
-	//for(int i = 0; i < srcRAE->getRAEWeightSize()*2; i++)
 	for(int i = 0; i < srcRAE->getRAEWeightSize(); i++)
 	{
 		for(int d = 0; d < amountOfDomains; d++)
@@ -225,7 +172,6 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 	//Unlabel ÑµÁ·
 	lbfgsfloatval_t src_f = 0, tgt_f = 0;
 	srcRAE->delToZero();
-	//tgtRAE->delToZero();
 	
 	for(int i = 0; i < amountOfDomains; i++)
 	{
@@ -308,89 +254,12 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 	srcRAE->delWeight1 = srcRAE->delWeight1/unlabelData.size();
 	srcRAE->delWeight1_b = srcRAE->delWeight1_b/unlabelData.size();
 
-	/*if(isTrain)
-	{
-		getUnlabelData(para->getPara("TargetUnlabelTrainingData"));
-	}
-	else if(isDev)
-	{
-		getUnlabelData(para->getPara("TargetUnlabelDevData"));
-	}
-
-
-	UnlabelThreadNum = atoi(para->getPara("UnlabelThreadNum").c_str());
-	batchsize = unlabelData.size() / UnlabelThreadNum;
-	if(batchsize == 0)
-	{
-		UnlabelThreadNum = 1;
-	}
-
-	for(int i = 0; i < UnlabelThreadNum; i++)
-	{
-		threadpara[i].fx = 0;
-		threadpara[i].unlabelData.clear();
-		if(i == UnlabelThreadNum-1)
-		{
-			threadpara[i].unlabelData.assign(unlabelData.begin()+i*batchsize, unlabelData.end());
-			if(batchsize == 0)
-			{
-				threadpara[i].instance_num = unlabelData.size();
-			}
-			else
-			{
-				threadpara[i].instance_num = unlabelData.size()%batchsize;
-			}
-		}
-		else
-		{
-			threadpara[i].unlabelData.assign(unlabelData.begin()+i*batchsize, unlabelData.begin()+(i+1)*batchsize);
-			threadpara[i].instance_num = batchsize;
-		}
-	}
-
-	
-	delete pt;
-	pt = NULL;
-	pt = new pthread_t[UnlabelThreadNum];
-	for (int a = 0; a < UnlabelThreadNum; a++) pthread_create(&pt[a], NULL, tgtUnlabelThread, (void *)(threadpara + a));
-	for (int a = 0; a < UnlabelThreadNum; a++) pthread_join(pt[a], NULL);
-
-	for(int i = 0; i < UnlabelThreadNum; i++)
-	{
-		tgt_f += threadpara[i].fx;
-
-		for(int d = 0; d < amountOfDomains; d++)
-		{
-			domains[d]->tgtRM->delWeight += threadpara[i].v_domains[d]->tgtRM->delWeight;
-			domains[d]->tgtRM->delWeight_b += threadpara[i].v_domains[d]->tgtRM->delWeight_b;
-			copyDelweights(domains[d]->tgtRM->rae1, threadpara[i].v_domains[d]->tgtRM->rae1);
-			copyDelweights(domains[d]->tgtRM->rae2, threadpara[i].v_domains[d]->tgtRM->rae2);
-		}
-	}
-
-	tgt_f /= unlabelData.size();
-	for(int i = 0; i < amountOfDomains; i++)
-	{
-		domains[i]->tgtRM->delWeight /= unlabelData.size();
-		domains[i]->tgtRM->delWeight_b /= unlabelData.size();
-		copyDelweights(tgtRAE, domains[i]->tgtRM->rae1);
-		copyDelweights(tgtRAE, domains[i]->tgtRM->rae2);
-	}
-	tgtRAE->delWeight1 = tgtRAE->delWeight1/(unlabelData.size() * amountOfDomains);
-	tgtRAE->delWeight1_b = tgtRAE->delWeight1_b/(unlabelData.size() * amountOfDomains);
-
-	fx -= (src_f+tgt_f);*/
-
 	for(int d = 0; d < amountOfDomains; d++)
 	{
-		//int base = srcRAE->getRAEWeightSize()*2+d*domains[d]->getWeightsSize();
 		int base = srcRAE->getRAEWeightSize()+d*domains[d]->getWeightsSize();
 		domains[d]->update(g+base, g);
 		srcRAE->delToZero();
-		//tgtRAE->delToZero();
 	}
-
-
 
 	fx -= src_f;
 
@@ -517,19 +386,16 @@ void MixedDomain::mixedTesting()
 	vector<pair<int, map<string, string> > > trainingData;
 
 	srcOut.open(string("./log/MixedDomain/srcNews.log").c_str(), ios::out);
-	//tgtOut.open(string("./log/MixedDomain/tgtNews.log").c_str(), ios::out);
 
 	trainingData = getTestData();
 
 	bool isDev = atoi(para->getPara("IsDev").c_str());
 
 	srcOut << "True value\t\tPredict value" << endl;
-	//tgtOut << "True value\t\tPredict value" << endl;
 
 	int srcCount = 0;
 	int tgtCount = 0;
 
-	//for(int i = trainingData.size()-100; i < trainingData.size(); i++)
 	for(int i = 0; i < trainingData.size(); i++)
 	{
 		int srcMonoCount = 0, tgtMonoCount = 0;
@@ -537,18 +403,12 @@ void MixedDomain::mixedTesting()
 		for(int d = 0; d < amountOfDomains; d++)
 		{
 			domains[d]->srcRM->getData(trainingData[i].second["ct1"], trainingData[i].second["ct2"]);
-			//domains[d]->tgtRM->getData(trainingData[i].second["et1"], trainingData[i].second["et2"]);
 
 			if(domains[d]->srcRM->outputLayer(0, 0) > domains[d]->srcRM->outputLayer(0, 1))
 			{
 				srcMonoCount++;
 			}
 
-/*
-			if(domains[d]->tgtRM->outputLayer(0, 0) > domains[d]->tgtRM->outputLayer(0, 1))
-			{
-				tgtMonoCount++;
-			}*/
 		}
 		if(srcMonoCount > amountOfDomains /2)
 		{
@@ -558,16 +418,6 @@ void MixedDomain::mixedTesting()
 		{
 			isSrcMono = false;
 		}
-		
-/*
-		if(tgtMonoCount > amountOfDomains /2)
-		{
-			isTgtMono = true;
-		}
-		else
-		{
-			isTgtMono = false;
-		}*/
 
 		if(isSrcMono)
 		{
@@ -584,38 +434,21 @@ void MixedDomain::mixedTesting()
 			}
 		}
 
-/*
-		if(isTgtMono)
-		{
-			if(trainingData[i].first == 1)
-			{
-				tgtCount++;
-			}
-		}
-		else
-		{
-			if(trainingData[i].first == 0)
-			{
-				tgtCount++;
-			}
-		}*/
-
 		srcOut << trainingData[i].first << "\t\t";
-		//tgtOut << trainingData[i].first << "\t\t";
+
 		for(int d = 0; d < amountOfDomains; d++)
 		{
 			srcOut << "[" << domains[d]->srcRM->outputLayer(0,0) << " , " << domains[d]->srcRM->outputLayer(0,1) << "] ";
-			//tgtOut << "[" << domains[d]->tgtRM->outputLayer(0,0) << " , " << domains[d]->tgtRM->outputLayer(0,1) << "] ";
+
 		}
 		srcOut << endl;
-		//tgtOut << endl;
+
 	}
 
 	srcOut << "Precision: " << (lbfgsfloatval_t)srcCount/trainingData.size() << endl;
-	//tgtOut << "Precision: " << (lbfgsfloatval_t)tgtCount/trainingData.size() << endl;
+
 
 	srcOut.close();
-	//tgtOut.close();
 }
 
 void train(worker_arg_t* arg)
