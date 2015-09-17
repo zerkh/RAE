@@ -28,16 +28,16 @@ typedef Matrix<lbfgsfloatval_t, 1, Eigen::Dynamic> VectorLBFGS;
 static lbfgsfloatval_t ALPHA = 1 * pow(10, -2);
 
 //Ereo
-static lbfgsfloatval_t BETA = 8 * pow(10, -2);
+static lbfgsfloatval_t BETA = 8 * pow(10, -1);
 
 //Edis
 static lbfgsfloatval_t GAMMA = 6 * pow(10, -2);
 
 //Decay
-static lbfgsfloatval_t ZETA = 1 * pow(10, -3);
+static lbfgsfloatval_t ZETA = 1 * pow(10, -2);
 
 //Cons
-static lbfgsfloatval_t DELTA = 5 * pow(10, -3);
+static lbfgsfloatval_t DELTA = 5 * pow(10, -2);
 
 static bool isUpdateRAE = true;
 static bool isUpdateRM = true;
