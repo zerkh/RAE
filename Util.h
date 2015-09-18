@@ -36,6 +36,21 @@ inline string strip_str(string str)
 	return newStr;
 }
 
+inline int getInternalNode(string str)
+{
+	stringstream ss(str);
+
+	int count = 0;
+
+	string word;
+	while(ss >> word)
+	{
+		count++;
+	}
+
+	return count-1;
+}
+
 inline MatrixLBFGS tanh(MatrixLBFGS m)
 {
 	for(int row = 0; row < m.rows(); row++)

@@ -5,7 +5,7 @@ static void* RAELBFGS::deepThread(void* arg)
 {
 	RAEThreadPara* threadpara = (RAEThreadPara*)arg;
 
-	threadpara->lossVal = threadpara->cRAE->_training(threadpara->g);
+	threadpara->lossVal.first = threadpara->cRAE->_training(threadpara->g);
 
 	pthread_exit(NULL);
 }
@@ -69,7 +69,7 @@ lbfgsfloatval_t RAE::loss()
 		tmpNode = tmpNode->getLeftChildNode();
 	}
 
-	return val + decay();
+	return val + ZETA*decay();
 }
 
 //显示参数
@@ -237,7 +237,7 @@ void RAE::buildTree(string bp)
 
 		Node* newNode = new Node(BASED_NODE, count, count, tmp, words->m_words[tmp], NULL, NULL, NULL);
 		treeNodes.push_back(newNode);
-	
+
 		count++;
 	}
 	count--;
@@ -247,7 +247,7 @@ void RAE::buildTree(string bp)
 		RAETree = new Tree(treeNodes[0]);
 		return;
 	}
-	
+
 	RAETree = new Tree();
 	//选取Erec最小的两个based节点
 	vector<lbfgsfloatval_t> v_recError;
@@ -369,7 +369,7 @@ RAE* RAE::copy()
 	RAE* newRAE = new RAE(this->vecSize);
 	newRAE->vecSize = this->vecSize;
 	newRAE->words = this->words;
-	
+
 	newRAE->RAETree = NULL;
 	newRAE->weights1 = this->weights1;
 	newRAE->weights_b1 = this->weights_b1;
@@ -412,72 +412,86 @@ lbfgsfloatval_t RAE::decay()
 	return val;
 }
 
-void RAE::trainRecError()
+//递归求导
+void RAE::trainRecError(Node* node, MatrixLBFGS delta_parent, int freq = 1)
 {
+	if(node->nodeType == BASED_NODE)
+	{
+		return;
+	}
+
 	Node* tmpNode = this->RAETree->getRoot();
 
-	//更新w2, b2
-	while(tmpNode->getNodeType() != BASED_NODE)
+	MatrixLBFGS c = concatMatrix(tmpNode->getLeftChildNode()->getVector(),tmpNode->getRightChildNode()->getVector());
+	MatrixLBFGS cRec = concatMatrix(tmpNode->leftReconst,tmpNode->rightReconst);
+
+	for(int row = 0; row < weights2.rows(); row++)
 	{
-		MatrixLBFGS c = concatMatrix(tmpNode->getLeftChildNode()->getVector(),tmpNode->getRightChildNode()->getVector());
-		MatrixLBFGS cRec = concatMatrix(tmpNode->leftReconst,tmpNode->rightReconst);
-
-		for(int row = 0; row < weights2.rows(); row++)
+		lbfgsfloatval_t result = 2 * (cRec(0, row)-c(0, row)) * (1-pow(cRec(0, row), 2));
+		for(int col = 0; col < weights2.cols(); col++)
 		{
-			lbfgsfloatval_t result = (cRec(0, row)-c(0, row)) * (1-pow(cRec(0, row), 2));
-			for(int col = 0; col < weights2.cols(); col++)
-			{
-				delWeight2(row, col) = delWeight2(row,col) + ALPHA * result * tmpNode->getVector()(0, col);
-			}
-			delWeight2_b(0, row) = ALPHA * result + delWeight2_b(0, row);
+			delWeight2(row, col) = delWeight2(row,col) + ALPHA * result * tmpNode->getVector()(0, col) * freq;
 		}
-
-		tmpNode = tmpNode->getLeftChildNode();
+		delWeight2_b(0, row) = ALPHA * result * freq + delWeight2_b(0, row);
 	}
 
-	//仅对每一对重构中的权重求导
+
 	tmpNode = this->RAETree->getRoot();
 
-	while(tmpNode->getNodeType() != BASED_NODE)
+	MatrixLBFGS c = concatMatrix(tmpNode->getLeftChildNode()->getVector(),tmpNode->getRightChildNode()->getVector());
+	MatrixLBFGS cRec = concatMatrix(tmpNode->leftReconst,tmpNode->rightReconst);
+	MatrixLBFGS tmpDelWb = MatrixLBFGS(1, 2*vecSize);
+
+	for(int row = 0; row < weights2.rows(); row++)
 	{
-		MatrixLBFGS c = concatMatrix(tmpNode->getLeftChildNode()->getVector(),tmpNode->getRightChildNode()->getVector());
-		MatrixLBFGS cRec = concatMatrix(tmpNode->leftReconst,tmpNode->rightReconst);
-		MatrixLBFGS tmpDelWb = MatrixLBFGS(1, 2*vecSize);
-
-		for(int row = 0; row < weights2.rows(); row++)
-		{
-			lbfgsfloatval_t result = (cRec(0, row)-c(0, row)) * (1-pow(cRec(0, row), 2));
-			tmpDelWb(0, row) = ALPHA * result;
-		}
-
-		tmpDelWb = tmpDelWb*weights2;
-
-		recurDel(tmpNode, tmpDelWb);
-/*
-		for(int col = 0; col < tmpDelWb.cols(); col++)
-		{
-			tmpDelWb(0, col) *= (1-pow(tmpNode->getVector()(0, col), 2));
-		}
-
-		for(int row = 0; row < delWeight1.rows(); row++)
-		{
-			delWeight1_b(0, row) = delWeight1_b(0, row)+ ALPHA * tmpDelWb(0, row);
-			for(int col = 0; col < delWeight1.cols(); col++)
-			{
-				delWeight1(row, col) = delWeight1(row, col) + ALPHA * tmpDelWb(0, row) * c(0, col);
-			}
-		}*/
-
-		tmpNode = tmpNode->getLeftChildNode();
+		lbfgsfloatval_t result = (cRec(0, row)-c(0, row)) * (1-pow(cRec(0, row), 2));
+		tmpDelWb(0, row) = ALPHA * result;
 	}
 
-	delWeight1 += ZETA*weights1;
-	delWeight2 += ZETA*weights2;
+	tmpDelWb = tmpDelWb*weights2;
+
+	tmpDelWb += delta_parent;
+
+	MatrixLBFGS con = concatMatrix(node->getLeftChildNode()->getVector(), node->getRightChildNode()->getVector());
+
+	for(int col = 0; col < tmpDelWb.cols(); col++)
+	{
+		tmpDelWb(0, col) *= (1-pow(node->getVector()(0, col), 2));
+	}
+
+	for(int row = 0; row < delWeight1.rows(); row++)
+	{
+		for(int col = 0; col < delWeight1.cols(); col++)
+		{
+			delWeight1(row, col) += tmpDelWb(0, row)*con(0, col);
+		}
+	}
+
+	MatrixLBFGS der = MatrixLBFGS(1 ,vecSize);
+	MatrixLBFGS tmp = tmpDelWb * weights1;
+	if(node->leftChild->getNodeType() != BASED_NODE)
+	{
+		for(int col = 0; col < vecSize; col++)
+		{
+			der(0, col) = tmp(0, col);
+		}
+	}
+	else
+	{
+		for(int col = 0; col < vecSize; col++)
+		{
+			der(0, col) = tmp(0, col+vecSize);
+		}
+	}
+
+	trainRecError(node->getLeftChildNode(), der, freq);
 }
 
 //读取训练数据
 void RAE::loadTrainingData()
 {
+	vector<string> tmpData;
+
 	trainingData.clear();
 	string dataFile;
 	string domainName;
@@ -529,13 +543,13 @@ void RAE::loadTrainingData()
 
 			if(RAEType == SL)
 			{
-				trainingData.push_back(m_tmp["ct1"]);
-				trainingData.push_back(m_tmp["ct2"]);
+				tmpData.push_back(m_tmp["ct1"]);
+				tmpData.push_back(m_tmp["ct2"]);
 			}
 			else
 			{
-				trainingData.push_back(m_tmp["et1"]);
-				trainingData.push_back(m_tmp["et2"]);
+				tmpData.push_back(m_tmp["et1"]);
+				tmpData.push_back(m_tmp["et2"]);
 			}
 		}
 
@@ -584,16 +598,22 @@ void RAE::loadTrainingData()
 		pos++;
 		pss.second = line.substr(pos);
 
-		trainingData.push_back(pss.first);
-		trainingData.push_back(pss.second);
+		tmpData.push_back(pss.first);
+		tmpData.push_back(pss.second);
 	}
 
-	vector<string>::iterator it;
-	sort(trainingData.begin(), trainingData.end());
-	it = unique(trainingData.begin(), trainingData.end());
-	trainingData.erase(it, trainingData.end());
+	for(int i = 0; i < tmpData.size(); i++)
+	{
+		if(trainingData.find(tmpData[i]) == trainingData.end())
+		{
+			trainingData.insert(make_pair(tmpData[i], 1));
+		}
+		else
+		{
+			trainingData.find(tmpData[i])->second += 1;
+		}
+	}
 
-	cout << trainingData.size() << endl;
 	in.close();
 }
 
@@ -660,15 +680,21 @@ lbfgsfloatval_t RAE::_training(lbfgsfloatval_t* g)
 {
 	lbfgsfloatval_t error = 0;
 
-	for(int i = 0; i < trainingData.size(); i++)
+	for(map<string, int>::iterator it = trainingData.begin(); it != trainingData.end(); it++)
 	{
 		//获取实例
-		buildTree(trainingData[i]);	
+		buildTree(it->first);	
 
 		error += loss();
 
+		MatrixLBFGS delta_parent = MatrixLBFGS(1, vecSize);
+		delta_parent.setZero();
+
 		//对rae求导
-		trainRecError();
+		trainRecError(RAETree->root, delta_parent, it->second);
+
+		delWeight1 += ZETA*weights1;
+		delWeight2 += ZETA*weights2;
 
 		update(g);
 
@@ -677,48 +703,6 @@ lbfgsfloatval_t RAE::_training(lbfgsfloatval_t* g)
 	}
 
 	return error;
-}
-
-void RAE::recurDel(Node* n, MatrixLBFGS derivation)
-{
-	if(n->getNodeType() == BASED_NODE)
-	{
-		return;
-	}
-
-	MatrixLBFGS con = concatMatrix(n->getLeftChildNode()->getVector(), n->getRightChildNode()->getVector());
-
-	for(int col = 0; col < derivation.cols(); col++)
-	{
-		derivation(0, col) *= (1-pow(n->getVector()(0, col), 2));
-	}
-
-	for(int row = 0; row < delWeight1.rows(); row++)
-	{
-		for(int col = 0; col < delWeight1.cols(); col++)
-		{
-			delWeight1(row, col) += derivation(0, row)*con(0, col);
-		}
-	}
-
-	MatrixLBFGS der = MatrixLBFGS(1 ,vecSize);
-	MatrixLBFGS tmp = derivation * weights1;
-	if(n->leftChild->getNodeType() != BASED_NODE)
-	{
-		for(int col = 0; col < vecSize; col++)
-		{
-			der(0, col) = tmp(0, col);
-		}
-	}
-	else
-	{
-		for(int col = 0; col < vecSize; col++)
-		{
-			der(0, col) = tmp(0, col+vecSize);
-		}
-	}
-
-	recurDel(n->getLeftChildNode(), der);
 }
 
 lbfgsfloatval_t RAE::_evaluate(const lbfgsfloatval_t* x, lbfgsfloatval_t* g, const int n, const lbfgsfloatval_t step)
@@ -736,12 +720,31 @@ lbfgsfloatval_t RAE::_evaluate(const lbfgsfloatval_t* x, lbfgsfloatval_t* g, con
 		threadpara[i].g = lbfgs_malloc(getRAEWeightSize());
 		if(i == RAEThreadNum-1)
 		{
-			threadpara[i].cRAE->trainingData.assign(trainingData.begin()+i*batchsize, trainingData.end());
+			map<string, int>::iterator s;
+			for(int d = 0; d < i*batchsize; d++)
+			{
+				s++;
+			}
+
+			threadpara[i].cRAE->trainingData.insert(s, trainingData.end());
 			threadpara[i].instance_num = trainingData.size()%batchsize;
 		}
 		else
 		{
-			threadpara[i].cRAE->trainingData.assign(trainingData.begin()+i*batchsize, trainingData.begin()+(i+1)*batchsize);
+			map<string, int>::iterator s, e;
+			s = trainingData.begin();
+			e = trainingData.begin();
+
+			for(int d = 0; d < i*batchsize; d++)
+			{
+				s++;
+			}
+			for(int d = 0; d < (i+1)*batchsize; d++)
+			{
+				e++;
+			}
+
+			threadpara[i].cRAE->trainingData.insert(s, e);
 			threadpara[i].instance_num = batchsize;
 		}
 	}
@@ -751,17 +754,23 @@ lbfgsfloatval_t RAE::_evaluate(const lbfgsfloatval_t* x, lbfgsfloatval_t* g, con
 
 	for(int i = 0; i < RAEThreadNum; i++)
 	{
-		fx += threadpara[i].lossVal;
+		fx += threadpara[i].lossVal.first;
 		for(int elem = 0; elem < getRAEWeightSize(); elem++)
 		{
 			g[elem] += threadpara[i].g[elem];
 		}
 	}
 
-	fx /= trainingData.size();
+	int internal_node_num = 0;
+	for(map<string, int>::iterator it = trainingData.begin(); it != trainingData.end(); it++)
+	{
+		internal_node_num += getInternalNode(it->first);
+	}
+
+	fx /= internal_node_num;
 	for(int elem = 0; elem < getRAEWeightSize(); elem++)
 	{
-		g[elem] /= trainingData.size();
+		g[elem] /= internal_node_num;
 	}
 
 	delete pt;

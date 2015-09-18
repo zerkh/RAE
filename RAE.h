@@ -28,7 +28,7 @@ public:
 	MatrixLBFGS delWeight2;
 	MatrixLBFGS delWeight2_b;
 
-	vector<string> trainingData;
+	map<string, int> trainingData;
 	int RAEType;
 
 	RAE(Parameter* para, WordVec* words, int RAEType);
@@ -36,7 +36,7 @@ public:
 	void logWeights(Parameter* para);
 	int getVecSize();
 	void buildTree(string bp);
-	void trainRecError();
+	void trainRecError(Node* node, MatrixLBFGS delta_parent, int freq = 1);
 	void loadTrainingData();
 	lbfgsfloatval_t loss();
 	lbfgsfloatval_t decay();

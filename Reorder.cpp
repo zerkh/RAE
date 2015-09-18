@@ -99,7 +99,7 @@ void ReorderModel::softmax()
 
 	o1 = exp(outputLayer(0,0));
 	o2 = exp(outputLayer(0,1));
-/*
+
 	if(exp(outputLayer(0,1)) == 0 && exp(outputLayer(0,0)) == 0)
 	{
 		o1 = 1;
@@ -115,7 +115,7 @@ void ReorderModel::softmax()
 		{
 			o1 = numeric_limits<lbfgsfloatval_t>::max() * 0.1;
 		}
-	}*/
+	}
 	result = o1/(o1+o2);	
 
 	outputLayer(0, 0) = result;
@@ -123,7 +123,7 @@ void ReorderModel::softmax()
 	softmaxLayer(0, 0) = log(result);
 	softmaxLayer(0, 1) = log(1 - result);
 
-/*
+
 	if(!finite(softmaxLayer(0, 0)))
 	{
 		softmaxLayer(0, 0) = -1 * numeric_limits<lbfgsfloatval_t>::max();
@@ -132,7 +132,7 @@ void ReorderModel::softmax()
 	if(!finite(softmaxLayer(0, 1)))
 	{       
 		softmaxLayer(0, 1) = -1 * numeric_limits<lbfgsfloatval_t>::max();
-	}*/
+	}
 }
 
 void ReorderModel::getData(string bp1, string bp2)
@@ -222,81 +222,6 @@ void ReorderModel::trainRM(MatrixLBFGS y, int Type)
 
 	rae1->recurDel(preNode1, theta1);
 	rae2->recurDel(preNode2, theta2);
-
-/*
-	while(preNode1->getNodeType() != BASED_NODE)
-	{
-		for(int col = 0; col < theta1.cols(); col++)
-		{
-			theta1(0, col) *= (1-pow(preNode1->getVector()(0,col), 2));
-		}
-
-		for(int row = 0; row < vecSize; row++)
-		{
-			for(int col = 0; col < vecSize*2; col++)
-			{
-				if(col < vecSize)
-				{
-					rae1->delWeight1(row, col) = rae1->delWeight1(row, col) + theta1(0, row) * (preNode1->getLeftChildNode()->getVector())(0, col);
-				}
-				else
-				{
-					rae1->delWeight1(row, col) = rae1->delWeight1(row, col) + theta1(0, row) * (preNode1->getRightChildNode()->getVector())(0, col-vecSize);
-				}
-			}
-
-			rae1->delWeight1_b(0, row) = rae1->delWeight1_b(0, row) + theta1(0, row);
-		}
-
-		theta1 = theta1 * rae1->weights1;
-
-		MatrixLBFGS tmpTheta = MatrixLBFGS(theta.rows(), theta.cols()/2);
-
-		for(int i = 0; i < theta.cols()/2; i++)
-		{
-			tmpTheta(0, i) = theta1(0, i);
-		}
-
-		theta1 = tmpTheta;
-		preNode1 = preNode1->getLeftChildNode();
-	}
-
-	while(preNode2->getNodeType() != BASED_NODE)
-	{
-		for(int col = 0; col < theta2.cols(); col++)
-		{
-			theta2(0, col) *= (1-pow(preNode2->getVector()(0,col), 2));
-		}
-
-		for(int row = 0; row < vecSize; row++)
-		{
-			for(int col = 0; col < vecSize*2; col++)
-			{
-				if(col < vecSize)
-				{
-					rae2->delWeight1(row, col) = rae2->delWeight1(row, col) + theta2(0, row) * (preNode2->getLeftChildNode()->getVector())(0, col);
-				}
-				else
-				{
-					rae2->delWeight1(row, col) = rae2->delWeight1(row, col) + theta2(0, row) * (preNode2->getRightChildNode()->getVector())(0, col-vecSize);
-				}
-			}
-
-			rae2->delWeight2_b(0, row) = rae2->delWeight2_b(0, row) + theta2(0, row);
-		}
-
-		theta2 = theta2 * rae2->weights1;
-
-		MatrixLBFGS tmpTheta = MatrixLBFGS(theta.rows(), theta.cols()/2);
-
-		for(int i = 0; i < theta.cols()/2; i++)
-		{
-			tmpTheta(0, i) = theta2(0, i);
-		}
-
-		theta2 = tmpTheta;
-		preNode2 = preNode2->getLeftChildNode();
-	}*/
 }
 
 void ReorderModel::trainOnUnlabel(lbfgsfloatval_t ave_p, lbfgsfloatval_t amountOfDomain)
@@ -339,78 +264,4 @@ void ReorderModel::trainOnUnlabel(lbfgsfloatval_t ave_p, lbfgsfloatval_t amountO
 
 	rae1->recurDel(preNode1, theta1);
 	rae2->recurDel(preNode2, theta2);
-
-	/*while(preNode1->getNodeType() != BASED_NODE)
-	{
-		for(int col = 0; col < theta1.cols(); col++)
-		{
-			theta1(0, col) *= (1-pow(preNode1->getVector()(0,col), 2));
-		}
-
-		for(int row = 0; row < vecSize; row++)
-		{
-			for(int col = 0; col < vecSize*2; col++)
-			{
-				if(col < vecSize)
-				{
-					rae1->delWeight1(row, col) = rae1->delWeight1(row, col) + theta1(0, row) * (preNode1->getLeftChildNode()->getVector())(0, col);
-				}
-				else
-				{
-					rae1->delWeight1(row, col) = rae1->delWeight1(row, col) + theta1(0, row) * (preNode1->getRightChildNode()->getVector())(0, col-vecSize);
-				}
-			}
-
-			rae1->delWeight1_b(0, row) = rae1->delWeight1_b(0, row) + theta1(0, row);
-		}
-
-		theta1 = theta1 * rae1->weights1;
-
-		MatrixLBFGS tmpTheta = MatrixLBFGS(theta.rows(), theta.cols()/2);
-
-		for(int i = 0; i < theta.cols()/2; i++)
-		{
-			tmpTheta(0, i) = theta1(0, i);
-		}
-
-		theta1 = tmpTheta;
-		preNode1 = preNode1->getLeftChildNode();
-	}
-
-	while(preNode2->getNodeType() != BASED_NODE)
-	{
-		for(int col = 0; col < theta2.cols(); col++)
-		{
-			theta2(0, col) *= (1-pow(preNode2->getVector()(0,col), 2));
-		}
-
-		for(int row = 0; row < vecSize; row++)
-		{
-			for(int col = 0; col < vecSize*2; col++)
-			{
-				if(col < vecSize)
-				{
-					rae2->delWeight1(row, col) = rae2->delWeight1(row, col) + theta2(0, row) * (preNode2->getLeftChildNode()->getVector())(0, col);
-				}
-				else
-				{
-					rae2->delWeight1(row, col) = rae2->delWeight1(row, col) + theta2(0, row) * (preNode2->getRightChildNode()->getVector())(0, col-vecSize);
-				}
-			}
-
-			rae2->delWeight2_b(0, row) = rae2->delWeight2_b(0, row) + theta2(0, row);
-		}
-
-		theta2 = theta2 * rae2->weights1;
-
-		MatrixLBFGS tmpTheta = MatrixLBFGS(theta.rows(), theta.cols()/2);
-
-		for(int i = 0; i < theta.cols()/2; i++)
-		{
-			tmpTheta(0, i) = theta2(0, i);
-		}
-
-		theta2 = tmpTheta;
-		preNode2 = preNode2->getLeftChildNode();
-	}*/
 }

@@ -111,12 +111,23 @@ void Domain::loadTrainingData()
 		trainingData.push_back(make_pair(order, m_tmp));
 	}
 
+	vector<pair<int, map<string, string> > > tmp = trainingData;
+	trainingData.clear();
+
+	int batchsize = atoi(para->getPara("BatchSize").c_str());
+	srand(time(0));
+	for(int i = 0; i < batchsize; i++)
+	{
+		trainingData.push_back(tmp[rand()%tmp.size()]);
+	}
+
 	in.close();
 }
 
-lbfgsfloatval_t Domain::training(lbfgsfloatval_t* g_RM, lbfgsfloatval_t* g_RAE)
+pair<lbfgsfloatval_t, lbfgsfloatval_t> Domain::training(lbfgsfloatval_t* g_RM, lbfgsfloatval_t* g_RAE)
 {
 	lbfgsfloatval_t error = 0;
+	lbfgsfloatval_t rae_error = 0;
 
 	for(int i = 0; i < trainingData.size(); i++)
 	{
@@ -125,9 +136,15 @@ lbfgsfloatval_t Domain::training(lbfgsfloatval_t* g_RM, lbfgsfloatval_t* g_RAE)
 		//获取实例
 		srcRM->getData(trainingData[i].second["ct1"], trainingData[i].second["ct2"]);
 
+		rae_error += srcRM->rae1->loss();
+		rae_error += srcRM->rae2->loss();
+
+		MatrixLBFGS delta_parent(1, atoi(para->getPara("WordVecSize").c_str()));
+		delta_parent.setZero();
+
 		//对rae求导
-		srcRM->rae1->trainRecError();
-		srcRM->rae2->trainRecError();
+		srcRM->rae1->trainRecError(srcRM->rae1->RAETree->root, delta_parent);
+		srcRM->rae2->trainRecError(srcRM->rae2->RAETree->root, delta_parent);
 
 		//Ereo
 		MatrixLBFGS mono = MatrixLBFGS(1,2);
@@ -154,7 +171,7 @@ lbfgsfloatval_t Domain::training(lbfgsfloatval_t* g_RM, lbfgsfloatval_t* g_RAE)
 		update(g_RM, g_RAE);
 	}
 
-	return error;
+	return make_pair(error, rae_error);
 }
 
 //获取单领域的loss value
@@ -164,8 +181,9 @@ lbfgsfloatval_t Domain::loss(int ind)
 
 	srcRM->getData(trainingData[ind].second["ct1"], trainingData[ind].second["ct2"]);
 
+/*
 	lossVal += ALPHA * srcRM->rae1->loss();
-	lossVal += ALPHA * srcRM->rae2->loss();
+	lossVal += ALPHA * srcRM->rae2->loss();*/
 
 
 	if(trainingData[ind].first == 1)
