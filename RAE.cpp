@@ -413,7 +413,7 @@ lbfgsfloatval_t RAE::decay()
 }
 
 //µÝ¹éÇóµ¼
-void RAE::trainRecError(Node* node, MatrixLBFGS delta_parent, int freq = 1)
+void RAE::trainRecError(Node* node, MatrixLBFGS delta_parent, int freq)
 {
 	if(node->nodeType == BASED_NODE)
 	{
@@ -438,8 +438,8 @@ void RAE::trainRecError(Node* node, MatrixLBFGS delta_parent, int freq = 1)
 
 	tmpNode = this->RAETree->getRoot();
 
-	MatrixLBFGS c = concatMatrix(tmpNode->getLeftChildNode()->getVector(),tmpNode->getRightChildNode()->getVector());
-	MatrixLBFGS cRec = concatMatrix(tmpNode->leftReconst,tmpNode->rightReconst);
+	c = concatMatrix(tmpNode->getLeftChildNode()->getVector(),tmpNode->getRightChildNode()->getVector());
+	cRec = concatMatrix(tmpNode->leftReconst,tmpNode->rightReconst);
 	MatrixLBFGS tmpDelWb = MatrixLBFGS(1, 2*vecSize);
 
 	for(int row = 0; row < weights2.rows(); row++)
