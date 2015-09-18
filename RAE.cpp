@@ -705,6 +705,48 @@ lbfgsfloatval_t RAE::_training(lbfgsfloatval_t* g)
 	return error;
 }
 
+void RAE::recurDel(Node* n, MatrixLBFGS derivation)
+{
+	if(n->getNodeType() == BASED_NODE)
+	{
+		return;
+	}
+
+	MatrixLBFGS con = concatMatrix(n->getLeftChildNode()->getVector(), n->getRightChildNode()->getVector());
+
+	for(int col = 0; col < derivation.cols(); col++)
+	{
+		derivation(0, col) *= (1-pow(n->getVector()(0, col), 2));
+	}
+
+	for(int row = 0; row < delWeight1.rows(); row++)
+	{
+		for(int col = 0; col < delWeight1.cols(); col++)
+		{
+			delWeight1(row, col) += derivation(0, row)*con(0, col);
+		}
+	}
+
+	MatrixLBFGS der = MatrixLBFGS(1 ,vecSize);
+	MatrixLBFGS tmp = derivation * weights1;
+	if(n->leftChild->getNodeType() != BASED_NODE)
+	{
+		for(int col = 0; col < vecSize; col++)
+		{
+			der(0, col) = tmp(0, col);
+		}
+	}
+	else
+	{
+		for(int col = 0; col < vecSize; col++)
+		{
+			der(0, col) = tmp(0, col+vecSize);
+		}
+	}
+
+	recurDel(n->getLeftChildNode(), der);
+}
+
 lbfgsfloatval_t RAE::_evaluate(const lbfgsfloatval_t* x, lbfgsfloatval_t* g, const int n, const lbfgsfloatval_t step)
 {
 	lbfgsfloatval_t fx = 0;
