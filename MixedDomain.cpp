@@ -170,112 +170,112 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 	}
 
 	//Unlabel ÑµÁ·
-	lbfgsfloatval_t src_f = 0, tgt_f = 0;
-	srcRAE->delToZero();
-	
-	for(int i = 0; i < amountOfDomains; i++)
-	{
-		domains[i]->srcRM->delWeight.setZero();
-		domains[i]->srcRM->delWeight_b.setZero();
-	}
-	
+	//lbfgsfloatval_t src_f = 0, tgt_f = 0;
+	//srcRAE->delToZero();
+	//
+	//for(int i = 0; i < amountOfDomains; i++)
+	//{
+	//	domains[i]->srcRM->delWeight.setZero();
+	//	domains[i]->srcRM->delWeight_b.setZero();
+	//}
+	//
 
-	if(isTrain)
-	{
-		getUnlabelData(para->getPara("SourceUnlabelTrainingData"));
-	}
-	else if(isDev)
-	{
-		getUnlabelData(para->getPara("SourceUnlabelDevData"));
-	}
+	//if(isTrain)
+	//{
+	//	getUnlabelData(para->getPara("SourceUnlabelTrainingData"));
+	//}
+	//else if(isDev)
+	//{
+	//	getUnlabelData(para->getPara("SourceUnlabelDevData"));
+	//}
 
-	int UnlabelThreadNum = atoi(para->getPara("UnlabelThreadNum").c_str());
-	UnlabelThreadPara* threadpara = new UnlabelThreadPara[UnlabelThreadNum];
-	int batchsize = unlabelData.size() / UnlabelThreadNum;
+	//int UnlabelThreadNum = atoi(para->getPara("UnlabelThreadNum").c_str());
+	//UnlabelThreadPara* threadpara = new UnlabelThreadPara[UnlabelThreadNum];
+	//int batchsize = unlabelData.size() / UnlabelThreadNum;
 
-	if(batchsize == 0)
-	{
-		UnlabelThreadNum = 1;
-	}
+	//if(batchsize == 0)
+	//{
+	//	UnlabelThreadNum = 1;
+	//}
 
-	for(int i = 0; i < UnlabelThreadNum; i++)
-	{
-		threadpara[i].fx = 0;
-		for(int d = 0; d < amountOfDomains; d++)
-		{
-			threadpara[i].v_domains.push_back(domains[d]->copy());
-		}
+	//for(int i = 0; i < UnlabelThreadNum; i++)
+	//{
+	//	threadpara[i].fx = 0;
+	//	for(int d = 0; d < amountOfDomains; d++)
+	//	{
+	//		threadpara[i].v_domains.push_back(domains[d]->copy());
+	//	}
 
-		if(i == UnlabelThreadNum-1)
-		{
-			threadpara[i].unlabelData.assign(unlabelData.begin()+i*batchsize, unlabelData.end());
-			if(batchsize == 0)
-			{
-				threadpara[i].instance_num = unlabelData.size();
-			}
-			else
-			{
-				threadpara[i].instance_num = unlabelData.size()%batchsize;
-			}
-		}
-		else
-		{
-			threadpara[i].unlabelData.assign(unlabelData.begin()+i*batchsize, unlabelData.begin()+(i+1)*batchsize);
-			threadpara[i].instance_num = batchsize;
-		}
-	}
+	//	if(i == UnlabelThreadNum-1)
+	//	{
+	//		threadpara[i].unlabelData.assign(unlabelData.begin()+i*batchsize, unlabelData.end());
+	//		if(batchsize == 0)
+	//		{
+	//			threadpara[i].instance_num = unlabelData.size();
+	//		}
+	//		else
+	//		{
+	//			threadpara[i].instance_num = unlabelData.size()%batchsize;
+	//		}
+	//	}
+	//	else
+	//	{
+	//		threadpara[i].unlabelData.assign(unlabelData.begin()+i*batchsize, unlabelData.begin()+(i+1)*batchsize);
+	//		threadpara[i].instance_num = batchsize;
+	//	}
+	//}
 
-	pthread_t* pt = new pthread_t[UnlabelThreadNum];
-	for (int a = 0; a < UnlabelThreadNum; a++) pthread_create(&pt[a], NULL, srcUnlabelThread, (void *)(threadpara + a));
-	for (int a = 0; a < UnlabelThreadNum; a++) pthread_join(pt[a], NULL);
+	//pthread_t* pt = new pthread_t[UnlabelThreadNum];
+	//for (int a = 0; a < UnlabelThreadNum; a++) pthread_create(&pt[a], NULL, srcUnlabelThread, (void *)(threadpara + a));
+	//for (int a = 0; a < UnlabelThreadNum; a++) pthread_join(pt[a], NULL);
 
-	for(int i = 0; i < UnlabelThreadNum; i++)
-	{
-		src_f += threadpara[i].fx;
+	//for(int i = 0; i < UnlabelThreadNum; i++)
+	//{
+	//	src_f += threadpara[i].fx;
 
-		for(int d = 0; d < amountOfDomains; d++)
-		{
-			domains[d]->srcRM->delWeight += threadpara[i].v_domains[d]->srcRM->delWeight;
-			domains[d]->srcRM->delWeight_b += threadpara[i].v_domains[d]->srcRM->delWeight_b;
-			copyDelweights(domains[d]->srcRM->rae1, threadpara[i].v_domains[d]->srcRM->rae1);
-			copyDelweights(domains[d]->srcRM->rae2, threadpara[i].v_domains[d]->srcRM->rae2);
-		}
-	}
+	//	for(int d = 0; d < amountOfDomains; d++)
+	//	{
+	//		domains[d]->srcRM->delWeight += threadpara[i].v_domains[d]->srcRM->delWeight;
+	//		domains[d]->srcRM->delWeight_b += threadpara[i].v_domains[d]->srcRM->delWeight_b;
+	//		copyDelweights(domains[d]->srcRM->rae1, threadpara[i].v_domains[d]->srcRM->rae1);
+	//		copyDelweights(domains[d]->srcRM->rae2, threadpara[i].v_domains[d]->srcRM->rae2);
+	//	}
+	//}
 
-	src_f /= unlabelData.size();
+	//src_f /= unlabelData.size();
 
-	for(int i = 0; i < amountOfDomains; i++)
-	{
-		domains[i]->srcRM->delWeight /= unlabelData.size();
-		domains[i]->srcRM->delWeight_b /= unlabelData.size();
-		copyDelweights(srcRAE, domains[i]->srcRM->rae1);
-		copyDelweights(srcRAE, domains[i]->srcRM->rae2);
-	}
-	srcRAE->delWeight1 = srcRAE->delWeight1/unlabelData.size();
-	srcRAE->delWeight1_b = srcRAE->delWeight1_b/unlabelData.size();
+	//for(int i = 0; i < amountOfDomains; i++)
+	//{
+	//	domains[i]->srcRM->delWeight /= unlabelData.size();
+	//	domains[i]->srcRM->delWeight_b /= unlabelData.size();
+	//	copyDelweights(srcRAE, domains[i]->srcRM->rae1);
+	//	copyDelweights(srcRAE, domains[i]->srcRM->rae2);
+	//}
+	//srcRAE->delWeight1 = srcRAE->delWeight1/unlabelData.size();
+	//srcRAE->delWeight1_b = srcRAE->delWeight1_b/unlabelData.size();
 
-	for(int d = 0; d < amountOfDomains; d++)
-	{
-		int base = srcRAE->getRAEWeightSize() + d*domains[d]->getWeightsSize();
-		domains[d]->update(g+base, g);
-		srcRAE->delToZero();
-	}
+	//for(int d = 0; d < amountOfDomains; d++)
+	//{
+	//	int base = srcRAE->getRAEWeightSize() + d*domains[d]->getWeightsSize();
+	//	domains[d]->update(g+base, g);
+	//	srcRAE->delToZero();
+	//}
 
-	fx -= src_f;
+	//fx -= src_f;
 
-	delete pt;
-	pt = NULL;
+	//delete pt;
+	//pt = NULL;
 
-	for(int i  = 0; i < UnlabelThreadNum; i++)
-	{
-		for(int d = 0; d < amountOfDomains; d++)
-		{
-			delete threadpara[i].v_domains[d];
-		}
-	}
+	//for(int i  = 0; i < UnlabelThreadNum; i++)
+	//{
+	//	for(int d = 0; d < amountOfDomains; d++)
+	//	{
+	//		delete threadpara[i].v_domains[d];
+	//	}
+	//}
 
-	delete[] threadpara;
-	threadpara = NULL;
+	//delete[] threadpara;
+	//threadpara = NULL;
 
 	return fx;
 }
