@@ -705,6 +705,7 @@ lbfgsfloatval_t RAE::_training(lbfgsfloatval_t* g)
 	return error;
 }
 
+//不包含Erec的递归求导
 void RAE::recurDel(Node* n, MatrixLBFGS derivation)
 {
 	if(n->getNodeType() == BASED_NODE)
@@ -763,6 +764,7 @@ lbfgsfloatval_t RAE::_evaluate(const lbfgsfloatval_t* x, lbfgsfloatval_t* g, con
 		if(i == RAEThreadNum-1)
 		{
 			map<string, int>::iterator s;
+			s = trainingData.begin();
 			for(int d = 0; d < i*batchsize; d++)
 			{
 				s++;
