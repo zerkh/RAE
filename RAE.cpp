@@ -790,6 +790,7 @@ lbfgsfloatval_t RAE::_evaluate(const lbfgsfloatval_t* x, lbfgsfloatval_t* g, con
 			threadpara[i].instance_num = batchsize;
 		}
 	}
+
 	pthread_t* pt = new pthread_t[RAEThreadNum];
 	for (int a = 0; a < RAEThreadNum; a++) pthread_create(&pt[a], NULL, RAELBFGS::deepThread, (void *)(threadpara + a));
 	for (int a = 0; a < RAEThreadNum; a++) pthread_join(pt[a], NULL);
