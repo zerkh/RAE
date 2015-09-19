@@ -120,7 +120,7 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 
 	bool isDev = atoi(para->getPara("IsDev").c_str());
 	bool isTrain = atoi(para->getPara("IsTrain").c_str());
-
+/*
 	if(isUpdateRAE && isUpdateRM)
 	{
 		isUpdateRAE = true;
@@ -131,7 +131,7 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 		isUpdateRAE = !isUpdateRAE;
 		isUpdateRM = !isUpdateRM;
 	}
-
+*/
 	srcRAE->updateWeights(x);
 
 	for(int i = 0; i < amountOfDomains; i++)
