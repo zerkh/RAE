@@ -390,6 +390,8 @@ int MixedDomain::_progress(const lbfgsfloatval_t *x,
 {
 	cout << "Iteration: " << k << endl;
 	cout << "Loss Value: " << fx << endl;
+	printf("  xnorm = %f, gnorm = %f, step = %f\n", xnorm, gnorm, step);
+	printf("\n");
 
 	return 0;
 }

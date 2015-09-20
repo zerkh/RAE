@@ -415,76 +415,48 @@ lbfgsfloatval_t RAE::decay()
 //递归求导
 void RAE::trainRecError(Node* node, MatrixLBFGS delta_parent, int freq)
 {
-	if(node->nodeType == BASED_NODE)
-	{
-		return;
-	}
-
 	Node* tmpNode = this->RAETree->getRoot();
 
-	MatrixLBFGS c = concatMatrix(tmpNode->getLeftChildNode()->getVector(),tmpNode->getRightChildNode()->getVector());
-	MatrixLBFGS cRec = concatMatrix(tmpNode->leftReconst,tmpNode->rightReconst);
-
-	for(int row = 0; row < weights2.rows(); row++)
+	//更新w2, b2
+	while(tmpNode->getNodeType() != BASED_NODE)
 	{
-		lbfgsfloatval_t result = 2 * (cRec(0, row)-c(0, row)) * (1-pow(cRec(0, row), 2));
-		for(int col = 0; col < weights2.cols(); col++)
+		MatrixLBFGS c = concatMatrix(tmpNode->getLeftChildNode()->getVector(),tmpNode->getRightChildNode()->getVector());
+		MatrixLBFGS cRec = concatMatrix(tmpNode->leftReconst,tmpNode->rightReconst);
+
+		for(int row = 0; row < weights2.rows(); row++)
 		{
-			delWeight2(row, col) = delWeight2(row,col) + ALPHA * result * tmpNode->getVector()(0, col) * freq;
+			lbfgsfloatval_t result = (cRec(0, row)-c(0, row)) * (1-pow(cRec(0, row), 2));
+			for(int col = 0; col < weights2.cols(); col++)
+			{
+				delWeight2(row, col) = delWeight2(row,col) + freq * ALPHA * result * tmpNode->getVector()(0, col);
+			}
+			delWeight2_b(0, row) = freq * ALPHA * result + delWeight2_b(0, row);
 		}
-		delWeight2_b(0, row) = ALPHA * result * freq + delWeight2_b(0, row);
+
+		tmpNode = tmpNode->getLeftChildNode();
 	}
 
-
+	//仅对每一对重构中的权重求导
 	tmpNode = this->RAETree->getRoot();
 
-	c = concatMatrix(tmpNode->getLeftChildNode()->getVector(),tmpNode->getRightChildNode()->getVector());
-	cRec = concatMatrix(tmpNode->leftReconst,tmpNode->rightReconst);
-	MatrixLBFGS tmpDelWb = MatrixLBFGS(1, 2*vecSize);
-
-	for(int row = 0; row < weights2.rows(); row++)
+	while(tmpNode->getNodeType() != BASED_NODE)
 	{
-		lbfgsfloatval_t result = (cRec(0, row)-c(0, row)) * (1-pow(cRec(0, row), 2));
-		tmpDelWb(0, row) = ALPHA * result;
-	}
+		MatrixLBFGS c = concatMatrix(tmpNode->getLeftChildNode()->getVector(),tmpNode->getRightChildNode()->getVector());
+		MatrixLBFGS cRec = concatMatrix(tmpNode->leftReconst,tmpNode->rightReconst);
+		MatrixLBFGS tmpDelWb = MatrixLBFGS(1, 2*vecSize);
 
-	tmpDelWb = tmpDelWb*weights2;
-
-	tmpDelWb += delta_parent;
-
-	MatrixLBFGS con = concatMatrix(node->getLeftChildNode()->getVector(), node->getRightChildNode()->getVector());
-
-	for(int col = 0; col < tmpDelWb.cols(); col++)
-	{
-		tmpDelWb(0, col) *= (1-pow(node->getVector()(0, col), 2));
-	}
-
-	for(int row = 0; row < delWeight1.rows(); row++)
-	{
-		for(int col = 0; col < delWeight1.cols(); col++)
+		for(int row = 0; row < weights2.rows(); row++)
 		{
-			delWeight1(row, col) += tmpDelWb(0, row)*con(0, col);
+			lbfgsfloatval_t result = (cRec(0, row)-c(0, row)) * (1-pow(cRec(0, row), 2));
+			tmpDelWb(0, row) = ALPHA * result;
 		}
-	}
 
-	MatrixLBFGS der = MatrixLBFGS(1 ,vecSize);
-	MatrixLBFGS tmp = tmpDelWb * weights1;
-	if(node->leftChild->getNodeType() != BASED_NODE)
-	{
-		for(int col = 0; col < vecSize; col++)
-		{
-			der(0, col) = tmp(0, col);
-		}
-	}
-	else
-	{
-		for(int col = 0; col < vecSize; col++)
-		{
-			der(0, col) = tmp(0, col+vecSize);
-		}
-	}
+		tmpDelWb = tmpDelWb*weights2;
 
-	trainRecError(node->getLeftChildNode(), der, freq);
+		recurDel(tmpNode, tmpDelWb, freq);
+
+		tmpNode = tmpNode->getLeftChildNode();
+	}
 }
 
 //读取训练数据
@@ -710,7 +682,7 @@ lbfgsfloatval_t RAE::_training(lbfgsfloatval_t* g)
 }
 
 //不包含Erec的递归求导
-void RAE::recurDel(Node* n, MatrixLBFGS derivation)
+void RAE::recurDel(Node* n, MatrixLBFGS derivation, int freq)
 {
 	if(n->getNodeType() == BASED_NODE)
 	{
@@ -728,8 +700,10 @@ void RAE::recurDel(Node* n, MatrixLBFGS derivation)
 	{
 		for(int col = 0; col < delWeight1.cols(); col++)
 		{
-			delWeight1(row, col) += derivation(0, row)*con(0, col);
+			delWeight1(row, col) += freq * derivation(0, row)*con(0, col);
 		}
+
+		delWeight1_b(0, row) += freq * derivation(0, row);
 	}
 
 	MatrixLBFGS der = MatrixLBFGS(1 ,vecSize);
@@ -842,6 +816,8 @@ int RAE::_progress(const lbfgsfloatval_t *x, const lbfgsfloatval_t *g, const lbf
 
 	cout << "Iteration of RAE: " << k << endl;
 	cout << "Loss Value: " << fx << endl;
+	printf("  xnorm = %f, gnorm = %f, step = %f\n", xnorm, gnorm, step);
+	printf("\n");
 
 	//out.close();
 

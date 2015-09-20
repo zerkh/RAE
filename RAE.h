@@ -43,7 +43,7 @@ public:
 	int getRAEWeightSize();
 	void delToZero();
 	RAE* copy();
-	void recurDel(Node* n, MatrixLBFGS derivation);
+	void recurDel(Node* n, MatrixLBFGS derivation, int freq = 1);
 	RAE(int size);
 	~RAE();
 	void updateWeights(const lbfgsfloatval_t* x);
