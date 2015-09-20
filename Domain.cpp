@@ -110,7 +110,7 @@ void Domain::loadTrainingData()
 
 		trainingData.push_back(make_pair(order, m_tmp));
 	}
-
+/*
 	vector<pair<int, map<string, string> > > tmp = trainingData;
 	trainingData.clear();
 
@@ -120,7 +120,7 @@ void Domain::loadTrainingData()
 	{
 		trainingData.push_back(tmp[rand()%tmp.size()]);
 	}
-
+*/
 	in.close();
 }
 
