@@ -147,11 +147,11 @@ void ReorderModel::getData(string bp1, string bp2)
 void ReorderModel::trainRM(MatrixLBFGS y, int Type)
 {
 	lbfgsfloatval_t p;
-	if(EDIS)
+	if(Type == EDIS)
 	{
 		p = GAMMA;
 	}
-	else if(EREO)
+	else if(Type == EREO)
 	{
 		p = BETA;
 	}
@@ -159,7 +159,7 @@ void ReorderModel::trainRM(MatrixLBFGS y, int Type)
 	MatrixLBFGS theta = MatrixLBFGS(delWeight_b.rows(), delWeight_b.cols());
 
 	//对W和Wb求导
-	if(EDIS)
+	if(Type == EDIS)
 	{
 		for(int row = 0; row < weights.rows(); row++)
 		{
@@ -179,7 +179,7 @@ void ReorderModel::trainRM(MatrixLBFGS y, int Type)
 		}
 
 	}
-	else if(EREO)
+	else if(Type == EREO)
 	{
 		for(int row = 0; row < weights.rows(); row++)
 		{

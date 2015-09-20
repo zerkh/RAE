@@ -671,6 +671,9 @@ void RAE::training()
 
 	ret = lbfgs(getRAEWeightSize(), x, &fx, RAELBFGS::evaluate, RAELBFGS::progress, this, &param);
 
+	cout << "L-BFGS optimization terminated with status code = " << ret << endl;
+	cout << " fx = " << fx << endl;
+
 	logWeights(para);
 	trainingData.clear();
 	lbfgs_free(x);
