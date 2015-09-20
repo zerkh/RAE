@@ -16,7 +16,6 @@ public:
 	int amountOfDomains;
 	vector<Domain*> domains;
 	RAE* srcRAE;
-	//RAE* tgtRAE;
 	lbfgsfloatval_t* x;
 	Parameter* para;
 	worker_arg_t *wargs;
@@ -54,6 +53,10 @@ public:
 	void testing();
 
 	void mixedTesting();
+
+	void initX(const lbfgsfloatval_t* x);
+
+	int vecSize;
 
 	vector<pair<int, map<string, string> > > getTestData();
 };

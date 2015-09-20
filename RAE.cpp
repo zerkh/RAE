@@ -674,6 +674,7 @@ void RAE::training()
 	cout << "L-BFGS optimization terminated with status code = " << ret << endl;
 	cout << " fx = " << fx << endl;
 
+	updateWeights(x);
 	logWeights(para);
 	trainingData.clear();
 	lbfgs_free(x);

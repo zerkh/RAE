@@ -48,6 +48,7 @@ MixedDomain::MixedDomain(Parameter* para, vector<Domain*>& domains, RAE* srcRAE)
 	this->srcRAE = srcRAE;
 	this->para = para;
 	this->amountOfDomains = domains.size();
+	vecSize = atoi(para->getPara("WordVecSize").c_str());
 
 	int thread_num = atoi( para->getPara("THREAD_NUM").c_str() );
 	vector<string> v_domains;
@@ -78,6 +79,33 @@ MixedDomain::MixedDomain(Parameter* para, vector<Domain*>& domains, RAE* srcRAE)
 	}
 }
 
+void MixedDomain::initX(const lbfgsfloatval_t* x)
+{
+	lbfgsfloatval_t* cX = const_cast<lbfgsfloatval_t*>(x);
+
+	int offset = 0;
+	//RAE W1
+	Map<MatrixLBFGS> x_srcRAEWeights1(cX, srcRAE->weights1.rows(), srcRAE->weights1.cols());
+	x_srcRAEWeights1 = srcRAE->weights1;
+
+	//RAE b1
+	Map<MatrixLBFGS> x_srcRAEWeights_b1(cX + srcRAE->weights1.rows()*srcRAE->weights1.cols(), srcRAE->weights_b1.rows(), srcRAE->weights_b1.cols());
+	x_srcRAEWeights_b1 = srcRAE->weights_b1;
+
+	//RAE W2
+	Map<MatrixLBFGS> x_srcRAEWeights2(cX + srcRAE->weights1.rows()*srcRAE->weights1.cols()+
+		srcRAE->weights_b1.rows()*srcRAE->weights_b1.cols(),
+		srcRAE->weights2.rows(), srcRAE->weights2.cols());
+	x_srcRAEWeights2 = srcRAE->weights2;
+
+	//RAE b2
+	Map<MatrixLBFGS> x_srcRAEWeights_b2(cX + srcRAE->weights1.rows()*srcRAE->weights1.cols()+
+		srcRAE->weights_b1.rows()*srcRAE->weights_b1.cols()+
+		srcRAE->weights2.rows()*srcRAE->weights2.cols(),
+		srcRAE->weights_b2.rows(), srcRAE->weights_b2.cols());
+	x_srcRAEWeights_b2 = srcRAE->weights_b2;
+}
+
 void MixedDomain::training()
 {
 	double start, end;
@@ -91,6 +119,7 @@ void MixedDomain::training()
 
 	x = lbfgs_malloc((vecSize*2*2 + 2)*domains.size() + srcRAE->getRAEWeightSize());
 	Map<MatrixLBFGS>(x, (vecSize*2*2 + 2)*domains.size() + srcRAE->getRAEWeightSize(), 1).setRandom();
+
 
 	lbfgsfloatval_t fx = 0;
 	int ret = 0;
