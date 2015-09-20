@@ -532,6 +532,7 @@ void train(worker_arg_t* arg)
 	}
 	
 	fx += rae_fx/internal_node_num;
+	//fx += d->srcRAE->decay();
 
 	for(int elem = 0; elem < d->getWeightsSize(); elem++)
 	{

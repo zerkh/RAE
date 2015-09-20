@@ -167,10 +167,9 @@ pair<lbfgsfloatval_t, lbfgsfloatval_t> Domain::training(lbfgsfloatval_t* g_RM, l
 
 		copyDelweights(srcRAE, srcRM->rae1);
 		copyDelweights(srcRAE, srcRM->rae2);
-
-		update(g_RM, g_RAE);
 	}
 
+	update(g_RM, g_RAE);
 	return make_pair(error, rae_error);
 }
 

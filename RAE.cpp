@@ -69,7 +69,7 @@ lbfgsfloatval_t RAE::loss()
 		tmpNode = tmpNode->getLeftChildNode();
 	}
 
-	return val + ZETA*decay();
+	return val;
 }
 
 //显示参数
@@ -669,14 +669,11 @@ lbfgsfloatval_t RAE::_training(lbfgsfloatval_t* g)
 		//对rae求导
 		trainRecError(RAETree->root, delta_parent, it->second);
 
-		delWeight1 += ZETA*weights1;
-		delWeight2 += ZETA*weights2;
-
-		update(g);
-
 		delete RAETree;
 		RAETree = NULL;
 	}
+
+	update(g);
 
 	return error;
 }
@@ -791,10 +788,17 @@ lbfgsfloatval_t RAE::_evaluate(const lbfgsfloatval_t* x, lbfgsfloatval_t* g, con
 	}
 
 	fx /= internal_node_num;
+
+	fx += ZETA * decay();
 	for(int elem = 0; elem < getRAEWeightSize(); elem++)
 	{
 		g[elem] /= internal_node_num;
 	}
+
+	delWeight1 += ZETA * weights1;
+	delWeight2 += ZETA * weights2;
+
+	update(g);
 
 	delete pt;
 	pt = NULL;
