@@ -7,7 +7,7 @@
 class ThreadPara
 {
 public:
-	pair<lbfgsfloatval_t, lbfgsfloatval_t> lossVal;
+	lbfgsfloatval_t lossVal;
 	int instance_num;
 	lbfgsfloatval_t* g_RAE;
 	lbfgsfloatval_t* g_RM;

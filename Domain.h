@@ -19,10 +19,9 @@ public:
 	Parameter* para;
 
 public:
-	//Domain(Parameter* para, string domainName, RAE* srcRAE, RAE* tgtRAE);
 	Domain(Parameter* para, string domainName, RAE* srcRAE);
 	void loadTrainingData();
-	pair<lbfgsfloatval_t, lbfgsfloatval_t> training(lbfgsfloatval_t* g_RM, lbfgsfloatval_t* g_RAE);
+	lbfgsfloatval_t training(lbfgsfloatval_t* g_RM, lbfgsfloatval_t* g_RAE);
 	void update(lbfgsfloatval_t* g_RM, lbfgsfloatval_t* g_RAE);
 	int getWeightsSize();
 	lbfgsfloatval_t loss(int ind);

@@ -5,7 +5,7 @@ static void* RAELBFGS::deepThread(void* arg)
 {
 	RAEThreadPara* threadpara = (RAEThreadPara*)arg;
 
-	threadpara->lossVal.first = threadpara->cRAE->_training(threadpara->g);
+	threadpara->lossVal = threadpara->cRAE->_training(threadpara->g);
 
 	pthread_exit(NULL);
 }
@@ -736,6 +736,11 @@ lbfgsfloatval_t RAE::_evaluate(const lbfgsfloatval_t* x, lbfgsfloatval_t* g, con
 	{
 		threadpara[i].cRAE = this->copy();
 		threadpara[i].g = lbfgs_malloc(getRAEWeightSize());
+		for(int j = 0; j < getRAEWeightSize(); j++)
+		{
+			threadpara[i].g[j] = 0;
+		}
+
 		if(i == RAEThreadNum-1)
 		{
 			map<string, int>::iterator s;
@@ -774,29 +779,32 @@ lbfgsfloatval_t RAE::_evaluate(const lbfgsfloatval_t* x, lbfgsfloatval_t* g, con
 
 	for(int i = 0; i < RAEThreadNum; i++)
 	{
-		fx += threadpara[i].lossVal.first;
+		fx += threadpara[i].lossVal;
 		for(int elem = 0; elem < getRAEWeightSize(); elem++)
 		{
 			g[elem] += threadpara[i].g[elem];
 		}
 	}
 
+/*
 	int internal_node_num = 0;
 	for(map<string, int>::iterator it = trainingData.begin(); it != trainingData.end(); it++)
 	{
 		internal_node_num += getInternalNode(it->first);
-	}
+	}*/
 
-	fx /= internal_node_num;
+	fx /= trainingData.size();
 
 	fx += ZETA * decay();
 	for(int elem = 0; elem < getRAEWeightSize(); elem++)
 	{
-		g[elem] /= internal_node_num;
+		g[elem] /= trainingData.size();
 	}
 
 	delWeight1 += ZETA * weights1;
+	delWeight1_b.setZero();
 	delWeight2 += ZETA * weights2;
+	delWeight2_b.setZero();
 
 	update(g);
 

@@ -149,7 +149,7 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 
 	bool isDev = atoi(para->getPara("IsDev").c_str());
 	bool isTrain = atoi(para->getPara("IsTrain").c_str());
-/*
+
 	if(isUpdateRAE && isUpdateRM)
 	{
 		isUpdateRAE = true;
@@ -160,7 +160,7 @@ lbfgsfloatval_t MixedDomain::_evaluate(const lbfgsfloatval_t* x,
 		isUpdateRAE = !isUpdateRAE;
 		isUpdateRM = !isUpdateRM;
 	}
-*/
+
 	srcRAE->updateWeights(x);
 
 	for(int i = 0; i < amountOfDomains; i++)
@@ -518,20 +518,19 @@ void train(worker_arg_t* arg)
 	lbfgsfloatval_t rae_fx = 0;
 	for(int i = 0; i < RMThreadNum; i++)
 	{
-		fx += threadpara[i].lossVal.first;
-		rae_fx += threadpara[i].lossVal.second;
+		fx += threadpara[i].lossVal;
 	}
 
 	fx /= d->trainingData.size();
 
+/*
 	int internal_node_num = 0;
 	for(int i = 0; i < d->trainingData.size(); i++)
 	{
 		internal_node_num += getInternalNode(d->trainingData[i].second["ct1"]);
 		internal_node_num += getInternalNode(d->trainingData[i].second["ct2"]);
-	}
+	}*/
 	
-	fx += rae_fx/internal_node_num;
 	//fx += d->srcRAE->decay();
 
 	for(int elem = 0; elem < d->getWeightsSize(); elem++)
@@ -542,7 +541,7 @@ void train(worker_arg_t* arg)
 
 	for(int elem = 0; elem < d->srcRAE->getRAEWeightSize(); elem++)
 	{
-		arg->g_RAE[elem] /= internal_node_num;
+		arg->g_RAE[elem] /= d->trainingData.size();
 	}
 
 	delete pt;
